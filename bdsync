@@ -1,0 +1,72 @@
+#!/bin/sh
+### BEGIN INIT INFO
+#
+# Provides:      ddns
+# Required-Start:       $local_fs  $remote_fs
+# Required-Stop:        $local_fs  $remote_fs
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Short-Description:    initscript
+# Description:  This file should be used to construct scripts to be placed in /etc/init.d.
+#
+### END INIT INFO
+
+## Fill in name of program here.
+PROG="bdsync"
+PROG_PATH="/data/app/$PROG" #::# Not need, but sometimes helpful (if $PROG resides in /opt for example).
+VM_RUN="/data/app/jdk1.8.0_60/bin/java"
+VM_ARGS="-Dbdsync.db=/var/lib/$PROG/$PROG.db -Dbdsync.log.file=/var/log/$PROG.log -Dbdsync.cookie=$PROG_PATH/resource/cookie.json"
+VM_JAR="$PROG_PATH/lib/bdsync.jar"
+PROG_ARGS="sync /hdd -l git bak tmp thum s 影视 -c 160 apps soft  编程相关 pdf"
+MSG_PREFIX=" *"
+
+start() {
+    PROG_STATUS=0
+    su -c "$VM_RUN $VM_ARGS -jar $VM_JAR $PROG_ARGS 2>&1 >/dev/null &" linaro
+    PROG_STATUS=$?
+
+    if [ $PROG_STATUS -eq 1 ]; then
+        ## Program is running, exit with error.
+        echo "$MSG_PREFIX $PROG is currently running..."
+    else
+        echo "$MSG_PREFIX $PROG started"
+    fi
+}
+
+stop() {
+
+    $VM_RUN $VM_ARGS -jar $VM_JAR stop 2>&1 >/dev/null
+
+    PROG_STATUS=$?
+
+    if [  $PROG_STATUS -eq 0 ]; then
+        ## Program is running, so stop it
+        echo "$MSG_PREFIX $PROG stopped"
+    else
+        ## Program is not running, exit with error.
+        echo "$MSG_PREFIX $PROG not started!"
+    fi
+}
+
+## Check to see if we are running as root first.
+
+
+case "$1" in
+    start)
+        start
+        exit 0
+    ;;
+    stop)
+        stop
+        exit 0
+    ;;
+    reload|restart|force-reload)
+        stop
+        start
+        exit 0
+    ;;
+    **)
+        echo "Usage: $0 {start|stop|reload}" 1>&2
+        exit 1
+    ;;
+esac

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="bdsync" basedir="." default="all">
+
+	<property name="src.dir" location="src" />
+	<property name="libs.dir" location="libs" />
+	<property name="resource.dir" location="resource" />
+	<property name="build.dir" location="build" />
+	<property name="dist.jar" value="bdsync.jar" />
+	<property name="dist.dir" location="${build.dir}/dist" />
+	<property name="dest.dir" location="${build.dir}/classes" />
+	<property name="dist.release.dir" location="${build.dir}/release" />
+	<property name="dist.release.bin.dir" location="${dist.release.dir}/bin" />
+	<property name="dist.release.lib.dir" location="${dist.release.dir}/lib" />
+	<property name="dist.release.resource.dir" location="${dist.release.dir}/resource" />
+	<property name="dist.zip.name" value="bdsync" />
+
+
+	<!--编译相关参数 -->
+	<property name="java.encoding" value="UTF-8" />
+	<property name="verbose" value="false" />
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+	<target name="-pre-compiler">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dest.dir}" />
+	</target>
+
+	<target name="compiler" depends="-pre-compiler">
+		<mkdir dir="${dest.dir}" />
+		<echo level="info">compiler start</echo>
+		<javac srcdir="${src.dir}" destdir="${dest.dir}" encoding="${java.encoding}" includeantruntime="false" verbose="${verbose}" debug="false">
+			<classpath>
+				<fileset dir="${libs.dir}">
+					<include name="json-1.6.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		<echo level="info">compiler finish</echo>
+	</target>
+
+
+
+	<target name="package" depends="compiler">
+		<echo level="info">package jar start</echo>
+		<jar destfile="${dist.dir}/${dist.jar}" basedir="${dest.dir}">
+			<fileset dir="${dest.dir}" />
+			<zipfileset src="${libs.dir}/json-1.6.jar" />
+			<zipfileset src="${libs.dir}/sqlite-jdbc-3.8.10.1.jar" />
+			<manifest>
+				<attribute name="Main-class" value="com.yuncore.bdsync.BDSyncMain" />
+			</manifest>
+		</jar>
+		<echo level="info">package jar finish</echo>
+	</target>
+
+	<target name="release" depends="package">
+		<echo level="info">release start</echo>
+		<mkdir dir="${dist.release.dir}" />
+		<mkdir dir="${dist.release.bin.dir}" />
+		<mkdir dir="${dist.release.lib.dir}" />
+		<copy todir="${dist.release.lib.dir}" file="${dist.dir}/${dist.jar}" />
+		<copy todir="${dist.release.bin.dir}" file="bdsync" />
+		<copy todir="${dist.release.resource.dir}" file="${resource.dir}/cookie.json" />
+		<copy todir="${dist.release.dir}" file="install" />
+		
+		<tstamp>
+			<format property="ymd" pattern="yyyyMMddHHmm"/>
+		</tstamp>
+		<zip destfile="${build.dir}/${dist.zip.name}-${ymd}.zip" basedir="${dist.release.dir}">
+		</zip>
+		<echo level="info">release finish</echo>
+	</target>
+
+	<target name="all" depends="clean,release">
+	</target>
+
+</project>

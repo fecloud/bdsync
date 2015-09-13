@@ -5,15 +5,15 @@ import java.io.FileOutputStream;
 
 import com.yuncore.bdsync.Argsment;
 import com.yuncore.bdsync.StatusMent;
+import com.yuncore.bdsync.api.DownloadInputStream;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.DownloadDao;
 import com.yuncore.bdsync.entity.LocalFile;
-import com.yuncore.bdsync.util.DownloadInputStream;
 import com.yuncore.bdsync.util.FileMV;
 import com.yuncore.bdsync.util.Log;
 
-public class CloudDownLoad extends Thread {
+public class CloudDownLoad {
 
 	static final String TAG = "CloudDownLoad";
 
@@ -37,47 +37,30 @@ public class CloudDownLoad extends Thread {
 		}
 	}
 
-	@Override
-	public void run() {
-		setName(CloudDownLoad.class.getSimpleName());
-		Log.i(TAG, String.format("CloudDownLoad root:%s tmpDir:%s", root, tmpDir));
+	public boolean start() {
+		Log.i(TAG,
+				String.format("CloudDownLoad root:%s tmpDir:%s", root, tmpDir));
 		LocalFile cloudFile = null;
 		boolean downloaded = true;
-		while (true) {
+		while (Argsment.getBDSyncAllow()) {
 
-			if (Argsment.getBDSyncAllow()) {
-
-				cloudFile = getDownLoad();
-				if (cloudFile != null) {
-					Log.i(TAG, "getDownLoad " + cloudFile.getAbsolutePath());
-					StatusMent.setProperty(StatusMent.key_downloading, cloudFile);
-					StatusMent.setProperty(StatusMent.key_download_size, 0);
-					// 检查是否是排除下载的目录
-					downloaded = downloadFile(cloudFile);
-					// 删除下载任务
-					if (downloaded) {
-						StatusMent.setProperty(StatusMent.key_downloading, "");
-						delDownLoad(cloudFile);
-					}
-				} else {
-					Log.w(TAG, "not found download task sleep");
-					try {
-						Thread.sleep(30000);
-						StatusMent.setProperty(StatusMent.key_downloading, false);
-					} catch (InterruptedException e) {
-						break;
-					}
-				}
-			} else {
-				Log.w(TAG, "not allow download");
-				while (!Argsment.getBDSyncAllow()) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-					}
+			cloudFile = getDownLoad();
+			if (cloudFile != null) {
+				Log.i(TAG, "getDownLoad " + cloudFile.getAbsolutePath());
+				StatusMent.setProperty(StatusMent.DOWNLOADING, cloudFile);
+				StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, 0);
+				// 检查是否是排除下载的目录
+				downloaded = downloadFile(cloudFile);
+				// 删除下载任务
+				if (downloaded) {
+					StatusMent.setProperty(StatusMent.DOWNLOADING, "");
+					delDownLoad(cloudFile);
 				}
 			}
+
+			StatusMent.setProperty(StatusMent.DOWNLOADING, false);
 		}
+		return true;
 	}
 
 	private LocalFile getDownLoad() {
@@ -101,7 +84,8 @@ public class CloudDownLoad extends Thread {
 		final File targetFile = new File(file);
 		if (targetFile.exists()) {
 			if (targetFile.isFile()) {
-				if (cloudFile.isFile() && cloudFile.getLength() == targetFile.length()) {
+				if (cloudFile.isFile()
+						&& cloudFile.getLength() == targetFile.length()) {
 					Log.i(TAG, "file local exists");
 					return true;
 				} else {
@@ -165,7 +149,7 @@ public class CloudDownLoad extends Thread {
 				}
 			}
 
-			StatusMent.setProperty(StatusMent.key_download_size, fileStart);
+			StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, fileStart);
 			DownloadInputStream in = null;
 			FileOutputStream out = null;
 			if (fileStart > 0) {
@@ -194,7 +178,7 @@ public class CloudDownLoad extends Thread {
 				int len = -1;
 
 				while (-1 != (len = in.read(buffer))) {
-					StatusMent.setProperty(StatusMent.key_download_size, sum);
+					StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, sum);
 					out.write(buffer, 0, len);
 					sum += len;
 					if (sum == cloudFile.getLength()) {

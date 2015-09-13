@@ -35,7 +35,7 @@ public final class Environment {
 
 	public static final String SYNCDIR = "bdsync.syncdir";
 
-	public static final String SYNCTMPDIR = "bdsync.synctmpcdir";
+	public static final String SYNCTMPDIR = ".bdsync";
 
 	public static final String TMP = "bdsync.tmpdir";
 

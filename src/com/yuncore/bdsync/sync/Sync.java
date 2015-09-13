@@ -13,6 +13,8 @@ import com.yuncore.bdsync.dao.SyncProcessDao;
 import com.yuncore.bdsync.entity.SyncProcess;
 import com.yuncore.bdsync.http.cookie.FileCookieContainer;
 import com.yuncore.bdsync.sync.task.CloudCompareTask;
+import com.yuncore.bdsync.sync.task.CloudDeleteActionLocalTask;
+import com.yuncore.bdsync.sync.task.CloudDownloadTask;
 import com.yuncore.bdsync.sync.task.ListCloudFilesTask;
 import com.yuncore.bdsync.sync.task.SyncStepTask;
 import com.yuncore.bdsync.util.Log;
@@ -107,6 +109,8 @@ public class Sync implements Runnable {
 		steps = new ArrayList<SyncStepTask>();
 		steps.add(new ListCloudFilesTask(args));
 		steps.add(new CloudCompareTask());
+		steps.add(new CloudDeleteActionLocalTask(args));
+		steps.add(new CloudDownloadTask(args));
 		// steps.add(new ListLocalFilesTask(args));
 		// steps.add(new LocalCompareTask());
 	}

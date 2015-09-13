@@ -9,7 +9,6 @@ import com.yuncore.bdsync.entity.CloudRmResult;
 import com.yuncore.bdsync.entity.MkDirResult;
 import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.http.HttpFormOutput.OutputDataListener;
-import com.yuncore.bdsync.util.DownloadInputStream;
 
 public interface FSApi {
 

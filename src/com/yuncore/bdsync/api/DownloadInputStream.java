@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yuncore.bdsync.util;
+package com.yuncore.bdsync.api;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,9 @@ public class DownloadInputStream {
 	private long length;
 
 	private boolean range;
-	
+
+	private String contentMd5;
+
 	public DownloadInputStream(InputStream in) {
 		super();
 		this.in = in;
@@ -51,8 +53,8 @@ public class DownloadInputStream {
 		}
 		return in.read(b, off, len);
 	}
-	
-	 public boolean isRange() {
+
+	public boolean isRange() {
 		return range;
 	}
 
@@ -60,9 +62,24 @@ public class DownloadInputStream {
 		this.range = range;
 	}
 
+	/**
+	 * @return the contentMd5
+	 */
+	public String getContentMd5() {
+		return contentMd5;
+	}
+
+	/**
+	 * @param contentMd5
+	 *            the contentMd5 to set
+	 */
+	public void setContentMd5(String contentMd5) {
+		this.contentMd5 = contentMd5;
+	}
+
 	public void close() throws IOException {
-		if(null != in)
+		if (null != in)
 			in.close();
-	 }
+	}
 
 }

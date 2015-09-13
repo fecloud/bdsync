@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.api.BDSYNCURL;
+import com.yuncore.bdsync.api.DownloadInputStream;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.app.Context;
 import com.yuncore.bdsync.entity.LocalFile;
@@ -31,7 +32,6 @@ import com.yuncore.bdsync.http.HttpFormOutput.OutputDataListener;
 import com.yuncore.bdsync.http.HttpInput;
 import com.yuncore.bdsync.http.cookie.HttpCookieContainer;
 import com.yuncore.bdsync.util.DateUtil;
-import com.yuncore.bdsync.util.DownloadInputStream;
 import com.yuncore.bdsync.util.Log;
 import com.yuncore.bdsync.util.MD5;
 
@@ -232,6 +232,13 @@ public class FSApiImple implements FSApi {
 							.containsKey("Accept-Ranges")) {
 						in.setRange(true);
 					}
+					
+					if(http.getConnet().getHeaderFields().containsKey("Content-MD5")){
+						in.setContentMd5(http.getConnet().getHeaderFields().get("Content-MD5").toString());
+					}else if(http.getConnet().getHeaderFields().containsKey("content-md5")){
+						in.setContentMd5(http.getConnet().getHeaderFields().get("content-md5").toString());
+					}
+					
 					return in;
 				} else {
 					final int code = http.getResponseCode();
@@ -268,6 +275,13 @@ public class FSApiImple implements FSApi {
 							.containsKey("Accept-Ranges")) {
 						in.setRange(true);
 					}
+					
+					if(http.getConnet().getHeaderFields().containsKey("Content-MD5")){
+						in.setContentMd5(http.getConnet().getHeaderFields().get("Content-MD5").toString());
+					}else if(http.getConnet().getHeaderFields().containsKey("content-md5")){
+						in.setContentMd5(http.getConnet().getHeaderFields().get("content-md5").toString());
+					}
+					
 					return in;
 				} else {
 					final int code = http.getResponseCode();

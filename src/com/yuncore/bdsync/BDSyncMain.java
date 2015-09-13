@@ -59,6 +59,11 @@ public class BDSyncMain implements BDSyncServiceListener {
 		System.err.println("");
 		System.err.println("stop");
 		System.err.println("");
+		System.err.println("VM args:-Dname=value");
+		System.err.println("\tbdsync.db db file location");
+		System.err.println("\tbdsync.log.file log file location");
+		System.err.println("\tbdsync.cookie cookie file location");
+		System.err.println("");
 	}
 
 }

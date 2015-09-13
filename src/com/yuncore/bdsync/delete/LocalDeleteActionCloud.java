@@ -8,22 +8,26 @@ package com.yuncore.bdsync.delete;
 import java.io.File;
 import java.util.List;
 
+import com.yuncore.bdsync.api.FSApi;
+import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.LocalFileDeleteDao;
+import com.yuncore.bdsync.entity.CloudRmResult;
 import com.yuncore.bdsync.entity.LocalFile;
+import com.yuncore.bdsync.exception.ApiException;
 
 /**
  * The class <code>LocalDeleteActionCloud</code>
  * <p>
- * 本地删删除了,执行删除云端文件
+ * 本地删除了,执行删除云端文件
  * 
  * @author Feng OuYang
  * @version 1.0
  */
 public class LocalDeleteActionCloud {
 
-	private String root;
+	protected String root;
 
-	private LocalFileDeleteDao fileDeleteDao;
+	private FSApi fsApi;
 
 	/**
 	 * @param root
@@ -31,6 +35,7 @@ public class LocalDeleteActionCloud {
 	public LocalDeleteActionCloud(String root) {
 		super();
 		this.root = root;
+		this.fsApi = new FSApiImple();
 	}
 
 	/**
@@ -49,7 +54,6 @@ public class LocalDeleteActionCloud {
 	}
 
 	public synchronized boolean deletes() {
-		fileDeleteDao = new LocalFileDeleteDao();
 		List<LocalFile> list = null;
 		int length = 0;
 
@@ -58,11 +62,16 @@ public class LocalDeleteActionCloud {
 			length = list.size();
 			for (int i = 0; i < length; i++) {
 				deleteFile = list.get(i);
-				if (checkAndDelete(deleteFile)) {
-					if (!deleteRecord(deleteFile)) {
+				try {
+					if (checkAndDelete(deleteFile)) {
+						if (!deleteRecord(deleteFile)) {
+							i--;
+						}
+					} else {
 						i--;
 					}
-				} else {
+				} catch (Exception e) {
+					// 去云端查看文件存在时可能会出错
 					i--;
 				}
 			}
@@ -76,14 +85,21 @@ public class LocalDeleteActionCloud {
 	 * 
 	 * @param file
 	 * @return
+	 * @throws Exception
 	 */
-	private boolean checkAndDelete(LocalFile file) {
+	private boolean checkAndDelete(LocalFile file) throws Exception {
 		if (fileExists(file)) {
-			if (fileSizeSame(file)) {
-				return true;
-			} else { // 文件大小不一样
-				if (fileMtime(file)) {
+			if (file.isDir()) {
+				// 如果是文件夹
+				return deleteFile(file);
+			} else {
+				// 如果是文件
+				if (fileSizeSame(file)) {
 					return true;
+				} else { // 文件大小不一样
+					if (fileMtime(file)) {
+						return true;
+					}
 				}
 			}
 		} else {
@@ -128,9 +144,26 @@ public class LocalDeleteActionCloud {
 	 * 
 	 * @param file
 	 * @return
+	 * @throws ApiException
 	 */
-	protected boolean fileExists(LocalFile file) {
+	protected boolean fileExists(LocalFile file) throws Exception {
+		fsApi.exists(file.getAbsolutePath(), file.isDir());
 		return true;
+	}
+
+	/**
+	 * 删除真正要删除的文件
+	 * 
+	 * @param deleteFile
+	 * @return
+	 * @throws Exception
+	 */
+	protected boolean deleteFile(LocalFile deleteFile) throws Exception {
+		final CloudRmResult rmResult = fsApi.rm(deleteFile.getAbsolutePath());
+		if (rmResult != null) {
+			return rmResult.getErrno() == 0;
+		}
+		return false;
 	}
 
 	/**
@@ -139,7 +172,8 @@ public class LocalDeleteActionCloud {
 	 * @param deleteFile
 	 * @return
 	 */
-	private boolean deleteRecord(LocalFile deleteFile) {
+	protected boolean deleteRecord(LocalFile deleteFile) {
+		final LocalFileDeleteDao fileDeleteDao = new LocalFileDeleteDao();
 		return fileDeleteDao.deleteByFid(deleteFile.getfId());
 	}
 

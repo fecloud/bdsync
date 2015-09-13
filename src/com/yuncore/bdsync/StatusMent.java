@@ -12,22 +12,22 @@ public class StatusMent {
 	/**
 	 * 正在上传的文件
 	 */
-	public static final String key_uploading = "uploading";
+	public static final String UPLOADING = "uploading";
 	
 	/**
 	 * 正在上传的文件已上传大小
 	 */
-	public static final String key_upload_size = "upload_size";
+	public static final String UPLOAD_SIZE = "upload_size";
 	
 	/**
 	 * 正在下载的文件
 	 */
-	public static final String key_downloading = "downloading";
+	public static final String DOWNLOADING = "downloading";
 	
 	/**
 	 * 正在下载的文件已上传大小
 	 */
-	public static final String key_download_size = "download_size";
+	public static final String DOWNLOAD_SIZE = "download_size";
 	
 	private static final Hashtable<String, Object> env = new Hashtable<String, Object>();
 

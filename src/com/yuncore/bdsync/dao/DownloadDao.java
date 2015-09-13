@@ -12,8 +12,6 @@ import com.yuncore.bdsync.util.Log;
 
 public class DownloadDao extends BaseDao {
 
-	static String TAG = "DownloadDao";
-
 	@Override
 	public String getTableName() {
 		return "clouddownload";
@@ -35,7 +33,7 @@ public class DownloadDao extends BaseDao {
 
 			return result > 0;
 		} catch (SQLException e) {
-			Log.e(TAG, "insert error", e);
+			Log.e(getTag(), "insert error", e);
 		}
 		return false;
 	}
@@ -55,11 +53,11 @@ public class DownloadDao extends BaseDao {
 
 			return result > 0;
 		} catch (SQLException e) {
-			Log.e(TAG, "delete error", e);
+			Log.e(getTag(), "delete error", e);
 		}
 		return false;
 	}
-	
+
 	public boolean deleteByFid(String fid) {
 		try {
 			final Connection connection = getConnection();
@@ -75,7 +73,7 @@ public class DownloadDao extends BaseDao {
 
 			return result > 0;
 		} catch (SQLException e) {
-			Log.e(TAG, "delete error", e);
+			Log.e(getTag(), "delete error", e);
 		}
 		return false;
 	}
@@ -95,7 +93,7 @@ public class DownloadDao extends BaseDao {
 
 			return result > 0;
 		} catch (SQLException e) {
-			Log.e(TAG, "delete error", e);
+			Log.e(getTag(), "delete error", e);
 		}
 		return false;
 	}
@@ -112,8 +110,6 @@ public class DownloadDao extends BaseDao {
 	public List<LocalFile> query(long start, int num) {
 
 		try {
-//			final Stopwatch stopwatch = new Stopwatch();
-//			stopwatch.start();
 			final List<LocalFile> list = new ArrayList<LocalFile>();
 			final String sql = String.format(
 					"SELECT * FROM %s ORDER BY isdir DESC LIMIT %s,%s",
@@ -131,6 +127,7 @@ public class DownloadDao extends BaseDao {
 				file.setDir(resultSet.getBoolean("isdir"));
 				file.setPath(resultSet.getString("path"));
 				file.setSession(resultSet.getLong("session"));
+				file.setMd5(resultSet.getString("md5"));
 				file.setLength(resultSet.getLong("length"));
 				file.setMtime(resultSet.getLong("mtime"));
 				list.add(file);
@@ -138,21 +135,21 @@ public class DownloadDao extends BaseDao {
 			resultSet.close();
 			prepareStatement.close();
 			connection.close();
-//			stopwatch.stop(getClass().getSimpleName() + " query:" + num + " "
-//					+ getTableName());
 			return list;
 		} catch (SQLException e) {
-			Log.e(TAG, "query error", e);
+			Log.e(getTag(), "query error", e);
 		}
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.yuncore.bdsync.dao.BaseDao#getTag()
 	 */
 	@Override
 	public String getTag() {
-		return TAG;
+		return "DownloadDao";
 	}
-	
+
 }

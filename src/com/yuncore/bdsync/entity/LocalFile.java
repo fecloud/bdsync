@@ -14,17 +14,20 @@ public class LocalFile implements EntityJSON {
 
 	protected String fId;
 
+	protected String md5;
+
 	protected long session;
-	
+
 	protected long mtime;
 
-	public LocalFile(){
-		
+	public LocalFile() {
+
 	}
-	
+
 	public LocalFile(String path) {
 		this.path = path;
 	}
+
 	/**
 	 * 0文件 1文件夹
 	 */
@@ -54,6 +57,14 @@ public class LocalFile implements EntityJSON {
 		this.isdir = isdir;
 	}
 
+	public String getMd5() {
+		return md5;
+	}
+
+	public void setMd5(String md5) {
+		this.md5 = md5;
+	}
+
 	public long getSession() {
 		return session;
 	}
@@ -64,7 +75,6 @@ public class LocalFile implements EntityJSON {
 
 	public String getAbsolutePath() {
 		return path;
-
 	}
 
 	public String getfId() {
@@ -135,7 +145,8 @@ public class LocalFile implements EntityJSON {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.yuncore.bdsync.entity.EntityJSONObject#formJOSN(java.lang.String)
+	 * @see
+	 * com.yuncore.bdsync.entity.EntityJSONObject#formJOSN(java.lang.String)
 	 */
 	@Override
 	public boolean formJOSN(String json) {

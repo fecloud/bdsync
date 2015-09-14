@@ -133,6 +133,8 @@ public class DBHelper {
 
 		executeSQL("CREATE TABLE IF NOT EXISTS process (id INTEGER PRIMARY KEY AUTOINCREMENT, process TEXT, name TEXT);"); // 本地文件记录
 
+		executeSQL("CREATE TABLE IF NOT EXISTS sync_status (id INTEGER PRIMARY KEY AUTOINCREMENT, status INTEGER);");
+		
 		executeSQL("CREATE TABLE IF NOT EXISTS localfile (id INTEGER PRIMARY KEY AUTOINCREMENT,p ath TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, session INTEGER);"); // 本地文件记录
 		executeSQL("CREATE TABLE IF NOT EXISTS localdelete (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, session INTEGER);");// 本地被删除了
 		executeSQL("CREATE TABLE IF NOT EXISTS localupload (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, session INTEGER);");// 本地要被上传的

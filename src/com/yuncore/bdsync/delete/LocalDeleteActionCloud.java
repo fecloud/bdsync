@@ -5,12 +5,12 @@
  */
 package com.yuncore.bdsync.delete;
 
-import java.io.File;
 import java.util.List;
 
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.LocalFileDeleteDao;
+import com.yuncore.bdsync.entity.CloudFile;
 import com.yuncore.bdsync.entity.CloudRmResult;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
@@ -28,6 +28,8 @@ public class LocalDeleteActionCloud {
 	protected String root;
 
 	private FSApi fsApi;
+
+	private CloudFile cloudFile;
 
 	/**
 	 * @param root
@@ -102,6 +104,8 @@ public class LocalDeleteActionCloud {
 					return deleteFile(file);
 				} else { // 文件大小不一样
 					if (fileMtime(file)) {
+						return deleteFile(file);
+					} else {
 						return true;
 					}
 				}
@@ -110,7 +114,6 @@ public class LocalDeleteActionCloud {
 			// 文件不在了,直接删除
 			return true;
 		}
-		return false;
 	}
 
 	/**
@@ -120,8 +123,7 @@ public class LocalDeleteActionCloud {
 	 * @return
 	 */
 	protected boolean fileSizeSame(LocalFile file) {
-		final File destFile = new File(getRoot(), file.getAbsolutePath());
-		if (destFile.length() == file.getLength()) {
+		if (cloudFile.getLength() == file.getLength()) {
 			return true;
 		}
 		return false;
@@ -134,11 +136,11 @@ public class LocalDeleteActionCloud {
 	 * @return
 	 */
 	protected boolean fileMtime(LocalFile file) {
-		final File destFile = new File(getRoot(), file.getAbsolutePath()); // 本地文件
-		final long destTime = destFile.lastModified() / 1000;// 精确到秒
+		final long destTime = cloudFile.getMtime();// 精确到秒
 		final long targetTime = file.getMtime();
-		if (destTime < targetTime) {
-
+		if (destTime <= targetTime) {
+			// 本地文件修改时间大于等于云端,则可以删了
+			return true;
 		}
 		return false;
 	}
@@ -151,8 +153,8 @@ public class LocalDeleteActionCloud {
 	 * @throws ApiException
 	 */
 	protected boolean fileExists(LocalFile file) throws Exception {
-		fsApi.exists(file.getAbsolutePath(), file.isDir());
-		return true;
+		this.cloudFile = fsApi.exists(file.getAbsolutePath(), file.isDir());
+		return cloudFile != null;
 	}
 
 	/**

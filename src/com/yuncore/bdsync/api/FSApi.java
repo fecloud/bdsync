@@ -67,24 +67,24 @@ public interface FSApi {
 	 */
 	public Map<String, String> diskHomePage() throws ApiException;
 	
-	/**
-	 * 上传文件
-	 * @param filename 本地文件路径
-	 * @param dir 服务器路径
-	 * @return
-	 * @throws ApiException
-	 */
-	public boolean upload(String localpath, String cloudpath)throws ApiException;
-	
-	/**
-	 * 上传文件
-	 * @param filename 本地文件路径
-	 * @param dir 服务器路径
-	 * @param listener 数据写入监听
-	 * @return
-	 * @throws ApiException
-	 */
-	public boolean upload(String localpath, String cloudpath, OutputDataListener listener)throws ApiException;
+//	/**
+//	 * 上传文件
+//	 * @param filename 本地文件路径
+//	 * @param dir 服务器路径
+//	 * @return
+//	 * @throws ApiException
+//	 */
+//	public boolean upload(String localpath, String cloudpath)throws ApiException;
+//	
+//	/**
+//	 * 上传文件
+//	 * @param filename 本地文件路径
+//	 * @param dir 服务器路径
+//	 * @param listener 数据写入监听
+//	 * @return
+//	 * @throws ApiException
+//	 */
+//	public boolean upload(String localpath, String cloudpath, OutputDataListener listener)throws ApiException;
 	
 	/**
 	 * 上传文件
@@ -131,13 +131,13 @@ public interface FSApi {
 	 */
 	public MkDirResult mkdir(String dir) throws ApiException ;
 	
-	/**
-	 * 文件或者目录是否存在
-	 * 
-	 * @param file
-	 * @return
-	 */
-	public CloudFile fileExists(String file) throws ApiException;
+//	/**
+//	 * 文件或者目录是否存在
+//	 * 
+//	 * @param file
+//	 * @return
+//	 */
+//	public CloudFile fileExists(String file) throws ApiException;
 	
 	/**
 	 * 文件或者目录是否存在

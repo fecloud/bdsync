@@ -356,44 +356,44 @@ public class FSApiImple implements FSApi {
 		return false;
 	}
 
-	@Override
-	public boolean upload(String localpath, String cloudpath)
-			throws ApiException {
-		return upload(localpath, cloudpath, null);
-	}
-
-	@Override
-	public boolean upload(String localpath, String cloudpath,
-			OutputDataListener listener) throws ApiException {
-		try {
-			if (context.load()) {
-				final String BDUSS = HttpCookieContainer.getInstance()
-						.getCookie("BDUSS").getValue();
-				final LocalFile cloudFile = new LocalFile(cloudpath);
-				final String url = BDSYNCURL.getuploadfile(
-						URLEncoder.encode(cloudFile.getParentPath(), "UTF-8"),
-						URLEncoder.encode(cloudFile.getName(), "UTF-8"), BDUSS);
-
-				final HttpFormOutput http = new HttpFormOutput(url, localpath,
-						listener);
-				if (http.http()) {
-					if (DEBUG)
-						Log.i(TAG, String.format("upload result:%s",
-								http.result()));
-					final String resultString = http.result();
-					final JSONObject object = new JSONObject(resultString);
-					if (object.has("md5")) {
-						return true;
-					}
-
-				}
-
-			}
-		} catch (Exception e) {
-			throw new ApiException("upload error", e);
-		}
-		return false;
-	}
+//	@Override
+//	public boolean upload(String localpath, String cloudpath)
+//			throws ApiException {
+//		return upload(localpath, cloudpath, null);
+//	}
+//
+//	@Override
+//	public boolean upload(String localpath, String cloudpath,
+//			OutputDataListener listener) throws ApiException {
+//		try {
+//			if (context.load()) {
+//				final String BDUSS = HttpCookieContainer.getInstance()
+//						.getCookie("BDUSS").getValue();
+//				final LocalFile cloudFile = new LocalFile(cloudpath);
+//				final String url = BDSYNCURL.getuploadfile(
+//						URLEncoder.encode(cloudFile.getParentPath(), "UTF-8"),
+//						URLEncoder.encode(cloudFile.getName(), "UTF-8"), BDUSS);
+//
+//				final HttpFormOutput http = new HttpFormOutput(url, localpath,
+//						listener);
+//				if (http.http()) {
+//					if (DEBUG)
+//						Log.i(TAG, String.format("upload result:%s",
+//								http.result()));
+//					final String resultString = http.result();
+//					final JSONObject object = new JSONObject(resultString);
+//					if (object.has("md5")) {
+//						return true;
+//					}
+//
+//				}
+//
+//			}
+//		} catch (Exception e) {
+//			throw new ApiException("upload error", e);
+//		}
+//		return false;
+//	}
 
 	@Override
 	public boolean secondUpload(String localpath, String cloudpath)
@@ -463,60 +463,60 @@ public class FSApiImple implements FSApi {
 		return null;
 	}
 
-	@Override
-	public CloudFile fileExists(String file) throws ApiException {
-
-		try {
-			if (context.load()) {
-
-				final File f = new File(file);
-				final long c_time = DateUtil.current_time_ss();
-				final String url = BDSYNCURL.getfileexists(c_time, context
-						.getProperty(BDSTOKEN), URLEncoder.encode(f.getParent()
-						.replaceAll("\\\\", "/"), "UTF-8"), URLEncoder.encode(
-						f.getName(), "UTF-8"));
-
-				final Http http = new Http(url, Method.GET);
-				if (http.http()) {
-					// if (DEBUG)
-					Log.d(TAG, String.format("fileExists result:%s",
-							http.result()));
-					final String resultString = http.result();
-					final JSONObject object = new JSONObject(resultString);
-					if (object.has("errno") && object.getInt("errno") == 0
-							&& object.has("list")) {
-						JSONArray jsonArray = object.getJSONArray("list");
-						if (jsonArray.length() > 0) {
-							JSONObject jsonObject = null;
-							CloudFile pcsFile = null;
-							// 返回的文件可能有很多
-							for (int i = 0; i < jsonArray.length(); i++) {
-								jsonObject = jsonArray.getJSONObject(0);
-								pcsFile = new CloudFile();
-								pcsFile.formJOSN(jsonObject.toString());
-								// 找到名字匹配的
-								if (pcsFile.getName().equals(f.getName())) {
-									return pcsFile;
-								}
-
-							}
-
-						}
-
-					}
-
-				} else {
-					throw new ApiException("fileExists http error");
-				}
-
-			}
-		} catch (Exception e) {
-			throw new ApiException("fileExists error", e);
-		}
-
-		return null;
-
-	}
+//	@Override
+//	public CloudFile fileExists(String file) throws ApiException {
+//
+//		try {
+//			if (context.load()) {
+//
+//				final File f = new File(file);
+//				final long c_time = DateUtil.current_time_ss();
+//				final String url = BDSYNCURL.getfileexists(c_time, context
+//						.getProperty(BDSTOKEN), URLEncoder.encode(f.getParent()
+//						.replaceAll("\\\\", "/"), "UTF-8"), URLEncoder.encode(
+//						f.getName(), "UTF-8"));
+//
+//				final Http http = new Http(url, Method.GET);
+//				if (http.http()) {
+//					// if (DEBUG)
+//					Log.d(TAG, String.format("fileExists result:%s",
+//							http.result()));
+//					final String resultString = http.result();
+//					final JSONObject object = new JSONObject(resultString);
+//					if (object.has("errno") && object.getInt("errno") == 0
+//							&& object.has("list")) {
+//						JSONArray jsonArray = object.getJSONArray("list");
+//						if (jsonArray.length() > 0) {
+//							JSONObject jsonObject = null;
+//							CloudFile pcsFile = null;
+//							// 返回的文件可能有很多
+//							for (int i = 0; i < jsonArray.length(); i++) {
+//								jsonObject = jsonArray.getJSONObject(0);
+//								pcsFile = new CloudFile();
+//								pcsFile.formJOSN(jsonObject.toString());
+//								// 找到名字匹配的
+//								if (pcsFile.getName().equals(f.getName())) {
+//									return pcsFile;
+//								}
+//
+//							}
+//
+//						}
+//
+//					}
+//
+//				} else {
+//					throw new ApiException("fileExists http error");
+//				}
+//
+//			}
+//		} catch (Exception e) {
+//			throw new ApiException("fileExists error", e);
+//		}
+//
+//		return null;
+//
+//	}
 
 	@Override
 	public CloudRmResult rm(String filenames) throws ApiException {
@@ -724,12 +724,12 @@ public class FSApiImple implements FSApi {
 				return cloudFile;
 			} else {
 				if (null != list.getList()) {
-					Log.d(TAG, "getList:" + list.getList().size());
+//					Log.d(TAG, "getList:" + list.getList().size());
 					for (CloudFile f : list.getList()) {
 						// 百度云windows不区别大小写的
 						if (f.getPath().equalsIgnoreCase(file)) {
-							Log.d(TAG,
-									"found in getlist :" + f.getAbsolutePath());
+//							Log.d(TAG,
+//									"found in getlist :" + f.getAbsolutePath());
 							return f;
 						}
 					}

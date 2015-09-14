@@ -13,22 +13,27 @@ public class StatusMent {
 	 * 正在上传的文件
 	 */
 	public static final String UPLOADING = "uploading";
-	
+
 	/**
 	 * 正在上传的文件已上传大小
 	 */
 	public static final String UPLOAD_SIZE = "upload_size";
-	
+
 	/**
 	 * 正在下载的文件
 	 */
 	public static final String DOWNLOADING = "downloading";
-	
+
 	/**
 	 * 正在下载的文件已上传大小
 	 */
 	public static final String DOWNLOAD_SIZE = "download_size";
-	
+
+	/**
+	 * 同步服务正在进行的任务
+	 */
+	public static final String SYNCWORKING = "syncworking";
+
 	private static final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
 	public static final void setProperty(String key, Object value) {

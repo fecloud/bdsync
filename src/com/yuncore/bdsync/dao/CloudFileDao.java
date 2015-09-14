@@ -108,14 +108,14 @@ public class CloudFileDao extends BaseDao {
 		return false;
 	}
 
-	protected static CloudFile buildLocalFile(ResultSet resultSet)
-			throws SQLException {
+	protected CloudFile buildLocalFile(ResultSet resultSet) throws SQLException {
 		final CloudFile file = new CloudFile();
 		file.setId(resultSet.getString("id"));
 		file.setPath(resultSet.getString("path"));
 		file.setLength(resultSet.getLong("length"));
 		file.setDir(resultSet.getBoolean("isdir"));
 		file.setSession(resultSet.getLong("session"));
+		file.setMd5(resultSet.getString("md5"));
 		file.setMtime(resultSet.getLong("mtime"));
 		return file;
 	}
@@ -138,5 +138,34 @@ public class CloudFileDao extends BaseDao {
 	@Override
 	public String getTag() {
 		return TAG;
+	}
+
+	/**
+	 * 根据fid查询
+	 * 
+	 * @param fid
+	 * @return
+	 */
+	public CloudFile queryByFid(String fid) {
+		final Connection connection = getConnection();
+
+		try {
+			final PreparedStatement prepareStatement = connection
+					.prepareStatement(String.format(
+							"SELECT * FROM %s WHERE fid=?", getTableName()));
+			prepareStatement.setString(1, fid);
+			final ResultSet executeQuery = prepareStatement.executeQuery();
+			CloudFile cloudFile = null;
+			if (executeQuery.next()) {
+				buildLocalFile(executeQuery);
+			}
+
+			executeQuery.close();
+			prepareStatement.close();
+			connection.close();
+			return cloudFile;
+		} catch (SQLException e) {
+		}
+		return null;
 	}
 }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.yuncore.bdsync.Argsment;
 import com.yuncore.bdsync.Environment;
+import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.app.ClientContext;
 import com.yuncore.bdsync.ctrl.Httpd;
 import com.yuncore.bdsync.dao.SyncProcessDao;
@@ -16,7 +17,13 @@ import com.yuncore.bdsync.sync.task.CloudCompareTask;
 import com.yuncore.bdsync.sync.task.CloudDeleteActionLocalTask;
 import com.yuncore.bdsync.sync.task.CloudDownloadTask;
 import com.yuncore.bdsync.sync.task.ListCloudFilesTask;
+import com.yuncore.bdsync.sync.task.ListLocalFilesTask;
+import com.yuncore.bdsync.sync.task.LocalCompareTask;
+import com.yuncore.bdsync.sync.task.LocalDeleteActionCloudTask;
+import com.yuncore.bdsync.sync.task.LocalUploadTask;
+import com.yuncore.bdsync.sync.task.SyncSleepTask;
 import com.yuncore.bdsync.sync.task.SyncStepTask;
+import com.yuncore.bdsync.sync.task.SyncStopTask;
 import com.yuncore.bdsync.util.Log;
 
 public class Sync implements Runnable {
@@ -32,12 +39,10 @@ public class Sync implements Runnable {
 
 	private String[] args;
 
-	private boolean flag;
-
 	/**
 	 * 当前正在执行的任务
 	 */
-	private SyncStepTask current;
+	private volatile SyncStepTask current;
 
 	private int currentIndex;
 
@@ -45,7 +50,7 @@ public class Sync implements Runnable {
 
 	private SyncProcessDao syncProcessDao;
 
-	private long lasttime;
+	private volatile boolean flag;
 
 	public Sync(String[] args) {
 		this.args = args;
@@ -84,8 +89,6 @@ public class Sync implements Runnable {
 		Environment.setSyncDir(syncdir);
 		Environment.setSyncTmpDir(synctmpdir);
 
-		Argsment.setBDSyncAllow("1");
-
 		// System.setProperty(Const.TMP,
 		// String.format("%s%s%s", syncdir, File.separator, Const.TMP_DIR));
 		// System.setProperty("http_proxy", "localhost:8888");
@@ -98,7 +101,6 @@ public class Sync implements Runnable {
 	public synchronized void start() {
 		final Thread thread = new Thread(this);
 		thread.setName(TAG);
-		this.flag = true;
 		thread.start();
 	}
 
@@ -107,12 +109,19 @@ public class Sync implements Runnable {
 	 */
 	private void addWorkStep() {
 		steps = new ArrayList<SyncStepTask>();
+		steps.add(new SyncStopTask());
+
 		steps.add(new ListCloudFilesTask(args));
 		steps.add(new CloudCompareTask());
 		steps.add(new CloudDeleteActionLocalTask(args));
 		steps.add(new CloudDownloadTask(args));
-		// steps.add(new ListLocalFilesTask(args));
-		// steps.add(new LocalCompareTask());
+
+		steps.add(new ListLocalFilesTask(args));
+		steps.add(new LocalCompareTask());
+		steps.add(new LocalDeleteActionCloudTask(args));
+		steps.add(new LocalUploadTask(args));
+
+		steps.add(new SyncSleepTask());
 	}
 
 	/**
@@ -143,32 +152,41 @@ public class Sync implements Runnable {
 		final int lastIndex = size - 1;
 		for (; currentIndex < size && flag;) {
 
+			if (!Argsment.getBDSyncAllow()) {
+				currentIndex = 0;
+			}
+			
 			current = steps.get(currentIndex);
 			syncProcessDao.setSyncProcess(new SyncProcess(
 					current.getStepName(), current.getRealName()));
 
+			StatusMent.setProperty(StatusMent.SYNCWORKING, current.getRealName());
+			
+			Log.w(TAG, current.getRealName() + " start");
 			// 任务执行成功
 			if (current.start()) {
-
+				Log.w(TAG, current.getRealName() + " end");
 				// 任务头尾循环
 				if (currentIndex == lastIndex) {
 					currentIndex = 0;
-					if (!waitAndContinue()) {
-						continue;
-					}
-
 				} else {
 					currentIndex++;
 				}
 			}
 		}
+
 	}
 
 	public synchronized void stop() {
 		if (httpd != null) {
 			httpd.stop();
 		}
+
 		this.flag = false;
+
+		if (current != null) {
+			current.stop();
+		}
 	}
 
 	/*
@@ -182,43 +200,8 @@ public class Sync implements Runnable {
 		setEnv();
 		addWorkStep();
 		lastWorkingStep();
-		setLasttime(System.currentTimeMillis());
+		this.flag = true;
 		work();
 	}
 
-	/**
-	 * @param lasttime
-	 *            the lasttime to set
-	 */
-	private void setLasttime(long lasttime) {
-		this.lasttime = lasttime;
-	}
-
-	public boolean waitAndContinue() {
-		if (flag) {
-			long time = System.currentTimeMillis() - lasttime;
-			if (time < Argsment.getBDSyncInterval()) {
-				synchronized (this) {
-					try {
-						// 允许同步
-						if (Argsment.getBDSyncAllow()) {
-							time = Argsment.getBDSyncInterval() - time;
-							Log.d(TAG, "wait:" + time);
-							wait(time);
-						} else {
-							// 不允许同步
-							while (flag && !Argsment.getBDSyncAllow()) {
-								wait(1000);
-							}
-						}
-
-					} catch (InterruptedException e) {
-					}
-				}
-			}
-			setLasttime(System.currentTimeMillis());
-		}
-
-		return flag;
-	}
 }

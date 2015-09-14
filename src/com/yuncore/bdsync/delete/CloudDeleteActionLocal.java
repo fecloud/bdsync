@@ -74,9 +74,9 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	protected boolean deleteFile(LocalFile deleteFile) throws Exception {
 		final File file = new File(getRoot(), deleteFile.getAbsolutePath());
 		final boolean result = file.delete();
-		if(result){
+		if (result) {
 			Log.w(getTag(), "deleteFile:" + file.getAbsolutePath() + " success");
-		}else {
+		} else {
 			Log.w(getTag(), "deleteFile:" + file.getAbsolutePath() + " fail");
 		}
 		return result;
@@ -95,4 +95,38 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 		return fileDeleteDao.deleteByFid(deleteFile.getfId());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.yuncore.bdsync.delete.LocalDeleteActionCloud#fileSizeSame(com.yuncore
+	 * .bdsync.entity.LocalFile)
+	 */
+	@Override
+	protected boolean fileSizeSame(LocalFile file) {
+		final File destFile = new File(getRoot(), file.getAbsolutePath());
+		if (destFile.length() == file.getLength()) {
+			return true;
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.yuncore.bdsync.delete.LocalDeleteActionCloud#fileMtime(com.yuncore
+	 * .bdsync.entity.LocalFile)
+	 */
+	@Override
+	protected boolean fileMtime(LocalFile file) {
+		final long destTime = new File(getRoot(), file.getAbsolutePath())
+				.lastModified() / 1000;// 精确到秒
+		final long targetTime = file.getMtime();
+		if (destTime <= targetTime) {
+			// 云端文件修改时间大于等于云端,则可以删了
+			return true;
+		}
+		return false;
+	}
 }

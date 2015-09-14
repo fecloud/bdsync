@@ -1,31 +1,19 @@
 /**
- * @(#) CloudDeleteActionLocalTask.java Created on Sep 12, 2015
+ * @(#) SyncStopTask.java Created on Sep 14, 2015
  *
  * 
  */
 package com.yuncore.bdsync.sync.task;
 
-import com.yuncore.bdsync.delete.CloudDeleteActionLocal;
+import com.yuncore.bdsync.Argsment;
 
 /**
- * The class <code>CloudDeleteActionLocalTask</code>
+ * The class <code>SyncStopTask</code>
  * 
  * @author Feng OuYang
  * @version 1.0
  */
-public class CloudDeleteActionLocalTask implements SyncStepTask {
-
-	private String[] args;
-
-	private CloudDeleteActionLocal cloudDeleteActionLocal;
-
-	/**
-	 * @param args
-	 */
-	public CloudDeleteActionLocalTask(String[] args) {
-		super();
-		this.args = args;
-	}
+public class SyncStopTask implements SyncStepTask {
 
 	/*
 	 * (non-Javadoc)
@@ -34,8 +22,15 @@ public class CloudDeleteActionLocalTask implements SyncStepTask {
 	 */
 	@Override
 	public boolean start() {
-		cloudDeleteActionLocal = new CloudDeleteActionLocal(args[1]);
-		return cloudDeleteActionLocal.deletes();
+		while (!Argsment.getBDSyncAllow()) {
+			try {
+				synchronized (this) {
+					wait(1000);
+				}
+			} catch (InterruptedException e) {
+			}
+		}
+		return true;
 	}
 
 	/*
@@ -55,7 +50,7 @@ public class CloudDeleteActionLocalTask implements SyncStepTask {
 	 */
 	@Override
 	public String getStepName() {
-		return "com.yuncore.bdsync.sync.task.CloudDeleteActionLocalTask";
+		return "com.yuncore.bdsync.sync.task.SyncStopTask";
 	}
 
 	/*
@@ -65,7 +60,7 @@ public class CloudDeleteActionLocalTask implements SyncStepTask {
 	 */
 	@Override
 	public String getRealName() {
-		return "执行云端文件删除并删除本地文件";
+		return "同步服务已停止";
 	}
 
 }

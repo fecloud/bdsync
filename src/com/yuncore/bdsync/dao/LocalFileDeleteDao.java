@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.yuncore.bdsync.entity.LocalFile;
 
-public class LocalFileDeleteDao extends DownloadDao {
+public class LocalFileDeleteDao extends UploadDao {
 
 	@Override
 	public String getTableName() {

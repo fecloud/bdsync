@@ -29,7 +29,6 @@ public class GetLocalFile extends PreemptiveTaskService {
 		exclude = new BDSyncFileExclude();
 		this.dir = new File(dir);
 		localFileDao = new LocalFileTmpDao();
-		localFileDao.clear();
 	}
 
 	@Override

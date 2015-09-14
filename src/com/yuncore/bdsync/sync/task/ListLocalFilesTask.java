@@ -34,7 +34,10 @@ public class ListLocalFilesTask implements SyncStepTask {
 	}
 
 	private void addExcludeFiles(String[] args) {
+		
 		excludeFiles.add("tmp");
+		excludeFiles.add(Environment.SYNCTMPDIR);
+		
 		if (args.length > 3) {
 			boolean startAdd = false;
 			for (int i = 2; i < args.length; i++) {

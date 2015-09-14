@@ -38,7 +38,8 @@ public class CloudDownLoad {
 	}
 
 	public boolean start() {
-		Log.d(TAG, String.format("CloudDownLoad root:%s tmpDir:%s", root, tmpDir));
+//		Log.d(TAG,
+//				String.format("CloudDownLoad root:%s tmpDir:%s", root, tmpDir));
 		LocalFile cloudFile = null;
 		boolean downloaded = true;
 		while (Argsment.getBDSyncAllow()) {
@@ -52,7 +53,8 @@ public class CloudDownLoad {
 				downloaded = downloadFile(cloudFile);
 				// 删除下载任务
 				if (downloaded) {
-					Log.i(TAG, "download " + cloudFile.getParentPath() + "success");
+					Log.i(TAG, "download " + cloudFile.getParentPath()
+							+ "success");
 					StatusMent.setProperty(StatusMent.DOWNLOADING, "");
 					delDownLoad(cloudFile);
 				}
@@ -86,7 +88,8 @@ public class CloudDownLoad {
 		final File targetFile = new File(file);
 		if (targetFile.exists()) {
 			if (targetFile.isFile()) {
-				if (cloudFile.isFile() && cloudFile.getLength() == targetFile.length()) {
+				if (cloudFile.isFile()
+						&& cloudFile.getLength() == targetFile.length()) {
 					Log.d(TAG, "file local exists");
 					return true;
 				} else {
@@ -164,8 +167,10 @@ public class CloudDownLoad {
 				out = new FileOutputStream(tmpFile);
 			}
 
-			if (in != null && in.getLength() == -1) {
-				// 文件被删除了,可能之前有临时文件 删除
+			if (in != null
+					&& (in.getLength() == -1 /*|| !in.getContentMd5()
+							.equalsIgnoreCase(cloudFile.getMd5())*/)) {
+				// 文件被删除了,可能之前有临时文件 删除,或者md5不对的
 				Log.w(TAG, "cloudfile is delete can not down");
 				final File file2 = new File(tmpFile);
 				file2.delete();

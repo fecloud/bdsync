@@ -30,6 +30,11 @@ public final class Log {
 	private static final Log log = new Log();
 
 	/**
+	 * Priority constant for the println method;
+	 */
+	public static final int ALL = 1;
+	
+	/**
 	 * Priority constant for the println method; use Log.v.
 	 */
 	public static final int VERBOSE = 2;
@@ -152,7 +157,7 @@ public final class Log {
 			}
 
 		}
-		return 1;
+		return ALL;
 	}
 
 	private static String getPriority(int priority) {

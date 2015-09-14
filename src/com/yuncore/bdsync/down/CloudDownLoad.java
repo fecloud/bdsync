@@ -38,24 +38,26 @@ public class CloudDownLoad {
 	}
 
 	public boolean start() {
-		Log.i(TAG,
-				String.format("CloudDownLoad root:%s tmpDir:%s", root, tmpDir));
+		Log.d(TAG, String.format("CloudDownLoad root:%s tmpDir:%s", root, tmpDir));
 		LocalFile cloudFile = null;
 		boolean downloaded = true;
 		while (Argsment.getBDSyncAllow()) {
 
 			cloudFile = getDownLoad();
 			if (cloudFile != null) {
-				Log.i(TAG, "getDownLoad " + cloudFile.getAbsolutePath());
+				Log.d(TAG, "getDownLoad " + cloudFile.getAbsolutePath());
 				StatusMent.setProperty(StatusMent.DOWNLOADING, cloudFile);
 				StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, 0);
 				// 检查是否是排除下载的目录
 				downloaded = downloadFile(cloudFile);
 				// 删除下载任务
 				if (downloaded) {
+					Log.i(TAG, "download " + cloudFile.getParentPath() + "success");
 					StatusMent.setProperty(StatusMent.DOWNLOADING, "");
 					delDownLoad(cloudFile);
 				}
+			} else {
+				return true;
 			}
 
 			StatusMent.setProperty(StatusMent.DOWNLOADING, false);
@@ -69,7 +71,7 @@ public class CloudDownLoad {
 
 	private void delDownLoad(LocalFile cloudFile) {
 		if (downloadDao.deleteByFid(cloudFile.getfId())) {
-			Log.i(TAG, "delDownLoad " + cloudFile.getAbsolutePath());
+			Log.d(TAG, "delDownLoad " + cloudFile.getAbsolutePath());
 		}
 	}
 
@@ -84,12 +86,11 @@ public class CloudDownLoad {
 		final File targetFile = new File(file);
 		if (targetFile.exists()) {
 			if (targetFile.isFile()) {
-				if (cloudFile.isFile()
-						&& cloudFile.getLength() == targetFile.length()) {
-					Log.i(TAG, "file local exists");
+				if (cloudFile.isFile() && cloudFile.getLength() == targetFile.length()) {
+					Log.d(TAG, "file local exists");
 					return true;
 				} else {
-					Log.i(TAG, "file local exists but length not equals");
+					Log.d(TAG, "file local exists but length not equals");
 					targetFile.delete();
 					return false;
 				}
@@ -132,7 +133,7 @@ public class CloudDownLoad {
 	 * @return
 	 */
 	private boolean downloadFileContext(LocalFile cloudFile) {
-		Log.i(TAG, "downloadFileContext " + cloudFile.getAbsolutePath());
+		Log.d(TAG, "downloadFileContext " + cloudFile.getAbsolutePath());
 		final String tmpFile = tmpDir + File.separator + cloudFile.getfId();
 		final String file = root + cloudFile.getAbsolutePath();
 		boolean reslut = false;
@@ -153,12 +154,12 @@ public class CloudDownLoad {
 			DownloadInputStream in = null;
 			FileOutputStream out = null;
 			if (fileStart > 0) {
-				Log.i(TAG, "continue download file start:" + fileStart);
+				Log.d(TAG, "continue download file start:" + fileStart);
 				sum = fileStart;
 				in = api.download(cloudFile, fileStart);
 				out = new FileOutputStream(tmpFile, true);
 			} else {
-				Log.i(TAG, "new download file start:0");
+				Log.d(TAG, "new download file start:0");
 				in = api.download(cloudFile);
 				out = new FileOutputStream(tmpFile);
 			}

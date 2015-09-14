@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.yuncore.bdsync.dao.CloudFileDeleteDao;
 import com.yuncore.bdsync.entity.LocalFile;
+import com.yuncore.bdsync.util.Log;
 
 /**
  * The class <code>CloudDeleteActionLocal</code>
@@ -71,8 +72,14 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	 */
 	@Override
 	protected boolean deleteFile(LocalFile deleteFile) throws Exception {
-		final File file = new File(deleteFile.getAbsolutePath());
-		return file.delete();
+		final File file = new File(getRoot(), deleteFile.getAbsolutePath());
+		final boolean result = file.delete();
+		if(result){
+			Log.w(getTag(), "deleteFile:" + file.getAbsolutePath() + " success");
+		}else {
+			Log.w(getTag(), "deleteFile:" + file.getAbsolutePath() + " fail");
+		}
+		return result;
 	}
 
 	/*

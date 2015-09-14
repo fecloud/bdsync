@@ -51,7 +51,7 @@ public class SyncProcessDao extends BaseDao {
 			final Connection connection = getConnection();
 			final PreparedStatement prepareStatement = connection
 					.prepareStatement(String.format(
-							"SELECT id,process FROM %s LIMIT 0,1",
+							"SELECT id,process,name FROM %s LIMIT 0,1",
 							getTableName()));
 
 			final ResultSet resultSet = prepareStatement.executeQuery();

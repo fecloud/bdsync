@@ -60,20 +60,24 @@ public class LocalDeleteActionCloud {
 		LocalFile deleteFile = null;
 		while (null != (list = queryList(10))) {
 			length = list.size();
-			for (int i = 0; i < length; i++) {
-				deleteFile = list.get(i);
-				try {
-					if (checkAndDelete(deleteFile)) {
-						if (!deleteRecord(deleteFile)) {
+			if (length != 0) {
+				for (int i = 0; i < length; i++) {
+					deleteFile = list.get(i);
+					try {
+						if (checkAndDelete(deleteFile)) {
+							if (!deleteRecord(deleteFile)) {
+								i--;
+							}
+						} else {
 							i--;
 						}
-					} else {
+					} catch (Exception e) {
+						// 去云端查看文件存在时可能会出错
 						i--;
 					}
-				} catch (Exception e) {
-					// 去云端查看文件存在时可能会出错
-					i--;
 				}
+			} else {
+				return true;
 			}
 		}
 
@@ -95,7 +99,7 @@ public class LocalDeleteActionCloud {
 			} else {
 				// 如果是文件
 				if (fileSizeSame(file)) {
-					return true;
+					return deleteFile(file);
 				} else { // 文件大小不一样
 					if (fileMtime(file)) {
 						return true;

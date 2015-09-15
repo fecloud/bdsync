@@ -9,6 +9,7 @@ import com.yuncore.bdsync.api.DownloadInputStream;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.DownloadDao;
+import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.FileMV;
 import com.yuncore.bdsync.util.Log;
@@ -24,12 +25,15 @@ public class CloudDownLoad {
 	private FSApi api;
 
 	private DownloadDao downloadDao;
+	
+//	private LocalFileDao localFileDao;
 
 	public CloudDownLoad(String root, String tmpDir) {
 		this.root = root;
 		this.tmpDir = tmpDir;
 		api = new FSApiImple();
 		downloadDao = new DownloadDao();
+//		localFileDao = new LocalFileDao();
 
 		final File file = new File(tmpDir);
 		if (!file.exists()) {
@@ -54,7 +58,7 @@ public class CloudDownLoad {
 				// 删除下载任务
 				if (downloaded) {
 					Log.i(TAG, "download " + cloudFile.getParentPath()
-							+ "success");
+							+ " success");
 					StatusMent.setProperty(StatusMent.DOWNLOADING, "");
 					delDownLoad(cloudFile);
 				}
@@ -220,5 +224,19 @@ public class CloudDownLoad {
 			return -1;
 		}
 	}
-
+	
+	/**
+	 * 是否存在云端文件列表中(必免http网盘接口查询)
+	 * 
+	 * @param localFile
+	 * @return
+	 
+	private boolean fileExistsCloudFileDB(LocalFile localFile) {
+		final LocalFile file = localFileDao.queryByFid(localFile.getfId());
+		if (file != null) {
+			return true;
+		}
+		return false;
+	}
+	*/
 }

@@ -58,7 +58,7 @@ public class LocalUpload implements OutputDataListener {
 				upload = uploadFile(localFile);
 				if (upload) {
 					Log.i(TAG, "upload " + localFile.getParentPath()
-							+ "success");
+							+ " success");
 					StatusMent.setProperty(StatusMent.UPLOADING, "");
 					delUpload(localFile);
 				}

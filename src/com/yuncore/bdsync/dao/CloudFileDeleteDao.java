@@ -26,26 +26,14 @@ public class CloudFileDeleteDao extends DownloadDao {
 	public List<LocalFile> query(long start, int num) {
 		try {
 			final List<LocalFile> list = new ArrayList<LocalFile>();
-			final String sql = String.format(
-					"SELECT * FROM %s ORDER BY isdir ASC LIMIT %s,%s",
-					getTableName(), start, num);
+			final String sql = String.format("SELECT * FROM %s ORDER BY isdir ASC LIMIT %s,%s", getTableName(), start,
+					num);
 
 			final Connection connection = getConnection();
-			final PreparedStatement prepareStatement = connection
-					.prepareStatement(sql);
+			final PreparedStatement prepareStatement = connection.prepareStatement(sql);
 			final ResultSet resultSet = prepareStatement.executeQuery();
-			LocalFile file = null;
 			while (resultSet.next()) {
-				file = new LocalFile();
-				file.setId(resultSet.getString("id"));
-				file.setfId(resultSet.getString("fid"));
-				file.setDir(resultSet.getBoolean("isdir"));
-				file.setPath(resultSet.getString("path"));
-				file.setSession(resultSet.getLong("session"));
-				file.setMd5(resultSet.getString("md5"));
-				file.setLength(resultSet.getLong("length"));
-				file.setMtime(resultSet.getLong("mtime"));
-				list.add(file);
+				list.add(buildLocalFile(resultSet));
 			}
 			resultSet.close();
 			prepareStatement.close();

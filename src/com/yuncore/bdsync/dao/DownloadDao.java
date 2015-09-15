@@ -22,9 +22,7 @@ public class DownloadDao extends BaseDao {
 			final Connection connection = getConnection();
 
 			final PreparedStatement prepareStatement = connection
-					.prepareStatement(String.format(
-							"INSERT INTO %s (file) VALUES(%s)", getTableName(),
-							file));
+					.prepareStatement(String.format("INSERT INTO %s (file) VALUES(%s)", getTableName(), file));
 			connection.setAutoCommit(false);
 			int result = prepareStatement.executeUpdate();
 			connection.commit();
@@ -42,8 +40,7 @@ public class DownloadDao extends BaseDao {
 		try {
 			final Connection connection = getConnection();
 			final PreparedStatement prepareStatement = connection
-					.prepareStatement(String.format(
-							"DELETE FROM %s WHERE id=?", getTableName()));
+					.prepareStatement(String.format("DELETE FROM %s WHERE id=?", getTableName()));
 			prepareStatement.setString(1, id);
 			connection.setAutoCommit(false);
 			int result = prepareStatement.executeUpdate();
@@ -62,8 +59,7 @@ public class DownloadDao extends BaseDao {
 		try {
 			final Connection connection = getConnection();
 			final PreparedStatement prepareStatement = connection
-					.prepareStatement(String.format(
-							"DELETE FROM %s WHERE fid=?", getTableName()));
+					.prepareStatement(String.format("DELETE FROM %s WHERE fid=?", getTableName()));
 			prepareStatement.setString(1, fid);
 			connection.setAutoCommit(false);
 			int result = prepareStatement.executeUpdate();
@@ -82,8 +78,7 @@ public class DownloadDao extends BaseDao {
 		try {
 			final Connection connection = getConnection();
 			final PreparedStatement prepareStatement = connection
-					.prepareStatement(String.format(
-							"DELETE FROM %s WHERE id=?", getTableName()));
+					.prepareStatement(String.format("DELETE FROM %s WHERE id=?", getTableName()));
 			prepareStatement.setString(1, file.getId());
 			connection.setAutoCommit(false);
 			int result = prepareStatement.executeUpdate();
@@ -111,26 +106,14 @@ public class DownloadDao extends BaseDao {
 
 		try {
 			final List<LocalFile> list = new ArrayList<LocalFile>();
-			final String sql = String.format(
-					"SELECT * FROM %s ORDER BY isdir DESC LIMIT %s,%s",
-					getTableName(), start, num);
+			final String sql = String.format("SELECT * FROM %s ORDER BY isdir DESC LIMIT %s,%s", getTableName(), start,
+					num);
 
 			final Connection connection = getConnection();
-			final PreparedStatement prepareStatement = connection
-					.prepareStatement(sql);
+			final PreparedStatement prepareStatement = connection.prepareStatement(sql);
 			final ResultSet resultSet = prepareStatement.executeQuery();
-			LocalFile file = null;
 			while (resultSet.next()) {
-				file = new LocalFile();
-				file.setId(resultSet.getString("id"));
-				file.setfId(resultSet.getString("fid"));
-				file.setDir(resultSet.getBoolean("isdir"));
-				file.setPath(resultSet.getString("path"));
-				file.setSession(resultSet.getLong("session"));
-				file.setMd5(resultSet.getString("md5"));
-				file.setLength(resultSet.getLong("length"));
-				file.setMtime(resultSet.getLong("mtime"));
-				list.add(file);
+				list.add(buildLocalFile(resultSet));
 			}
 			resultSet.close();
 			prepareStatement.close();
@@ -140,6 +123,19 @@ public class DownloadDao extends BaseDao {
 			Log.e(getTag(), "query error", e);
 		}
 		return null;
+	}
+
+	protected LocalFile buildLocalFile(ResultSet resultSet) throws SQLException {
+		final LocalFile file = new LocalFile();
+		file.setId(resultSet.getString("id"));
+		file.setPath(resultSet.getString("path"));
+		file.setLength(resultSet.getLong("length"));
+		file.setDir(resultSet.getBoolean("isdir"));
+		file.setfId(resultSet.getString("fid"));
+		file.setSession(resultSet.getLong("session"));
+		file.setMd5(resultSet.getString("md5"));
+		file.setMtime(resultSet.getLong("mtime"));
+		return file;
 	}
 
 	/*

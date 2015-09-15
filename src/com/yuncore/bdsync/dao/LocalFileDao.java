@@ -7,17 +7,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.yuncore.bdsync.entity.CloudFile;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.Log;
 import com.yuncore.bdsync.util.Stopwatch;
 
 public class LocalFileDao extends BaseDao {
 
-	private List<LocalFile> cache = new ArrayList<LocalFile>();
+	protected List<LocalFile> cache = new ArrayList<LocalFile>();
 
-	private int size;
+	protected int size;
 
-	private static final int CACHE_SIZE = 5000;
+	protected static final int CACHE_SIZE = 5000;
 
 	@Override
 	public String getTableName() {
@@ -27,7 +28,7 @@ public class LocalFileDao extends BaseDao {
 	public synchronized boolean insertAllCacaheFlush() {
 		if (size != 0) {
 			final boolean result = insertAll();
-			if(result){
+			if (result) {
 				size = 0;
 				cache.clear();
 			}
@@ -56,7 +57,7 @@ public class LocalFileDao extends BaseDao {
 			final Connection connection = getConnection();
 
 			final String sql = String.format(
-					"INSERT INTO %s ('path','length','isdir','mtime' ,'fid','session') VALUES (?,?,?,?,?,?)",
+					"INSERT INTO %s ('path','length','isdir','mtime','fid','md5','session') VALUES (?,?,?,?,?,?,?)",
 					getTableName());
 			final PreparedStatement prepareStatement = connection.prepareStatement(sql);
 
@@ -66,7 +67,8 @@ public class LocalFileDao extends BaseDao {
 				prepareStatement.setInt(3, f.isDir() ? 1 : 0);
 				prepareStatement.setLong(4, f.getMtime());
 				prepareStatement.setString(5, f.toFid());
-				prepareStatement.setLong(6, f.getSession());
+				prepareStatement.setString(6, f.getMd5());
+				prepareStatement.setLong(7, f.getSession());
 				prepareStatement.addBatch();
 			}
 			connection.setAutoCommit(false);
@@ -76,7 +78,7 @@ public class LocalFileDao extends BaseDao {
 			connection.setAutoCommit(true);
 			connection.close();
 
-			stopwatch.stop("LocalFileDao insertAll " + size);
+			stopwatch.stop(getTag() + " insertAll " + size);
 			return true;
 		} catch (SQLException e) {
 			Log.e(getTag(), "", e);
@@ -84,17 +86,49 @@ public class LocalFileDao extends BaseDao {
 		return false;
 	}
 
-	protected static LocalFile buildLocalFile(ResultSet resultSet) throws SQLException {
+	/**
+	 * 根据fid查询
+	 * 
+	 * @param fid
+	 * @return
+	 */
+	public CloudFile queryByFid(String fid) {
+		final Connection connection = getConnection();
+
+		try {
+			final PreparedStatement prepareStatement = connection
+					.prepareStatement(String.format("SELECT * FROM %s WHERE fid=?", getTableName()));
+			prepareStatement.setString(1, fid);
+			final ResultSet executeQuery = prepareStatement.executeQuery();
+			CloudFile cloudFile = null;
+			if (executeQuery.next()) {
+				buildLocalFile(executeQuery);
+			}
+
+			executeQuery.close();
+			prepareStatement.close();
+			connection.close();
+			return cloudFile;
+		} catch (SQLException e) {
+		}
+		return null;
+	}
+
+	protected LocalFile buildLocalFile(ResultSet resultSet) throws SQLException {
 		final LocalFile file = new LocalFile();
 		file.setId(resultSet.getString("id"));
 		file.setPath(resultSet.getString("path"));
 		file.setLength(resultSet.getLong("length"));
 		file.setDir(resultSet.getBoolean("isdir"));
 		file.setSession(resultSet.getLong("session"));
+		file.setMd5(resultSet.getString("md5"));
+		file.setMtime(resultSet.getLong("mtime"));
 		return file;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.yuncore.bdsync.dao.BaseDao#getTag()
 	 */
 	@Override

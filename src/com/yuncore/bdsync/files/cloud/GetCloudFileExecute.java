@@ -65,7 +65,7 @@ public class GetCloudFileExecute extends TaskExecute {
 
 					checkExcludeAndAddTask(listFiles.getList());
 
-					cloudFileDao.insertAllCacahe(listFiles.getList());
+					cloudFileDao.insertCloudFileCache(listFiles.getList());
 
 				} else if (listFiles.getErrno() == -9) {
 					Log.w(TAG, "dir:" + fileTask.getDir() + " is not exits"); // 目录不存在了

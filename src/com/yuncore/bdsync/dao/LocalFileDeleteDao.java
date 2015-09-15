@@ -1,8 +1,14 @@
 package com.yuncore.bdsync.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.yuncore.bdsync.entity.LocalFile;
+import com.yuncore.bdsync.util.Log;
 
 public class LocalFileDeleteDao extends UploadDao {
 
@@ -18,7 +24,25 @@ public class LocalFileDeleteDao extends UploadDao {
 	 */
 	@Override
 	public List<LocalFile> query(long start, int num) {
-		return super.query(start, num);
+		try {
+			final List<LocalFile> list = new ArrayList<LocalFile>();
+			final String sql = String.format("SELECT * FROM %s ORDER BY isdir ASC LIMIT %s,%s", getTableName(), start,
+					num);
+
+			final Connection connection = getConnection();
+			final PreparedStatement prepareStatement = connection.prepareStatement(sql);
+			final ResultSet resultSet = prepareStatement.executeQuery();
+			while (resultSet.next()) {
+				list.add(buildLocalFile(resultSet));
+			}
+			resultSet.close();
+			prepareStatement.close();
+			connection.close();
+			return list;
+		} catch (SQLException e) {
+			Log.e(getTag(), "query error", e);
+		}
+		return null;
 	}
 
 }

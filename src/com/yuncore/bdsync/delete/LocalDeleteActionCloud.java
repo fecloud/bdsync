@@ -15,6 +15,7 @@ import com.yuncore.bdsync.entity.CloudFile;
 import com.yuncore.bdsync.entity.CloudRmResult;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
+import com.yuncore.bdsync.util.Log;
 
 /**
  * The class <code>LocalDeleteActionCloud</code>
@@ -167,10 +168,16 @@ public class LocalDeleteActionCloud {
 	 */
 	protected boolean deleteFile(LocalFile deleteFile) throws Exception {
 		final CloudRmResult rmResult = fsApi.rm(deleteFile.getAbsolutePath());
+		boolean result = false;
 		if (rmResult != null) {
-			return rmResult.getErrno() == 0;
+			result = rmResult.getErrno() == 0;
 		}
-		return false;
+		if (result) {
+			Log.w(getTag(), "deleteFile:" + deleteFile.getAbsolutePath() + " success");
+		} else {
+			Log.w(getTag(), "deleteFile:" + deleteFile.getAbsolutePath() + " fail");
+		}
+		return result;
 	}
 
 	/**

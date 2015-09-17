@@ -24,15 +24,15 @@ public class CloudDownLoad {
 	private FSApi api;
 
 	private DownloadDao downloadDao;
-	
-//	private LocalFileDao localFileDao;
+
+	// private LocalFileDao localFileDao;
 
 	public CloudDownLoad(String root, String tmpDir) {
 		this.root = root;
 		this.tmpDir = tmpDir;
 		api = new FSApiImple();
 		downloadDao = new DownloadDao();
-//		localFileDao = new LocalFileDao();
+		// localFileDao = new LocalFileDao();
 
 		final File file = new File(tmpDir);
 		if (!file.exists()) {
@@ -41,8 +41,8 @@ public class CloudDownLoad {
 	}
 
 	public boolean start() {
-//		Log.d(TAG,
-//				String.format("CloudDownLoad root:%s tmpDir:%s", root, tmpDir));
+		// Log.d(TAG,
+		// String.format("CloudDownLoad root:%s tmpDir:%s", root, tmpDir));
 		LocalFile cloudFile = null;
 		boolean downloaded = true;
 		while (Argsment.getBDSyncAllow()) {
@@ -56,8 +56,6 @@ public class CloudDownLoad {
 				downloaded = downloadFile(cloudFile);
 				// 删除下载任务
 				if (downloaded) {
-					Log.i(TAG, "download " + cloudFile.getParentPath()
-							+ " success");
 					StatusMent.setProperty(StatusMent.DOWNLOADING, "");
 					delDownLoad(cloudFile);
 				}
@@ -96,9 +94,9 @@ public class CloudDownLoad {
 					Log.d(TAG, "file local exists");
 					return true;
 				} else {
-					Log.d(TAG, "file local exists but length not equals");
-					targetFile.delete();
-					return false;
+					Log.d(TAG,
+							"file local exists but length not equals,file was changed");
+					return true;
 				}
 			} else if (targetFile.isDirectory()) {
 				if (cloudFile.isDirectory()) {
@@ -127,7 +125,6 @@ public class CloudDownLoad {
 				return true;
 			}
 		} else {
-			delDownLoad(cloudFile);
 			return true;
 		}
 	}
@@ -163,16 +160,25 @@ public class CloudDownLoad {
 				Log.d(TAG, "continue download file start:" + fileStart);
 				sum = fileStart;
 				in = api.download(cloudFile, fileStart);
+				if (in.getLength() + sum != cloudFile.getLength()) {
+					// 下载返回来的文件大小与要下载的大小不一致,可能文件被改了
+					return true;
+				}
 				out = new FileOutputStream(tmpFile, true);
 			} else {
 				Log.d(TAG, "new download file start:0");
 				in = api.download(cloudFile);
+				if (in.getLength() != cloudFile.getLength()) {
+					// 下载返回来的文件大小与要下载的大小不一致,可能文件被改了
+					return true;
+				}
 				out = new FileOutputStream(tmpFile);
 			}
 
-			if (in != null
-					&& (in.getLength() == -1 /*|| !in.getContentMd5()
-							.equalsIgnoreCase(cloudFile.getMd5())*/)) {
+			if (in != null && (in.getLength() == -1)) {
+				/*
+				 * || !in.getContentMd5() .equalsIgnoreCase (cloudFile.getMd5())
+				 */
 				// 文件被删除了,可能之前有临时文件 删除,或者md5不对的
 				Log.w(TAG, "cloudfile is delete can not down");
 				final File file2 = new File(tmpFile);
@@ -202,6 +208,8 @@ public class CloudDownLoad {
 					}
 				}
 				in.close();
+				Log.i(TAG, "download " + cloudFile.getParentPath()
+						+ " success");
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "downloadFileContext error", e);
@@ -223,19 +231,16 @@ public class CloudDownLoad {
 			return -1;
 		}
 	}
-	
+
 	/**
 	 * 是否存在云端文件列表中(必免http网盘接口查询)
 	 * 
 	 * @param localFile
 	 * @return
-	 
-	private boolean fileExistsCloudFileDB(LocalFile localFile) {
-		final LocalFile file = localFileDao.queryByFid(localFile.getfId());
-		if (file != null) {
-			return true;
-		}
-		return false;
-	}
-	*/
+	 * 
+	 *         private boolean fileExistsCloudFileDB(LocalFile localFile) {
+	 *         final LocalFile file =
+	 *         localFileDao.queryByFid(localFile.getfId()); if (file != null) {
+	 *         return true; } return false; }
+	 */
 }

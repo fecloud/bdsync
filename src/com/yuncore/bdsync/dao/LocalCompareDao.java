@@ -302,7 +302,7 @@ public class LocalCompareDao extends BaseDao {
 	public synchronized boolean copyTableData(String src, String dest, String srcWhere) {
 		String sql = String.format(getCopyTableDataSql(), dest, src);
 		if (null != srcWhere) {
-			sql += String.format(" WHERE ", srcWhere);
+			sql += String.format(" WHERE %s", srcWhere);
 		}
 
 		Stopwatch stopwatch = new Stopwatch();

@@ -42,6 +42,8 @@ public class SyncSleepTask implements SyncStepTask {
 					} catch (InterruptedException e) {
 					}
 				}
+			} else {
+				break;
 			}
 		}
 		this.lasttime = System.currentTimeMillis();

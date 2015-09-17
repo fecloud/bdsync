@@ -57,8 +57,6 @@ public class LocalUpload implements OutputDataListener {
 				StatusMent.setProperty(StatusMent.UPLOADING, localFile);
 				upload = uploadFile(localFile);
 				if (upload) {
-					Log.i(TAG, "upload " + localFile.getParentPath()
-							+ " success");
 					StatusMent.setProperty(StatusMent.UPLOADING, "");
 					delUpload(localFile);
 				}
@@ -89,13 +87,12 @@ public class LocalUpload implements OutputDataListener {
 	private boolean uploadFile(LocalFile localFile) {
 		try {
 			StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
-			if (!checkLocalFile(localFile)) {// 本地文件不在了,直接删除任务
-				Log.w(TAG, "local file " + localFile.getAbsolutePath()
-						+ " is deleted");
+			if (checkLocalFile(localFile)) {// 本地文件不在了或者本地文件修改了,直接删除任务
 				return true;
 			}
 
 			if (fileExistsCloudFileDB(localFile)) {
+				Log.d(TAG, localFile.getAbsolutePath() + "in last cloudfile");
 				return true;
 			}
 
@@ -127,17 +124,23 @@ public class LocalUpload implements OutputDataListener {
 	}
 
 	/**
-	 * 检查本地文件是否还在
+	 * 本地文件不在了或者本地文件修改了,直接删除任务
 	 * 
 	 * @param localFile
 	 * @return
 	 */
 	private boolean checkLocalFile(LocalFile localFile) {
-		final String localpath = String.format("%s/%s", root,
+		final String localpath = String.format("%s%s", root,
 				localFile.getAbsolutePath());
 		final File file = new File(localpath);
-		if (file.exists() && file.length() > 0) {
+		if (file.isDirectory() && !file.exists()) {
+			Log.w(TAG, localpath + "is deleted");
 			return true;
+		}else if(file.isFile()){
+			if(!file.exists() || file.length() != localFile.getLength()){
+				Log.w(TAG, localpath + "is deleted or file change");
+				return true;
+			}
 		}
 		return false;
 	}
@@ -170,6 +173,8 @@ public class LocalUpload implements OutputDataListener {
 			Log.d(TAG, "try secondFileContext");
 			if (secondFileContext(localFile)) {
 				Log.d(TAG, "secondFileContext ok");
+				Log.i(TAG, "upload " + localFile.getParentPath()
+						+ " success");
 				return true;
 			} else {
 				return norMalFileContext(localFile);
@@ -196,7 +201,11 @@ public class LocalUpload implements OutputDataListener {
 			final String localpath = String.format("%s/%s", root,
 					localFile.getAbsolutePath());
 			final String cloudpath = localFile.getAbsolutePath();
-			return api.upload2(localpath, cloudpath, this);
+			final boolean result = api.upload2(localpath, cloudpath, this);
+			if (result) {
+				Log.i(TAG, "upload " + localFile.getParentPath() + " success");
+			}
+			return result;
 		} catch (ApiException e) {
 			StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
 			throw new ApiException(String.format(

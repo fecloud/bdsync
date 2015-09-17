@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.List;
 
 import com.yuncore.bdsync.dao.CloudFileDeleteDao;
+import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.Log;
 
@@ -92,7 +93,12 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	@Override
 	protected boolean deleteRecord(LocalFile deleteFile) {
 		final CloudFileDeleteDao fileDeleteDao = new CloudFileDeleteDao();
-		return fileDeleteDao.deleteByFid(deleteFile.getfId());
+		boolean result = fileDeleteDao.deleteByFid(deleteFile.getfId());
+		if (result) {
+			final LocalFileDao localFileDao = new LocalFileDao();
+			localFileDao.deleteByFid(deleteFile.getfId());
+		}
+		return result;
 	}
 
 	/*

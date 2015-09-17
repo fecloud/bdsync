@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
+import com.yuncore.bdsync.dao.CloudFileDao;
 import com.yuncore.bdsync.dao.LocalFileDeleteDao;
 import com.yuncore.bdsync.entity.CloudFile;
 import com.yuncore.bdsync.entity.CloudRmResult;
@@ -180,7 +181,13 @@ public class LocalDeleteActionCloud {
 	 */
 	protected boolean deleteRecord(LocalFile deleteFile) {
 		final LocalFileDeleteDao fileDeleteDao = new LocalFileDeleteDao();
-		return fileDeleteDao.deleteByFid(deleteFile.getfId());
+		boolean result = fileDeleteDao.deleteByFid(deleteFile.getfId());
+		if(result){
+			//如果云端最后的列表里面有本地删除的文件,也删除了,以名下次对比的时候发现删除了,再来一次删除本地文件
+			final CloudFileDao cloudFileDao = new CloudFileDao();
+			cloudFileDao.deleteByFid(deleteFile.getfId());
+		}
+		return result;
 	}
 
 	/**

@@ -126,6 +126,25 @@ public class LocalFileDao extends BaseDao {
 		return file;
 	}
 
+	public boolean deleteByFid(String fid) {
+		try {
+			final Connection connection = getConnection();
+			final PreparedStatement prepareStatement = connection
+					.prepareStatement(String.format("DELETE FROM %s WHERE fid=?", getTableName()));
+			prepareStatement.setString(1, fid);
+			connection.setAutoCommit(false);
+			int result = prepareStatement.executeUpdate();
+			connection.commit();
+			connection.setAutoCommit(true);
+			connection.close();
+
+			return result > 0;
+		} catch (SQLException e) {
+			Log.e(getTag(), "delete error", e);
+		}
+		return false;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

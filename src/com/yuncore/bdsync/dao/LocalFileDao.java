@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.yuncore.bdsync.entity.CloudFile;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.Log;
 import com.yuncore.bdsync.util.Stopwatch;
@@ -92,7 +91,7 @@ public class LocalFileDao extends BaseDao {
 	 * @param fid
 	 * @return
 	 */
-	public CloudFile queryByFid(String fid) {
+	public LocalFile queryByFid(String fid) {
 		final Connection connection = getConnection();
 
 		try {
@@ -100,15 +99,15 @@ public class LocalFileDao extends BaseDao {
 					.prepareStatement(String.format("SELECT * FROM %s WHERE fid=?", getTableName()));
 			prepareStatement.setString(1, fid);
 			final ResultSet executeQuery = prepareStatement.executeQuery();
-			CloudFile cloudFile = null;
+			LocalFile localFile = null;
 			if (executeQuery.next()) {
-				buildLocalFile(executeQuery);
+				localFile = buildLocalFile(executeQuery);
 			}
 
 			executeQuery.close();
 			prepareStatement.close();
 			connection.close();
-			return cloudFile;
+			return localFile;
 		} catch (SQLException e) {
 		}
 		return null;
@@ -117,6 +116,7 @@ public class LocalFileDao extends BaseDao {
 	protected LocalFile buildLocalFile(ResultSet resultSet) throws SQLException {
 		final LocalFile file = new LocalFile();
 		file.setId(resultSet.getString("id"));
+		file.setfId(resultSet.getString("fid"));
 		file.setPath(resultSet.getString("path"));
 		file.setLength(resultSet.getLong("length"));
 		file.setDir(resultSet.getBoolean("isdir"));

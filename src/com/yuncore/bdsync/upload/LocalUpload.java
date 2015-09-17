@@ -149,7 +149,7 @@ public class LocalUpload implements OutputDataListener {
 	 * @return
 	 */
 	private boolean fileExistsCloudFileDB(LocalFile localFile) {
-		final CloudFile file = cloudFileDao.queryByFid(localFile.getfId());
+		final LocalFile file = cloudFileDao.queryByFid(localFile.getfId());
 		if (file != null) {
 			return true;
 		}

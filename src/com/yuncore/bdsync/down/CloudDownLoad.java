@@ -9,7 +9,6 @@ import com.yuncore.bdsync.api.DownloadInputStream;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.DownloadDao;
-import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.FileMV;
 import com.yuncore.bdsync.util.Log;

@@ -5,13 +5,13 @@
  */
 package com.yuncore.bdsync.delete;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.CloudFileDao;
 import com.yuncore.bdsync.dao.LocalFileDeleteDao;
-import com.yuncore.bdsync.entity.CloudFile;
 import com.yuncore.bdsync.entity.CloudRmResult;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
@@ -31,15 +31,17 @@ public class LocalDeleteActionCloud {
 
 	private FSApi fsApi;
 
-	private CloudFile cloudFile;
+	protected volatile boolean flag;
+
+	protected List<DeleteCheckFileStep> steps = new ArrayList<DeleteCheckFileStep>();
 
 	/**
 	 * @param root
 	 */
 	public LocalDeleteActionCloud(String root) {
 		super();
-		this.root = root;
-		this.fsApi = new FSApiImple();
+		steps.add(new DeteleCheckSize());
+		steps.add(new DeteleCheckMtime());
 	}
 
 	/**
@@ -58,34 +60,18 @@ public class LocalDeleteActionCloud {
 	}
 
 	public synchronized boolean deletes() {
-		List<LocalFile> list = null;
-		int length = 0;
-
 		LocalFile deleteFile = null;
-		while (null != (list = queryList(10))) {
-			length = list.size();
-			if (length != 0) {
-				for (int i = 0; i < length; i++) {
-					deleteFile = list.get(i);
-					try {
-						if (checkAndDelete(deleteFile)) {
-							if (!deleteRecord(deleteFile)) {
-								i--;
-							}
-						} else {
-							i--;
-						}
-					} catch (Exception e) {
-						// 去云端查看文件存在时可能会出错
-						i--;
-					}
+		while (null != (deleteFile = query())) {
+			try {
+				if (checkAndDelete(deleteFile)) {
+					deleteRecord(deleteFile);
 				}
-			} else {
-				return true;
+			} catch (Exception e) {
+				// 去云端查看文件存在时可能会出错
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -96,67 +82,19 @@ public class LocalDeleteActionCloud {
 	 * @throws Exception
 	 */
 	private boolean checkAndDelete(LocalFile file) throws Exception {
-		if (fileExists(file)) {
-			if (file.isDir()) {
-				// 如果是文件夹
-				return deleteFile(file);
-			} else {
-				// 如果是文件
-				if (fileSizeSame(file)) {
-					return deleteFile(file);
-				} else { // 文件大小不一样
-					if (fileMtime(file)) {
-						return deleteFile(file);
-					} else {
-						return true;
-					}
+		final LocalFile deleteFile = file;
+		final LocalFile compareFile = getCompareFile(deleteFile);
+		if (compareFile != null) {
+			for (DeleteCheckFileStep step : steps) {
+				if (!step.check(deleteFile, compareFile)) {
+					return deleteFile(deleteFile);
 				}
 			}
+
 		} else {
-			// 文件不在了,直接删除
-			return true;
+			Log.d(getTag(), "compareFile not exists");
 		}
-	}
-
-	/**
-	 * 检查要删除的文件大于是否一致
-	 * 
-	 * @param file
-	 * @return
-	 */
-	protected boolean fileSizeSame(LocalFile file) {
-		if (cloudFile.getLength() == file.getLength()) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * 检查文件修改时间
-	 * 
-	 * @param file
-	 * @return
-	 */
-	protected boolean fileMtime(LocalFile file) {
-		final long destTime = cloudFile.getMtime();// 精确到秒
-		final long targetTime = file.getMtime();
-		if (destTime <= targetTime) {
-			// 本地文件修改时间大于等于云端,则可以删了
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * 检查要删除的文件还在不在
-	 * 
-	 * @param file
-	 * @return
-	 * @throws ApiException
-	 */
-	protected boolean fileExists(LocalFile file) throws Exception {
-		this.cloudFile = fsApi.exists(file.getAbsolutePath(), file.isDir());
-		return cloudFile != null;
+		return true;
 	}
 
 	/**
@@ -167,6 +105,10 @@ public class LocalDeleteActionCloud {
 	 * @throws Exception
 	 */
 	protected boolean deleteFile(LocalFile deleteFile) throws Exception {
+		if (null == fsApi) {
+			fsApi = new FSApiImple();
+		}
+
 		final CloudRmResult rmResult = fsApi.rm(deleteFile.getAbsolutePath());
 		boolean result = false;
 		if (rmResult != null) {
@@ -189,23 +131,25 @@ public class LocalDeleteActionCloud {
 	protected boolean deleteRecord(LocalFile deleteFile) {
 		final LocalFileDeleteDao fileDeleteDao = new LocalFileDeleteDao();
 		boolean result = fileDeleteDao.deleteByFid(deleteFile.getfId());
-		if(result){
-			//如果云端最后的列表里面有本地删除的文件,也删除了,以名下次对比的时候发现删除了,再来一次删除本地文件
+		if (result) {
+			// 如果云端最后的列表里面有本地删除的文件,也删除了,以名下次对比的时候发现删除了,再来一次删除本地文件
 			final CloudFileDao cloudFileDao = new CloudFileDao();
 			cloudFileDao.deleteByFid(deleteFile.getfId());
 		}
 		return result;
 	}
 
-	/**
-	 * 查询要删除的数据,先查文件
-	 * 
-	 * @param size
-	 * @return
-	 */
-	protected List<LocalFile> queryList(int size) {
+	protected LocalFile query() {
 		final LocalFileDeleteDao localFileDeleteDao = new LocalFileDeleteDao();
-		return localFileDeleteDao.query(0, size);
+		return localFileDeleteDao.query();
+	}
+
+	protected LocalFile getCompareFile(LocalFile deleteFile) throws ApiException {
+		if (null == fsApi) {
+			fsApi = new FSApiImple();
+		}
+
+		return fsApi.getMeta(deleteFile.getAbsolutePath());
 	}
 
 	public String getTag() {

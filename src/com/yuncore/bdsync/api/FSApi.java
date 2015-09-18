@@ -188,4 +188,11 @@ public interface FSApi {
 	 */
 	public CloudPageFile list(String dir, int page, int page_num)
 			throws ApiException;
+	
+	/**
+	 * 取文件或者文件夹元信息
+	 * @param file
+	 * @return
+	 */
+	public CloudFile getMeta(String file)  throws ApiException;
 }

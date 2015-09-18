@@ -111,15 +111,15 @@ public class Sync implements Runnable {
 		steps = new ArrayList<SyncStepTask>();
 		steps.add(new SyncStopTask());
 
-		steps.add(new ListCloudFilesTask(args));
-		steps.add(new CloudCompareTask());
-		steps.add(new CloudDeleteActionLocalTask(args));
-		steps.add(new CloudDownloadTask(args));
+//		steps.add(new ListCloudFilesTask(args));
+//		steps.add(new CloudCompareTask());
+//		steps.add(new CloudDeleteActionLocalTask(args));
+//		steps.add(new CloudDownloadTask(args));
 
 		steps.add(new ListLocalFilesTask(args));
 		steps.add(new LocalCompareTask());
 		steps.add(new LocalDeleteActionCloudTask(args));
-		steps.add(new LocalUploadTask(args));
+//		steps.add(new LocalUploadTask(args));
 
 		steps.add(new SyncSleepTask());
 	}

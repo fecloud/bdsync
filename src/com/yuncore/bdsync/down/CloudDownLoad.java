@@ -2,14 +2,16 @@ package com.yuncore.bdsync.down;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.yuncore.bdsync.Argsment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.DownloadInputStream;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.DownloadDao;
 import com.yuncore.bdsync.entity.LocalFile;
+import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.util.FileMV;
 import com.yuncore.bdsync.util.Log;
 
@@ -21,19 +23,22 @@ public class CloudDownLoad {
 
 	private String tmpDir;
 
-	private FSApi api;
+	private FSApi fsApi;
 
 	private DownloadDao downloadDao;
 
-	// private LocalFileDao localFileDao;
+	private List<DownLoadCheckFileStep> steps = new ArrayList<DownLoadCheckFileStep>();
+
+	protected volatile boolean flag;
 
 	public CloudDownLoad(String root, String tmpDir) {
 		this.root = root;
 		this.tmpDir = tmpDir;
-		api = new FSApiImple();
+		fsApi = new FSApiImple();
 		downloadDao = new DownloadDao();
-		// localFileDao = new LocalFileDao();
 
+		steps.add(new DownLoadCheckLocalExists());
+		
 		final File file = new File(tmpDir);
 		if (!file.exists()) {
 			file.mkdirs();
@@ -41,29 +46,47 @@ public class CloudDownLoad {
 	}
 
 	public boolean start() {
-		// Log.d(TAG,
-		// String.format("CloudDownLoad root:%s tmpDir:%s", root, tmpDir));
-		LocalFile cloudFile = null;
-		boolean downloaded = true;
-		while (Argsment.getBDSyncAllow()) {
+		LocalFile downloadFile = null;
+		flag = true;
+		while (flag) {
 
-			cloudFile = getDownLoad();
-			if (cloudFile != null) {
-				Log.d(TAG, "getDownLoad " + cloudFile.getAbsolutePath());
-				StatusMent.setProperty(StatusMent.DOWNLOADING, cloudFile);
+			downloadFile = getDownLoad();
+			if (downloadFile != null) {
+				StatusMent.setProperty(StatusMent.DOWNLOADING, downloadFile);
 				StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, 0);
-				// 检查是否是排除下载的目录
-				downloaded = downloadFile(cloudFile);
-				// 删除下载任务
-				if (downloaded) {
-					StatusMent.setProperty(StatusMent.DOWNLOADING, "");
-					delDownLoad(cloudFile);
+				try {
+					if (checkAndDownLoad(downloadFile)) {
+						delDownLoad(downloadFile);
+					}
+				} catch (Exception e) {
 				}
 			} else {
 				return true;
 			}
+		}
+		StatusMent.setProperty(StatusMent.DOWNLOADING, false);
+		return true;
+	}
 
-			StatusMent.setProperty(StatusMent.DOWNLOADING, false);
+	/**
+	 * @param cloudFile
+	 * @throws ApiException
+	 */
+	private boolean checkAndDownLoad(LocalFile file) throws Exception {
+		final LocalFile downloadFile = file;
+		final LocalFile cloudFile = getCloudFile(downloadFile);
+		final LocalFile localFile = getLocalFile(downloadFile);
+		if (cloudFile != null) {
+			// 如果云端文件还在
+			for (DownLoadCheckFileStep step : steps) {
+				if (!step.check(downloadFile, cloudFile, localFile)) {
+					// return downlFile(downloadFile);
+				}
+			}
+
+		} else {
+			// 云端文件被删除了
+			Log.d(TAG, "cloudFile may delete can't download");
 		}
 		return true;
 	}
@@ -73,6 +96,7 @@ public class CloudDownLoad {
 	}
 
 	private void delDownLoad(LocalFile cloudFile) {
+		StatusMent.setProperty(StatusMent.DOWNLOADING, "");
 		if (downloadDao.deleteByFid(cloudFile.getfId())) {
 			Log.d(TAG, "delDownLoad " + cloudFile.getAbsolutePath());
 		}
@@ -89,13 +113,11 @@ public class CloudDownLoad {
 		final File targetFile = new File(file);
 		if (targetFile.exists()) {
 			if (targetFile.isFile()) {
-				if (cloudFile.isFile()
-						&& cloudFile.getLength() == targetFile.length()) {
+				if (cloudFile.isFile() && cloudFile.getLength() == targetFile.length()) {
 					Log.d(TAG, "file local exists");
 					return true;
 				} else {
-					Log.d(TAG,
-							"file local exists but length not equals,file was changed");
+					Log.d(TAG, "file local exists but length not equals,file was changed");
 					return true;
 				}
 			} else if (targetFile.isDirectory()) {
@@ -159,7 +181,7 @@ public class CloudDownLoad {
 			if (fileStart > 0) {
 				Log.d(TAG, "continue download file start:" + fileStart);
 				sum = fileStart;
-				in = api.download(cloudFile, fileStart);
+				in = fsApi.download(cloudFile, fileStart);
 				if (in.getLength() + sum != cloudFile.getLength()) {
 					// 下载返回来的文件大小与要下载的大小不一致,可能文件被改了
 					return true;
@@ -167,7 +189,7 @@ public class CloudDownLoad {
 				out = new FileOutputStream(tmpFile, true);
 			} else {
 				Log.d(TAG, "new download file start:0");
-				in = api.download(cloudFile);
+				in = fsApi.download(cloudFile);
 				if (in.getLength() != cloudFile.getLength()) {
 					// 下载返回来的文件大小与要下载的大小不一致,可能文件被改了
 					return true;
@@ -208,8 +230,7 @@ public class CloudDownLoad {
 					}
 				}
 				in.close();
-				Log.i(TAG, "download " + cloudFile.getParentPath()
-						+ " success");
+				Log.i(TAG, "download " + cloudFile.getParentPath() + " success");
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "downloadFileContext error", e);
@@ -232,15 +253,25 @@ public class CloudDownLoad {
 		}
 	}
 
-	/**
-	 * 是否存在云端文件列表中(必免http网盘接口查询)
-	 * 
-	 * @param localFile
-	 * @return
-	 * 
-	 *         private boolean fileExistsCloudFileDB(LocalFile localFile) {
-	 *         final LocalFile file =
-	 *         localFileDao.queryByFid(localFile.getfId()); if (file != null) {
-	 *         return true; } return false; }
-	 */
+	protected LocalFile getCloudFile(LocalFile downloadFile) throws ApiException {
+		return fsApi.getMeta(downloadFile.getAbsolutePath());
+	}
+
+	protected LocalFile getLocalFile(LocalFile downloadFile) throws ApiException {
+		final File file = new File(root, downloadFile.getAbsolutePath());
+		if (file.exists()) {
+			final LocalFile localFile = new LocalFile();
+			localFile.setDir(file.isDirectory());
+			if (file.isDirectory()) {
+				localFile.setLength(0);
+			} else {
+				localFile.setLength(file.length());
+			}
+			localFile.setMtime(file.lastModified());
+			localFile.setPath(downloadFile.getAbsolutePath());
+			return localFile;
+		}
+		return null;
+	}
+
 }

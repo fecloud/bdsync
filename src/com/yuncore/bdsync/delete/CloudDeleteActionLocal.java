@@ -6,11 +6,11 @@
 package com.yuncore.bdsync.delete;
 
 import java.io.File;
-import java.util.List;
 
 import com.yuncore.bdsync.dao.CloudFileDeleteDao;
 import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
+import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.util.Log;
 
 /**
@@ -43,25 +43,12 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.yuncore.bdsync.delete.LocalDeleteActionCloud#queryList(int)
+	 * @see com.yuncore.bdsync.delete.LocalDeleteActionCloud#query()
 	 */
 	@Override
-	protected List<LocalFile> queryList(int size) {
+	protected LocalFile query() {
 		final CloudFileDeleteDao cloudFileDeleteDao = new CloudFileDeleteDao();
-		return cloudFileDeleteDao.query(0, size);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.yuncore.bdsync.delete.LocalDeleteActionCloud#fileExists(com.yuncore
-	 * .bdsync.entity.LocalFile)
-	 */
-	@Override
-	protected boolean fileExists(LocalFile file) throws Exception {
-		final File targetFile = new File(getRoot(), file.getAbsolutePath());
-		return targetFile.exists();
+		return cloudFileDeleteDao.query();
 	}
 
 	/*
@@ -95,6 +82,7 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 		final CloudFileDeleteDao fileDeleteDao = new CloudFileDeleteDao();
 		boolean result = fileDeleteDao.deleteByFid(deleteFile.getfId());
 		if (result) {
+			// 如果云端最后的列表里面有本地删除的文件,也删除了,以名下次对比的时候发现删除了,再来一次删除本地文件
 			final LocalFileDao localFileDao = new LocalFileDao();
 			localFileDao.deleteByFid(deleteFile.getfId());
 		}
@@ -104,35 +92,24 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.yuncore.bdsync.delete.LocalDeleteActionCloud#fileSizeSame(com.yuncore
-	 * .bdsync.entity.LocalFile)
+	 * @see com.yuncore.bdsync.delete.LocalDeleteActionCloud#getCompareFile(com.
+	 * yuncore.bdsync.entity.LocalFile)
 	 */
 	@Override
-	protected boolean fileSizeSame(LocalFile file) {
-		final File destFile = new File(getRoot(), file.getAbsolutePath());
-		if (destFile.length() == file.getLength()) {
-			return true;
+	protected LocalFile getCompareFile(LocalFile deleteFile) throws ApiException {
+		final File file = new File(getRoot(), deleteFile.getAbsolutePath());
+		if (file.exists()) {
+			final LocalFile localFile = new LocalFile();
+			localFile.setDir(file.isDirectory());
+			if (file.isDirectory()) {
+				localFile.setLength(0);
+			} else {
+				localFile.setLength(file.length());
+			}
+			localFile.setMtime(file.lastModified());
+			localFile.setPath(deleteFile.getAbsolutePath());
+			return localFile;
 		}
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.yuncore.bdsync.delete.LocalDeleteActionCloud#fileMtime(com.yuncore
-	 * .bdsync.entity.LocalFile)
-	 */
-	@Override
-	protected boolean fileMtime(LocalFile file) {
-		final long destTime = new File(getRoot(), file.getAbsolutePath())
-				.lastModified() / 1000;// 精确到秒
-		final long targetTime = file.getMtime();
-		if (destTime <= targetTime) {
-			// 云端文件修改时间大于等于云端,则可以删了
-			return true;
-		}
-		return false;
+		return null;
 	}
 }

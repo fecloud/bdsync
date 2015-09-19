@@ -14,8 +14,9 @@ import com.yuncore.bdsync.entity.LocalFile;
  * @version 1.0
  */
 public interface DownLoadCheckFileStep {
+	
 	/**
-	 * 检查文件
+	 * 检查文件,如果这一个步骤成功完成不要进行下一个返回true;
 	 * 
 	 * @param deleteFile
 	 * @param compareFile

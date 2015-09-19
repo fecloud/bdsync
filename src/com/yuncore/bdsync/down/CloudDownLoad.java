@@ -37,8 +37,8 @@ public class CloudDownLoad {
 		fsApi = new FSApiImple();
 		downloadDao = new DownloadDao();
 
-		steps.add(new DownLoadCheckLocalExists());
-		
+		steps.add(new DownLoadCheckLocalSize());
+
 		final File file = new File(tmpDir);
 		if (!file.exists()) {
 			file.mkdirs();
@@ -55,9 +55,7 @@ public class CloudDownLoad {
 				StatusMent.setProperty(StatusMent.DOWNLOADING, downloadFile);
 				StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, 0);
 				try {
-					if (checkAndDownLoad(downloadFile)) {
-						delDownLoad(downloadFile);
-					}
+					checkAndDownLoad(downloadFile);
 				} catch (Exception e) {
 				}
 			} else {
@@ -72,23 +70,16 @@ public class CloudDownLoad {
 	 * @param cloudFile
 	 * @throws ApiException
 	 */
-	private boolean checkAndDownLoad(LocalFile file) throws Exception {
+	private void checkAndDownLoad(LocalFile file) throws Exception {
 		final LocalFile downloadFile = file;
 		final LocalFile cloudFile = getCloudFile(downloadFile);
 		final LocalFile localFile = getLocalFile(downloadFile);
-		if (cloudFile != null) {
-			// 如果云端文件还在
-			for (DownLoadCheckFileStep step : steps) {
-				if (!step.check(downloadFile, cloudFile, localFile)) {
-					// return downlFile(downloadFile);
-				}
+		// 如果云端文件还在
+		for (DownLoadCheckFileStep step : steps) {
+			if (!step.check(downloadFile, cloudFile, localFile)) {
+				delDownLoad(downloadFile);
 			}
-
-		} else {
-			// 云端文件被删除了
-			Log.d(TAG, "cloudFile may delete can't download");
 		}
-		return true;
 	}
 
 	private LocalFile getDownLoad() {

@@ -87,6 +87,13 @@ public interface FSApi {
 //	public boolean upload(String localpath, String cloudpath, OutputDataListener listener)throws ApiException;
 	
 	/**
+	 * 当前用户
+	 * 
+	 * @return
+	 */
+	public String who() throws ApiException;
+	
+	/**
 	 * 上传文件
 	 * @param filename 本地文件路径
 	 * @param dir 服务器路径

@@ -722,4 +722,13 @@ public class FSApiImple implements FSApi {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.api.FSApi#who()
+	 */
+	@Override
+	public String who() throws ApiException {
+		Map<String, String> diskHomePage = diskHomePage();
+		return diskHomePage.get("MYNAME");
+	}
+
 }

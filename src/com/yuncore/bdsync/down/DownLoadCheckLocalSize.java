@@ -19,26 +19,33 @@ public class DownLoadCheckLocalSize implements DownLoadCheckFileStep {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.yuncore.bdsync.down.DownLoadCheckFileStep#check(com.yuncore.bdsync.
-	 * entity.LocalFile, com.yuncore.bdsync.entity.LocalFile,
-	 * com.yuncore.bdsync.entity.LocalFile)
+	 * com.yuncore.bdsync.down.DownLoadCheckFileStep#check(com.yuncore.bdsync
+	 * .entity.LocalFile, com.yuncore.bdsync.entity.LocalFile,
+	 * com.yuncore.bdsync.entity.LocalFile,
+	 * com.yuncore.bdsync.down.DownloadOperate)
 	 */
 	@Override
-	public boolean check(LocalFile downloadFile, LocalFile cloudFile, LocalFile loalFile) {
+	public boolean check(LocalFile downloadFile, LocalFile cloudFile,
+			LocalFile loalFile, DownloadOperate downloadOperate) {
 		// 本地文件不在
 		if (loalFile == null) {
 			return true;
 		}
 		if (downloadFile.isDir() && loalFile.isDir()) {
-			// 两个都是文件夹,进行下一步时间检查
-			return true;
+			// 两个都是文件夹
+			downloadOperate.deleteRecord(downloadFile);
+			return false;
 		} else if (downloadFile.isFile() && loalFile.isFile()) {
 			if (downloadFile.getLength() == loalFile.getLength()) {
-				// 两个文件大小一样,可以删除
+				// 两个文件大小一样,进入文件修改时间检查
+				downloadOperate.deleteRecord(downloadFile);
+				return false;
+			} else {
 				return true;
 			}
 		}
 		// 两个文件大小不一样或者类型不一样
+		downloadOperate.deleteRecord(downloadFile);
 		return false;
 	}
 

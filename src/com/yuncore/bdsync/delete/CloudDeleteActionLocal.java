@@ -11,6 +11,7 @@ import com.yuncore.bdsync.dao.CloudFileDeleteDao;
 import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
+import com.yuncore.bdsync.util.FileUtil;
 import com.yuncore.bdsync.util.Log;
 
 /**
@@ -96,20 +97,8 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	 * yuncore.bdsync.entity.LocalFile)
 	 */
 	@Override
-	protected LocalFile getCompareFile(LocalFile deleteFile) throws ApiException {
-		final File file = new File(getRoot(), deleteFile.getAbsolutePath());
-		if (file.exists()) {
-			final LocalFile localFile = new LocalFile();
-			localFile.setDir(file.isDirectory());
-			if (file.isDirectory()) {
-				localFile.setLength(0);
-			} else {
-				localFile.setLength(file.length());
-			}
-			localFile.setMtime(file.lastModified());
-			localFile.setPath(deleteFile.getAbsolutePath());
-			return localFile;
-		}
-		return null;
+	protected LocalFile getCompareFile(LocalFile deleteFile)
+			throws ApiException {
+		return FileUtil.getLocalFile(getRoot(), deleteFile.getAbsolutePath());
 	}
 }

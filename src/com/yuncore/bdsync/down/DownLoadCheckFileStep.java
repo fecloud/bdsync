@@ -14,7 +14,7 @@ import com.yuncore.bdsync.entity.LocalFile;
  * @version 1.0
  */
 public interface DownLoadCheckFileStep {
-	
+
 	/**
 	 * 检查文件,如果这一个步骤成功完成不要进行下一个返回true;
 	 * 
@@ -23,5 +23,6 @@ public interface DownLoadCheckFileStep {
 	 * @param args
 	 * @return false不再继续检查了
 	 */
-	boolean check(LocalFile downloadFile, LocalFile cloudFile, LocalFile loalFile);
+	boolean check(LocalFile downloadFile, LocalFile cloudFile,
+			LocalFile loalFile, DownloadOperate downloadOperate);
 }

@@ -8,19 +8,17 @@ import java.util.List;
 import com.yuncore.bdsync.Argsment;
 import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
+import com.yuncore.bdsync.api.FSApi;
+import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.app.ClientContext;
 import com.yuncore.bdsync.ctrl.Httpd;
 import com.yuncore.bdsync.dao.SyncProcessDao;
 import com.yuncore.bdsync.entity.SyncProcess;
+import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.http.cookie.FileCookieContainer;
-import com.yuncore.bdsync.sync.task.CloudCompareTask;
-import com.yuncore.bdsync.sync.task.CloudDeleteActionLocalTask;
-import com.yuncore.bdsync.sync.task.CloudDownloadTask;
-import com.yuncore.bdsync.sync.task.ListCloudFilesTask;
 import com.yuncore.bdsync.sync.task.ListLocalFilesTask;
 import com.yuncore.bdsync.sync.task.LocalCompareTask;
 import com.yuncore.bdsync.sync.task.LocalDeleteActionCloudTask;
-import com.yuncore.bdsync.sync.task.LocalUploadTask;
 import com.yuncore.bdsync.sync.task.SyncSleepTask;
 import com.yuncore.bdsync.sync.task.SyncStepTask;
 import com.yuncore.bdsync.sync.task.SyncStopTask;
@@ -98,6 +96,25 @@ public class Sync implements Runnable {
 
 	}
 
+	/**
+	 * 检查cookie有效性
+	 * 
+	 * @return
+	 */
+	private boolean checkCookie() {
+		final FSApi fsApi = new FSApiImple();
+		try {
+			final String who = fsApi.who();
+			if (null != who && who.trim().length() > 0) {
+				Log.w(TAG, "current cookie user:" + who);
+				return true;
+			}
+		} catch (ApiException e) {
+		}
+		Log.w(TAG, "cookie error");
+		return false;
+	}
+
 	public synchronized void start() {
 		final Thread thread = new Thread(this);
 		thread.setName(TAG);
@@ -111,15 +128,15 @@ public class Sync implements Runnable {
 		steps = new ArrayList<SyncStepTask>();
 		steps.add(new SyncStopTask());
 
-//		steps.add(new ListCloudFilesTask(args));
-//		steps.add(new CloudCompareTask());
-//		steps.add(new CloudDeleteActionLocalTask(args));
-//		steps.add(new CloudDownloadTask(args));
+		// steps.add(new ListCloudFilesTask(args));
+		// steps.add(new CloudCompareTask());
+		// steps.add(new CloudDeleteActionLocalTask(args));
+		// steps.add(new CloudDownloadTask(args));
 
 		steps.add(new ListLocalFilesTask(args));
 		steps.add(new LocalCompareTask());
 		steps.add(new LocalDeleteActionCloudTask(args));
-//		steps.add(new LocalUploadTask(args));
+		// steps.add(new LocalUploadTask(args));
 
 		steps.add(new SyncSleepTask());
 	}
@@ -155,13 +172,14 @@ public class Sync implements Runnable {
 			if (!Argsment.getBDSyncAllow()) {
 				currentIndex = 0;
 			}
-			
+
 			current = steps.get(currentIndex);
 			syncProcessDao.setSyncProcess(new SyncProcess(
 					current.getStepName(), current.getRealName()));
 
-			StatusMent.setProperty(StatusMent.SYNCWORKING, current.getRealName());
-			
+			StatusMent.setProperty(StatusMent.SYNCWORKING,
+					current.getRealName());
+
 			Log.w(TAG, current.getRealName() + " start");
 			// 任务执行成功
 			if (current.start()) {
@@ -198,10 +216,13 @@ public class Sync implements Runnable {
 	public void run() {
 		Log.w("Sync", "sync dir:" + syncdir);
 		setEnv();
-		addWorkStep();
-		lastWorkingStep();
-		this.flag = true;
-		work();
+		if(checkCookie()){
+			addWorkStep();
+			lastWorkingStep();
+			this.flag = true;
+			work();
+		}
+		
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * @(#) DownLoadCheckLocalMtime.java Created on 2015年9月18日
+ * @(#) DownLoadCheckCloudMtime.java Created on Sep 19, 2015
  *
  * 
  */
@@ -8,12 +8,12 @@ package com.yuncore.bdsync.down;
 import com.yuncore.bdsync.entity.LocalFile;
 
 /**
- * The class <code>DownLoadCheckLocalMtime</code>
+ * The class <code>DownLoadCheckCloudMtime</code>
  * 
  * @author Feng OuYang
  * @version 1.0
  */
-public class DownLoadCheckLocalMtime implements DownLoadCheckFileStep {
+public class DownLoadCheckCloudMtime implements DownLoadCheckFileStep {
 
 	/*
 	 * (non-Javadoc)
@@ -27,16 +27,18 @@ public class DownLoadCheckLocalMtime implements DownLoadCheckFileStep {
 	@Override
 	public boolean check(LocalFile downloadFile, LocalFile cloudFile,
 			LocalFile loalFile, DownloadOperate downloadOperate) {
-		if (loalFile == null) {
-			return true;
-		} else {
-			// 如果要下载的文件跟本地一样大小,当要下载的文件修改时间大于本地文件
-			if (downloadFile.getMtime() > loalFile.getMtime()) {
+		if (downloadFile.isFile() && cloudFile.isFile()) {
+			if (cloudFile.getMtime() == downloadFile.getMtime()
+					|| cloudFile.getMd5() == downloadFile.getMd5()) {
+				// 下载的文件的md5要与要下载的一样
 				return true;
-			} else {
-				downloadOperate.deleteRecord(downloadFile);
 			}
+
+		} else {
+			// 文件存就不检查修改时间了
+			return true;
 		}
+		downloadOperate.deleteRecord(downloadFile);
 		return false;
 	}
 

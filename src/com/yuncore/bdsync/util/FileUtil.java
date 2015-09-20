@@ -16,7 +16,8 @@ public class FileUtil {
 	 * @param dir
 	 * @return
 	 */
-	public static List<LocalFile> listFiles(String root, String dir, long session) {
+	public static final List<LocalFile> listFiles(String root, String dir,
+			long session) {
 		final File file = new File(root, dir);
 		if (file.exists() && file.isDirectory()) {
 			File[] listFiles = file.listFiles();
@@ -27,7 +28,8 @@ public class FileUtil {
 				if (file_separator) {
 					for (File f : listFiles) {
 						localFile = new LocalFile();
-						localFile.setPath(f.getAbsolutePath().substring(root.length()).replace("\\", "/"));
+						localFile.setPath(f.getAbsolutePath()
+								.substring(root.length()).replace("\\", "/"));
 						localFile.setMtime(f.lastModified() / 1000);
 						localFile.setLength(f.length());
 						localFile.setDir((f.isFile() ? false : true));
@@ -38,7 +40,8 @@ public class FileUtil {
 				} else {
 					for (File f : listFiles) {
 						localFile = new LocalFile();
-						localFile.setPath(f.getAbsolutePath().substring(root.length()));
+						localFile.setPath(f.getAbsolutePath().substring(
+								root.length()));
 						localFile.setMtime(f.lastModified() / 1000);
 						localFile.setLength(f.length());
 						localFile.setDir((f.isFile() ? false : true));
@@ -54,7 +57,24 @@ public class FileUtil {
 		return null;
 	}
 
-	public static boolean rmDirFile(String dir) {
+	public static final LocalFile getLocalFile(String root, String path) {
+		final File file = new File(root, path);
+		if (file.exists()) {
+			final LocalFile localFile = new LocalFile();
+			localFile.setDir(file.isDirectory());
+			if (file.isDirectory()) {
+				localFile.setLength(0);
+			} else {
+				localFile.setLength(file.length());
+			}
+			localFile.setMtime(file.lastModified());
+			localFile.setPath(path);
+			return localFile;
+		}
+		return null;
+	}
+
+	public static final boolean rmDirFile(String dir) {
 		final File dirFile = new File(dir);
 		if (dirFile.exists()) {
 			final File[] listFiles = dirFile.listFiles();
@@ -69,7 +89,7 @@ public class FileUtil {
 		return false;
 	}
 
-	public static String byteSizeToHuman(long size) {
+	public static final String byteSizeToHuman(long size) {
 		final StringBuilder builder = new StringBuilder();
 		int i = 0;
 		double unit = size;

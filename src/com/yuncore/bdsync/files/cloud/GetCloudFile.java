@@ -36,7 +36,7 @@ public class GetCloudFile extends PreemptiveTaskService {
 	public synchronized boolean list() {
 		Stopwatch stopwatch = new Stopwatch();
 		stopwatch.start();
-		Environment.setCloudlistSession("" + System.currentTimeMillis());
+		Environment.setCloudlist("" + System.currentTimeMillis());
 		taskContainer.addTask(new GetCloudFileTask(dir));
 		waitTaskFinish();
 		cloudFileDao.insertAllCacaheFlush();

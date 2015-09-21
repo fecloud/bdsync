@@ -60,11 +60,11 @@ public class BDSyncMain implements BDSyncServiceListener {
 		System.err.println("stop");
 		System.err.println("");
 		System.err.println("VM args:-Dname=value");
-		System.err.println("\tbbdsync.db db file location");
-		System.err.println("\tbbdsync.log.file log file location");
-		System.err.println("\tbbdsync.log.priority log level [VERBOSE,DEBUG,INFO,WARN,ERROR]");
-		System.err.println("\tbbdsync.cookie cookie file location");
-		System.err.println("\tbbdsync.interval sync interval time");
+		System.err.println("\tbdsync.db db file location");
+		System.err.println("\tbdsync.log.file log file location");
+		System.err.println("\tbdsync.log.priority log level [VERBOSE,DEBUG,INFO,WARN,ERROR]");
+		System.err.println("\tbdsync.cookie cookie file location");
+		System.err.println("\tbdsync.interval sync interval time");
 		System.err.println("");
 	}
 

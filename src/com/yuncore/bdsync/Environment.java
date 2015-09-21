@@ -43,9 +43,9 @@ public final class Environment {
 
 	public static final String COOKIECONTAINER = "bdsync.cookiecontainer";
 
-	public static final String LOCALLIST_SESSION = "bdsync.locallist_session";
+	public static final String LOCALLIST = "bdsync.locallist";
 
-	public static final String CLOUDLIST_SESSION = "bdsync.cloudlist_session";
+	public static final String CLOUDLIST = "bdsync.cloudlist";
 
 	/**
 	 * 程序启动时间
@@ -124,20 +124,20 @@ public final class Environment {
 		return System.getProperty(COOKIECONTAINER, null);
 	}
 
-	public static final void setLocallistSession(String session) {
-		System.setProperty(LOCALLIST_SESSION, session);
+	public static final void setLocallist(String ms) {
+		System.setProperty(LOCALLIST, ms);
 	}
 
-	public static final String getLocallistSession() {
-		return System.getProperty(LOCALLIST_SESSION, "0");
+	public static final String getLocallist() {
+		return System.getProperty(LOCALLIST, "0");
 	}
 
-	public static final void setCloudlistSession(String session) {
-		System.setProperty(CLOUDLIST_SESSION, session);
+	public static final void setCloudlist(String ms) {
+		System.setProperty(CLOUDLIST, ms);
 	}
 
-	public static final String getCloudlistSession() {
-		return System.getProperty(CLOUDLIST_SESSION, "0");
+	public static final String getCloudlist() {
+		return System.getProperty(CLOUDLIST, "0");
 	}
 
 	public static final String getCommdLine() {

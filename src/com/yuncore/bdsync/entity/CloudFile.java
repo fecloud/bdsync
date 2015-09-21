@@ -25,8 +25,9 @@ public class CloudFile extends LocalFile {
 				md5 = object.getString("md5");
 			}
 			if (object.has("server_mtime")) {
-				mtime = object.getLong("server_mtime");
+				mtime = object.getInt("server_mtime");
 			}
+			this.newest = true;
 			return true;
 		}
 		return false;

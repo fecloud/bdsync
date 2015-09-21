@@ -56,7 +56,7 @@ public class LocalFileDao extends BaseDao {
 			final Connection connection = getConnection();
 
 			final String sql = String.format(
-					"INSERT INTO %s ('path','length','isdir','mtime','fid','md5','session') VALUES (?,?,?,?,?,?,?)",
+					"INSERT INTO %s ('path','length','isdir','mtime','fid','md5','newest') VALUES (?,?,?,?,?,?,?)",
 					getTableName());
 			final PreparedStatement prepareStatement = connection.prepareStatement(sql);
 
@@ -67,7 +67,7 @@ public class LocalFileDao extends BaseDao {
 				prepareStatement.setLong(4, f.getMtime());
 				prepareStatement.setString(5, f.toFid());
 				prepareStatement.setString(6, f.getMd5());
-				prepareStatement.setLong(7, f.getSession());
+				prepareStatement.setBoolean(7, f.isNewest());
 				prepareStatement.addBatch();
 			}
 			connection.setAutoCommit(false);
@@ -115,14 +115,14 @@ public class LocalFileDao extends BaseDao {
 
 	protected LocalFile buildLocalFile(ResultSet resultSet) throws SQLException {
 		final LocalFile file = new LocalFile();
-		file.setId(resultSet.getString("id"));
+		file.setId(resultSet.getInt("id"));
 		file.setfId(resultSet.getString("fid"));
 		file.setPath(resultSet.getString("path"));
 		file.setLength(resultSet.getLong("length"));
 		file.setDir(resultSet.getBoolean("isdir"));
-		file.setSession(resultSet.getLong("session"));
+		file.setNewest(resultSet.getBoolean("newest"));
 		file.setMd5(resultSet.getString("md5"));
-		file.setMtime(resultSet.getLong("mtime"));
+		file.setMtime(resultSet.getInt("mtime"));
 		return file;
 	}
 

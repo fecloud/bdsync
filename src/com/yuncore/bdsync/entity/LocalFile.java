@@ -6,7 +6,7 @@ import com.yuncore.bdsync.util.MD5;
 
 public class LocalFile implements EntityJSON {
 
-	protected String id;
+	protected int id;
 
 	protected String path;
 
@@ -16,9 +16,14 @@ public class LocalFile implements EntityJSON {
 
 	protected String md5;
 
-	protected long session;
+	protected boolean newest;
 
-	protected long mtime;
+	protected int mtime;
+
+	/**
+	 * 0文件 1文件夹
+	 */
+	protected boolean isdir;
 
 	public LocalFile() {
 
@@ -28,16 +33,11 @@ public class LocalFile implements EntityJSON {
 		this.path = path;
 	}
 
-	/**
-	 * 0文件 1文件夹
-	 */
-	protected boolean isdir;
-
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -65,12 +65,19 @@ public class LocalFile implements EntityJSON {
 		this.md5 = md5;
 	}
 
-	public long getSession() {
-		return session;
+	/**
+	 * @return the newest
+	 */
+	public boolean isNewest() {
+		return newest;
 	}
 
-	public void setSession(long session) {
-		this.session = session;
+	/**
+	 * @param newest
+	 *            the newest to set
+	 */
+	public void setNewest(boolean newest) {
+		this.newest = newest;
 	}
 
 	public String getAbsolutePath() {
@@ -102,15 +109,16 @@ public class LocalFile implements EntityJSON {
 	}
 
 	public String toFid() {
-		this.fId = MD5.md5(toString());
+		final String str = path + length + (isdir ? "1" : "0");
+		this.fId = MD5.md5(str);
 		return fId;
 	}
 
-	public long getMtime() {
+	public int getMtime() {
 		return mtime;
 	}
 
-	public void setMtime(long mtime) {
+	public void setMtime(int mtime) {
 		this.mtime = mtime;
 	}
 
@@ -162,9 +170,6 @@ public class LocalFile implements EntityJSON {
 	@Override
 	public boolean formJOSN(JSONObject object) {
 		if (null != object) {
-			if (object.has("id")) {
-				this.id = object.getString("id");
-			}
 			if (object.has("path")) {
 				this.path = object.getString("path");
 			}
@@ -174,24 +179,24 @@ public class LocalFile implements EntityJSON {
 			if (object.has("isdir")) {
 				this.isdir = object.getBoolean("isdir");
 			}
-			if (object.has("fId")) {
-				this.fId = object.getString("fId");
-			}
-			if (object.has("session")) {
-				this.session = object.getLong("session");
-			}
 			if (object.has("mtime")) {
-				this.mtime = object.getLong("mtime");
+				this.mtime = object.getInt("mtime");
 			}
 			return true;
 		}
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "[path=" + path + ", length=" + length + ", isdir=" + isdir
-				+ "]";
+		return "LocalFile [id=" + id + ", path=" + path + ", length=" + length
+				+ ", fId=" + fId + ", md5=" + md5 + ", newest=" + newest
+				+ ", mtime=" + mtime + ", isdir=" + isdir + "]";
 	}
 
 	/*
@@ -213,7 +218,7 @@ public class LocalFile implements EntityJSON {
 		object.put("length", length);
 		object.put("isdir", isdir);
 		object.put("fId", fId);
-		object.put("session", session);
+		object.put("newest", newest);
 		object.put("mtime", mtime);
 	}
 

@@ -6,12 +6,11 @@ package com.yuncore.bdsync.files.cloud;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.CloudFileDao;
-import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.entity.CloudFile;
 import com.yuncore.bdsync.entity.CloudPageFile;
+import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.files.FileExclude;
 import com.yuncore.bdsync.http.cookie.AppCookieContainer;
@@ -57,11 +56,6 @@ public class GetCloudFileExecute extends TaskExecute {
 			final CloudPageFile listFiles = new FSApiImple().list(fileTask.getDir());
 			if (listFiles != null) {
 				if (listFiles.getErrno() == 0 && listFiles.getList() != null) {
-					final long session = Long.parseLong(Environment.getCloudlistSession());
-
-					for (CloudFile f : listFiles.getList()) {
-						f.setSession(session);
-					}
 
 					checkExcludeAndAddTask(listFiles.getList());
 

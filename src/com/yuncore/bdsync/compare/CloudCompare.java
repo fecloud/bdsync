@@ -21,16 +21,6 @@ public class CloudCompare extends LocalCompare {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.yuncore.bdsync.compare.LocalCompare#getSession()
-	 */
-	@Override
-	protected long getSession() {
-		return Long.parseLong(Environment.getCloudlistSession());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see com.yuncore.bdsync.compare.LocalCompare#needCompareBefore()
 	 */
 	@Override
@@ -47,7 +37,7 @@ public class CloudCompare extends LocalCompare {
 	@Override
 	public synchronized boolean addNewHistory() {
 		final CloudHistoryDao cloudHistoryDao = new CloudHistoryDao();
-		final long time = Long.parseLong(Environment.getCloudlistSession());
+		final long time = Long.parseLong(Environment.getCloudlist());
 		return cloudHistoryDao.insert(time);
 	}
 	

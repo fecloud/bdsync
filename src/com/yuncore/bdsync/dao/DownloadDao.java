@@ -79,7 +79,7 @@ public class DownloadDao extends BaseDao {
 			final Connection connection = getConnection();
 			final PreparedStatement prepareStatement = connection
 					.prepareStatement(String.format("DELETE FROM %s WHERE id=?", getTableName()));
-			prepareStatement.setString(1, file.getId());
+			prepareStatement.setInt(1, file.getId());
 			connection.setAutoCommit(false);
 			int result = prepareStatement.executeUpdate();
 			connection.commit();
@@ -127,14 +127,14 @@ public class DownloadDao extends BaseDao {
 
 	protected LocalFile buildLocalFile(ResultSet resultSet) throws SQLException {
 		final LocalFile file = new LocalFile();
-		file.setId(resultSet.getString("id"));
+		file.setId(resultSet.getInt("id"));
 		file.setPath(resultSet.getString("path"));
 		file.setLength(resultSet.getLong("length"));
 		file.setDir(resultSet.getBoolean("isdir"));
 		file.setfId(resultSet.getString("fid"));
-		file.setSession(resultSet.getLong("session"));
+		file.setNewest(resultSet.getBoolean("newest"));
 		file.setMd5(resultSet.getString("md5"));
-		file.setMtime(resultSet.getLong("mtime"));
+		file.setMtime(resultSet.getInt("mtime"));
 		return file;
 	}
 

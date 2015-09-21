@@ -135,13 +135,13 @@ public class DBHelper {
 
 		executeSQL("CREATE TABLE IF NOT EXISTS sync_status (id INTEGER PRIMARY KEY AUTOINCREMENT, status INTEGER);");
 		
-		executeSQL("CREATE TABLE IF NOT EXISTS localfile (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, session INTEGER);"); // 本地文件记录
-		executeSQL("CREATE TABLE IF NOT EXISTS localdelete (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, session INTEGER);");// 本地被删除了
-		executeSQL("CREATE TABLE IF NOT EXISTS localupload (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, session INTEGER);");// 本地要被上传的
+		executeSQL("CREATE TABLE IF NOT EXISTS localfile (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, newest INTEGER);"); // 本地文件记录
+		executeSQL("CREATE TABLE IF NOT EXISTS localdelete (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, newest INTEGER);");// 本地被删除了
+		executeSQL("CREATE TABLE IF NOT EXISTS localupload (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, newest INTEGER);");// 本地要被上传的
 
-		executeSQL("CREATE TABLE IF NOT EXISTS cloudfile (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT , length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, session INTEGER);");
-		executeSQL("CREATE TABLE IF NOT EXISTS clouddelete (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, session INTEGER);");
-		executeSQL("CREATE TABLE IF NOT EXISTS clouddownload (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, session INTEGER);");
+		executeSQL("CREATE TABLE IF NOT EXISTS cloudfile (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT , length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, newest INTEGER);");
+		executeSQL("CREATE TABLE IF NOT EXISTS clouddelete (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, newest INTEGER);");
+		executeSQL("CREATE TABLE IF NOT EXISTS clouddownload (id INTEGER, path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, newest INTEGER);");
 
 		executeSQL("CREATE TABLE IF NOT EXISTS cloudhistory (id INTEGER PRIMARY KEY AUTOINCREMENT, time INTEGER );");
 		executeSQL("CREATE TABLE IF NOT EXISTS localhistory (id INTEGER PRIMARY KEY AUTOINCREMENT, time INTEGER );");

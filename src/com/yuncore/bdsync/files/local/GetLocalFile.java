@@ -22,8 +22,6 @@ public class GetLocalFile extends PreemptiveTaskService {
 
 	private LocalFileDao localFileDao;
 
-	private long session;
-
 	public GetLocalFile(int threads, String dir) {
 		this.threads = threads;
 		exclude = new BDSyncFileExclude();
@@ -34,14 +32,13 @@ public class GetLocalFile extends PreemptiveTaskService {
 	@Override
 	protected TaskExecute newTaskExecute() {
 		final GetLocalFileExecute getLocalExecute = new GetLocalFileExecute(dir.getAbsolutePath(), taskStatus,
-				taskContainer, exclude, localFileDao, session);
+				taskContainer, exclude, localFileDao);
 		return getLocalExecute;
 	}
 
 	public synchronized boolean list() {
 		if (dir.exists()) {
-			session = System.currentTimeMillis();
-			Environment.setLocallistSession("" + session);
+			Environment.setLocallist("" + System.currentTimeMillis());
 			taskContainer.addTask(new GetLocalFileTask(""));
 			waitTaskFinish();
 			localFileDao.insertAllCacaheFlush();

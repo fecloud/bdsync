@@ -1,7 +1,5 @@
 package com.yuncore.bdsync.compare;
 
-import java.util.List;
-
 import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.dao.LocalCompareDao;
 import com.yuncore.bdsync.dao.LocalFileDao;
@@ -14,10 +12,6 @@ public class LocalCompare {
 
 	public LocalCompare() {
 		compareDao = new LocalCompareDao();
-	}
-
-	protected long getSession() {
-		return Long.parseLong(Environment.getLocallistSession());
 	}
 
 	/**
@@ -37,7 +31,7 @@ public class LocalCompare {
 	 */
 	public synchronized boolean addNewHistory() {
 		final LocalHistoryDao localHistoryDao = new LocalHistoryDao();
-		final long time = Long.parseLong(Environment.getLocallistSession());
+		final long time = Long.parseLong(Environment.getLocallist());
 		return localHistoryDao.insert(time);
 	}
 
@@ -47,37 +41,15 @@ public class LocalCompare {
 	 * @return
 	 */
 	private synchronized boolean dispathDeleteAndAction() {
-		final List<Long> ss = compareDao.groupBySession(compareDao
-				.getTableName());
-		if (ss != null && !ss.isEmpty()) {
-			final long cs = getSession();
 
-			if (ss.size() == 1) {
-				final long s = ss.get(0);
-				if (s == cs) {
-					// 把最新的扫描结果放上action表
-					return compareDao.copyTableData(compareDao.getTableName(),
-							compareDao.getActionTableName());
-				} else {
-					// 把最新的扫描结果放上delete表
-					return compareDao.copyTableData(compareDao.getTableName(),
-							compareDao.getDeleteTableName());
-				}
+		// 把最新的扫描结果放上action表
+		compareDao.copyTableData(compareDao.getTableName(),
+				compareDao.getActionTableName(), String.format("newest=%s", 1));
 
-			} else if (ss.size() == 2) {
-				if (ss.contains(cs)) {
-					// 把最新的扫描结果放上action表
-					compareDao.copyTableData(compareDao.getTableName(),
-							compareDao.getActionTableName(),
-							String.format("session=%s", cs));
-					
-					// 把最新的扫描结果放上delete表
-					compareDao.copyTableData(compareDao.getDeleteTableName(),
-							compareDao.getActionTableName());
-				}
-			}
-		}
-		return false;
+		// 把老的扫描结果放上delete表
+		compareDao.copyTableData(compareDao.getDeleteTableName(),
+				compareDao.getActionTableName(), String.format("newest=%s", 0));
+		return true;
 	}
 
 	public synchronized boolean compare() {
@@ -98,8 +70,7 @@ public class LocalCompare {
 		}
 
 		compareDao.delete(compareDao.getBeforeTableName());
-		compareDao.rename(compareDao.getNowTableName(),
-				compareDao.getBeforeTableName());
+		compareDao.setNewestToFalse();
 
 		addNewHistory();
 

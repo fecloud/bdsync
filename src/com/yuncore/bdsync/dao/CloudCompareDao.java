@@ -3,7 +3,6 @@
  */
 package com.yuncore.bdsync.dao;
 
-import com.yuncore.bdsync.Environment;
 
 /**
  * @author ouyangfeng
@@ -69,11 +68,6 @@ public class CloudCompareDao extends LocalCompareDao {
 	@Override
 	public String getDeleteTableName() {
 		return "clouddelete";
-	}
-
-	@Override
-	public String getSession() {
-		return Environment.CLOUDLIST_SESSION;
 	}
 
 	/*

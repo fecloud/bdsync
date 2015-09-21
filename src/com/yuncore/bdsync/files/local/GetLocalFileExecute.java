@@ -1,5 +1,6 @@
 package com.yuncore.bdsync.files.local;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,6 @@ import com.yuncore.bdsync.task.Task;
 import com.yuncore.bdsync.task.TaskContainer;
 import com.yuncore.bdsync.task.TaskExecute;
 import com.yuncore.bdsync.task.TaskStatus;
-import com.yuncore.bdsync.util.FileUtil;
 
 public class GetLocalFileExecute extends TaskExecute {
 
@@ -20,22 +20,19 @@ public class GetLocalFileExecute extends TaskExecute {
 
 	private LocalFileDao localFileDao;
 
-	private long session;
+	private static final boolean file_separator = File.separator.equals("\\");
 
 	public GetLocalFileExecute(String root, TaskStatus taskStatus,
 			TaskContainer taskContainer, FileExclude exclude,
-			LocalFileDao localFileDao, long session) {
+			LocalFileDao localFileDao) {
 		super(taskStatus, taskContainer);
 		this.root = root;
 		this.exclude = exclude;
 		this.localFileDao = localFileDao;
-		this.session = session;
 	}
 
 	protected void getDirFiles(GetLocalFileTask task) {
-
-		final List<LocalFile> listFiles = FileUtil.listFiles(root,
-				task.getDir(), session);
+		final List<LocalFile> listFiles = listFiles(root, task.getDir());
 		if (listFiles != null) {
 			excute(listFiles, task.getDir());
 		}
@@ -76,4 +73,53 @@ public class GetLocalFileExecute extends TaskExecute {
 		}
 		files.removeAll(deletes);
 	}
+
+	/**
+	 * 读取目录
+	 * 
+	 * @param dir
+	 * @return
+	 */
+	private static final List<LocalFile> listFiles(String root, String dir) {
+		final File file = new File(root, dir);
+		if (file.exists() && file.isDirectory()) {
+			File[] listFiles = file.listFiles();
+			if (null != listFiles) {
+				final List<LocalFile> list = new ArrayList<LocalFile>();
+				LocalFile localFile = null;
+
+				if (file_separator) {
+					for (File f : listFiles) {
+						localFile = new LocalFile();
+						localFile.setPath(f.getAbsolutePath()
+								.substring(root.length()).replace("\\", "/"));
+						localFile.setMtime((int) (f.lastModified() / 1000));
+						if (f.isFile())
+							localFile.setLength(f.length());
+						localFile.setDir(f.isDirectory());
+						localFile.setNewest(true);
+						localFile.setfId(localFile.toFid());
+						list.add(localFile);
+					}
+				} else {
+					for (File f : listFiles) {
+						localFile = new LocalFile();
+						localFile.setPath(f.getAbsolutePath().substring(
+								root.length()));
+						localFile.setMtime((int) (f.lastModified() / 1000));
+						if (f.isFile())
+							localFile.setLength(f.length());
+						localFile.setDir(f.isDirectory());
+						localFile.setNewest(true);
+						localFile.setfId(localFile.toFid());
+						list.add(localFile);
+					}
+				}
+
+				return list;
+			}
+		}
+		return null;
+	}
+
 }

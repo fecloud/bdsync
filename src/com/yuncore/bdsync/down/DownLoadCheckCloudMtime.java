@@ -35,7 +35,7 @@ public class DownLoadCheckCloudMtime implements DownLoadCheckFileStep {
 			}
 
 		} else {
-			// 文件存就不检查修改时间了
+			// 文件夹就不检查修改时间了
 			return true;
 		}
 		downloadOperate.deleteRecord(downloadFile);

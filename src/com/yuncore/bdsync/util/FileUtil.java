@@ -1,61 +1,12 @@
 package com.yuncore.bdsync.util;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.yuncore.bdsync.entity.LocalFile;
 
 public class FileUtil {
 
 	private static String BYTE_SIZE_UNIT[] = { "BYTE", "KB", "MB", "GB", "TB" };
-
-	/**
-	 * 读取目录
-	 * 
-	 * @param dir
-	 * @return
-	 */
-	public static final List<LocalFile> listFiles(String root, String dir,
-			long session) {
-		final File file = new File(root, dir);
-		if (file.exists() && file.isDirectory()) {
-			File[] listFiles = file.listFiles();
-			if (null != listFiles) {
-				final List<LocalFile> list = new ArrayList<LocalFile>();
-				LocalFile localFile = null;
-				boolean file_separator = File.separator.equals("\\");
-				if (file_separator) {
-					for (File f : listFiles) {
-						localFile = new LocalFile();
-						localFile.setPath(f.getAbsolutePath()
-								.substring(root.length()).replace("\\", "/"));
-						localFile.setMtime(f.lastModified() / 1000);
-						localFile.setLength(f.length());
-						localFile.setDir((f.isFile() ? false : true));
-						localFile.setSession(session);
-						localFile.setfId(localFile.toFid());
-						list.add(localFile);
-					}
-				} else {
-					for (File f : listFiles) {
-						localFile = new LocalFile();
-						localFile.setPath(f.getAbsolutePath().substring(
-								root.length()));
-						localFile.setMtime(f.lastModified() / 1000);
-						localFile.setLength(f.length());
-						localFile.setDir((f.isFile() ? false : true));
-						localFile.setSession(session);
-						localFile.setfId(localFile.toFid());
-						list.add(localFile);
-					}
-				}
-
-				return list;
-			}
-		}
-		return null;
-	}
 
 	public static final LocalFile getLocalFile(String root, String path) {
 		final File file = new File(root, path);
@@ -67,7 +18,7 @@ public class FileUtil {
 			} else {
 				localFile.setLength(file.length());
 			}
-			localFile.setMtime(file.lastModified());
+			localFile.setMtime((int) file.lastModified());
 			localFile.setPath(path);
 			return localFile;
 		}

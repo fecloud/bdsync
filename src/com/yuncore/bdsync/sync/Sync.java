@@ -16,6 +16,8 @@ import com.yuncore.bdsync.dao.SyncProcessDao;
 import com.yuncore.bdsync.entity.SyncProcess;
 import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.http.cookie.FileCookieContainer;
+import com.yuncore.bdsync.sync.task.CloudCompareTask;
+import com.yuncore.bdsync.sync.task.ListCloudFilesTask;
 import com.yuncore.bdsync.sync.task.ListLocalFilesTask;
 import com.yuncore.bdsync.sync.task.LocalCompareTask;
 import com.yuncore.bdsync.sync.task.LocalDeleteActionCloudTask;
@@ -128,14 +130,14 @@ public class Sync implements Runnable {
 		steps = new ArrayList<SyncStepTask>();
 		steps.add(new SyncStopTask());
 
-		// steps.add(new ListCloudFilesTask(args));
-		// steps.add(new CloudCompareTask());
-		// steps.add(new CloudDeleteActionLocalTask(args));
-		// steps.add(new CloudDownloadTask(args));
+		 steps.add(new ListCloudFilesTask(args));
+		 steps.add(new CloudCompareTask());
+//		 steps.add(new CloudDeleteActionLocalTask(args));
+//		 steps.add(new CloudDownloadTask(args));
 
 		steps.add(new ListLocalFilesTask(args));
 		steps.add(new LocalCompareTask());
-		steps.add(new LocalDeleteActionCloudTask(args));
+//		steps.add(new LocalDeleteActionCloudTask(args));
 		// steps.add(new LocalUploadTask(args));
 
 		steps.add(new SyncSleepTask());

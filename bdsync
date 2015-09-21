@@ -19,10 +19,11 @@ VM_ARGS="-Dbdsync.db=/var/lib/$PROG/$PROG.db -Dbdsync.log.file=/var/log/$PROG.lo
 VM_JAR="$PROG_PATH/lib/bdsync.jar"
 PROG_ARGS="sync /hdd -l git bak tmp thum s 影视 -c 160 apps soft  编程相关 pdf"
 MSG_PREFIX=" *"
+USER="linaro"
 
 start() {
     PROG_STATUS=0
-    su -c "$VM_RUN $VM_ARGS -jar $VM_JAR $PROG_ARGS 2>&1 >/dev/null &" linaro
+    su -c "$VM_RUN $VM_ARGS -jar $VM_JAR $PROG_ARGS 2>&1 >/dev/null &" $USER
     PROG_STATUS=$?
 
     if [ $PROG_STATUS -eq 1 ]; then
@@ -35,7 +36,7 @@ start() {
 
 stop() {
 
-    $VM_RUN $VM_ARGS -jar $VM_JAR stop 2>&1 >/dev/null
+    su -c "$VM_RUN $VM_ARGS -jar $VM_JAR stop 2>&1 >/dev/null" $USER
 
     PROG_STATUS=$?
 

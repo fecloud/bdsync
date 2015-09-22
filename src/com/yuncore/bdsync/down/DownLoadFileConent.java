@@ -51,11 +51,8 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 	 * com.yuncore.bdsync.down.DownloadOperate)
 	 */
 	@Override
-	public boolean check(LocalFile downloadFile, LocalFile cloudFile,
-			LocalFile loalFile, DownloadOperate downloadOperate) {
-		if (downloadFile.isDir()) {
-			mkdirLocal(downloadFile, downloadOperate);
-		} else if (downloadFile(downloadFile, downloadOperate)) {
+	public boolean check(LocalFile downloadFile, DownloadOperate downloadOperate) {
+		if (downloadFile(downloadFile, downloadOperate)) {
 			// 成功下载后删了记录
 			downloadOperate.deleteRecord(downloadFile);
 		}
@@ -157,29 +154,6 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 			return f.length();
 		} else {
 			return -1;
-		}
-	}
-
-	/**
-	 * 在本地新建文件夹
-	 * 
-	 * @param downloadFile
-	 * @param downloadOperate
-	 */
-	private final void mkdirLocal(LocalFile downloadFile,
-			DownloadOperate downloadOperate) {
-		try {
-			final File file = new File(root, downloadFile.getAbsolutePath());
-			if (file.exists()) {
-				downloadOperate.deleteRecord(downloadFile);
-			} else {
-				final boolean result = file.mkdirs();
-				if (result) {
-					downloadOperate.deleteRecord(downloadFile);
-				}
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "mkdirLocal", e);
 		}
 	}
 

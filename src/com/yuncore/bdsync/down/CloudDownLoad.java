@@ -10,14 +10,11 @@ import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.DownloadDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
-import com.yuncore.bdsync.util.FileUtil;
 import com.yuncore.bdsync.util.Log;
 
 public class CloudDownLoad implements DownloadOperate {
 
 	static final String TAG = "CloudDownLoad";
-
-	private String root;
 
 	private FSApi fsApi;
 
@@ -28,14 +25,11 @@ public class CloudDownLoad implements DownloadOperate {
 	protected volatile boolean flag;
 
 	public CloudDownLoad(String root, String tmpDir) {
-		this.root = root;
 		fsApi = new FSApiImple();
 		downloadDao = new DownloadDao();
 
-		steps.add(new DownLoadCheckLocalSize());
-		steps.add(new DownLoadCheckLocalMtime());
-		steps.add(new DownLoadCheckCloudSize());
-		steps.add(new DownLoadCheckCloudMtime());
+		steps.add(new DownLoadCheckLocalFile(root));
+		steps.add(new DownLoadCheckCloudFile(fsApi));
 		steps.add(new DownLoadFileConent(root, tmpDir, fsApi));
 
 		// 建立临时文件目录
@@ -51,7 +45,7 @@ public class CloudDownLoad implements DownloadOperate {
 		flag = true;
 		while (flag) {
 
-			downloadFile = getDownLoad();
+			downloadFile = downloadDao.query();
 			if (downloadFile != null) {
 				StatusMent.setProperty(StatusMent.DOWNLOADING, downloadFile);
 				StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, 0);
@@ -71,35 +65,15 @@ public class CloudDownLoad implements DownloadOperate {
 	 * @throws ApiException
 	 */
 	private void checkAndDownLoad(LocalFile file) {
-		final LocalFile downloadFile = file;
-		LocalFile cloudFile = null;
-		LocalFile localFile = null;
-		try {
-			cloudFile = getCloudFile(downloadFile);
-			localFile = getLocalFile(downloadFile);
-		} catch (Exception e) {
-			return;
-		}
-
 		// 如果云端文件还在
 		for (DownLoadCheckFileStep step : steps) {
-			if (!step.check(downloadFile, cloudFile, localFile, this)) {
+			if (!flag) {
+				break;
+			}
+			if (!step.check(file, this)) {
 				break;
 			}
 		}
-	}
-
-	private LocalFile getDownLoad() {
-		return downloadDao.query();
-	}
-
-	protected LocalFile getCloudFile(LocalFile downloadFile)
-			throws ApiException {
-		return fsApi.getMeta(downloadFile.getAbsolutePath());
-	}
-
-	protected LocalFile getLocalFile(LocalFile downloadFile) {
-		return FileUtil.getLocalFile(root, downloadFile.getAbsolutePath());
 	}
 
 	/*
@@ -114,7 +88,7 @@ public class CloudDownLoad implements DownloadOperate {
 		StatusMent.setProperty(StatusMent.DOWNLOADING, "");
 		final boolean result = downloadDao.deleteByFid(file.getfId());
 		if (result) {
-			Log.d(TAG, "delDownLoad " + file.getAbsolutePath());
+			Log.d(TAG, "deleteRecord " + file.getAbsolutePath());
 		}
 		return result;
 	}

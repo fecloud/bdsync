@@ -53,7 +53,7 @@ public class CloudDownLoad implements DownloadOperate {
 				checkAndDownLoad(downloadFile);
 
 			} else {
-				return true;
+				break;
 			}
 		}
 		StatusMent.setProperty(StatusMent.DOWNLOADING, false);

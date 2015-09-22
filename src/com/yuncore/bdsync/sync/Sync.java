@@ -23,6 +23,7 @@ import com.yuncore.bdsync.sync.task.ListCloudFilesTask;
 import com.yuncore.bdsync.sync.task.ListLocalFilesTask;
 import com.yuncore.bdsync.sync.task.LocalCompareTask;
 import com.yuncore.bdsync.sync.task.LocalDeleteActionCloudTask;
+import com.yuncore.bdsync.sync.task.LocalUploadTask;
 import com.yuncore.bdsync.sync.task.SyncSleepTask;
 import com.yuncore.bdsync.sync.task.SyncStepTask;
 import com.yuncore.bdsync.sync.task.SyncStopTask;
@@ -141,7 +142,7 @@ public class Sync implements Runnable {
 		steps.add(new ListLocalFilesTask(args));
 		steps.add(new LocalCompareTask());
 		steps.add(new LocalDeleteActionCloudTask(args));
-//		steps.add(new LocalUploadTask(args));
+		steps.add(new LocalUploadTask(args));
 
 		steps.add(new SyncSleepTask());
 	}

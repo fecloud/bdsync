@@ -31,7 +31,7 @@ public class DownLoadCheckCloudSize implements DownLoadCheckFileStep {
 			// 要下载的文件被删除了
 			downloadOperate.deleteRecord(downloadFile);
 		} else {
-			if (downloadFile.isDir() == cloudFile.isDir()) {
+			if (downloadFile.isDir() == cloudFile.isDir() && downloadFile.getLength() == cloudFile.getLength()) {
 				return true;
 			} else {
 				// 类型不一样下载不了

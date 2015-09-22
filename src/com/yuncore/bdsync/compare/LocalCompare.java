@@ -47,8 +47,8 @@ public class LocalCompare {
 				compareDao.getActionTableName(), String.format("newest=%s", 1));
 
 		// 把老的扫描结果放上delete表
-		compareDao.copyTableData(compareDao.getDeleteTableName(),
-				compareDao.getActionTableName(), String.format("newest=%s", 0));
+		compareDao.copyTableData(compareDao.getTableName(),
+				compareDao.getDeleteTableName(), String.format("newest=%s", 0));
 		return true;
 	}
 

@@ -6,6 +6,7 @@
 package com.yuncore.bdsync.upload;
 
 import com.yuncore.bdsync.api.FSApi;
+import com.yuncore.bdsync.dao.CloudFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
 
@@ -18,6 +19,8 @@ import com.yuncore.bdsync.exception.ApiException;
 public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 
 	private FSApi fsApi;
+	
+	private CloudFileDao cloudFileDao;
 
 	/**
 	 * @param fsApi
@@ -25,6 +28,7 @@ public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 	public UpLoadCheckCloudFile(FSApi fsApi) {
 		super();
 		this.fsApi = fsApi;
+		this.cloudFileDao = new CloudFileDao();
 	}
 
 	/*
@@ -52,6 +56,7 @@ public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 			// 类型相同
 			if (uploadFile.isDir()) {
 				// 是文件夹
+				addDirToCloudFile(cloudFile);
 				uploadOperate.deleteRecord(uploadFile);
 				return false;
 			} else {
@@ -70,4 +75,12 @@ public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 		return false;
 	}
 
+	/**
+	 * 往云端列表添加一条数据,以免本直列表再一次下载
+	 * @param uploadFile
+	 */
+	private final void addDirToCloudFile(LocalFile uploadFile){
+		uploadFile.setNewest(false);
+		cloudFileDao.insert(uploadFile);
+	}
 }

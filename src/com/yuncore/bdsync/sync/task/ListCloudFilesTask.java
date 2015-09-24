@@ -52,7 +52,7 @@ public class ListCloudFilesTask extends ListLocalFilesTask {
 	 */
 	@Override
 	public String getStepName() {
-		return "com.yuncore.bdsync.sync.task.ListCloudFiles";
+		return "com.yuncore.bdsync.sync.task.ListCloudFilesTask";
 	}
 
 	/*

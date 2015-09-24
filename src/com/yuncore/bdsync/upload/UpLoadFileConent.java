@@ -7,6 +7,7 @@ package com.yuncore.bdsync.upload;
 
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
+import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.entity.MkDirResult;
 import com.yuncore.bdsync.exception.ApiException;
@@ -19,14 +20,15 @@ import com.yuncore.bdsync.util.Log;
  * @author Feng OuYang
  * @version 1.0
  */
-public class UpLoadFileConent implements UpLoadCheckFileStep,
-		OutputDataListener {
+public class UpLoadFileConent implements UpLoadCheckFileStep, OutputDataListener {
 
 	private static final String TAG = "UpLoadFileConent";
 
 	private String root;
 
 	private FSApi fsApi;
+	
+	private LocalFileDao localFileDao;
 
 	/**
 	 * @param fsApi
@@ -35,6 +37,7 @@ public class UpLoadFileConent implements UpLoadCheckFileStep,
 		super();
 		this.root = root;
 		this.fsApi = fsApi;
+		this.localFileDao = new LocalFileDao();
 	}
 
 	/*
@@ -48,12 +51,10 @@ public class UpLoadFileConent implements UpLoadCheckFileStep,
 	public boolean check(LocalFile uploadFile, UpLoadOperate uploadOperate) {
 		if (uploadFile.isDir()) {
 			if (mkdir(uploadFile)) {
-				Log.d(TAG, "mkdir cloud " + uploadFile.getAbsolutePath()
-						+ " success");
+				Log.d(TAG, "mkdir cloud " + uploadFile.getAbsolutePath() + " success");
 				uploadOperate.deleteRecord(uploadFile);
 			} else {
-				Log.d(TAG, "mkdir cloud " + uploadFile.getAbsolutePath()
-						+ " success");
+				Log.d(TAG, "mkdir cloud " + uploadFile.getAbsolutePath() + " success");
 			}
 		} else {
 			try {
@@ -103,8 +104,7 @@ public class UpLoadFileConent implements UpLoadCheckFileStep,
 				Log.w(TAG, "file too big ,not upload");
 				return true;
 			}
-			final String localpath = String.format("%s/%s", root,
-					localFile.getAbsolutePath());
+			final String localpath = String.format("%s/%s", root, localFile.getAbsolutePath());
 			final String cloudpath = localFile.getAbsolutePath();
 			final boolean result = fsApi.upload2(localpath, cloudpath, this);
 			if (result) {
@@ -113,9 +113,7 @@ public class UpLoadFileConent implements UpLoadCheckFileStep,
 			return result;
 		} catch (ApiException e) {
 			StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
-			throw new ApiException(String.format(
-					"uploadFileContext file:%s error",
-					localFile.getAbsolutePath()), e);
+			throw new ApiException(String.format("uploadFileContext file:%s error", localFile.getAbsolutePath()), e);
 		}
 	}
 
@@ -139,14 +137,11 @@ public class UpLoadFileConent implements UpLoadCheckFileStep,
 	 */
 	private boolean secondFileContext(LocalFile localFile) throws ApiException {
 		try {
-			final String localpath = String.format("%s/%s", root,
-					localFile.getAbsolutePath());
+			final String localpath = String.format("%s/%s", root, localFile.getAbsolutePath());
 			final String cloudpath = localFile.getAbsolutePath();
 			return fsApi.secondUpload(localpath, cloudpath);
 		} catch (ApiException e) {
-			throw new ApiException(String.format(
-					"secondFileContext file:%s error",
-					localFile.getAbsolutePath()), e);
+			throw new ApiException(String.format("secondFileContext file:%s error", localFile.getAbsolutePath()), e);
 		}
 	}
 
@@ -160,6 +155,8 @@ public class UpLoadFileConent implements UpLoadCheckFileStep,
 		try {
 			final MkDirResult mkdir = fsApi.mkdir(uploadFile.getAbsolutePath());
 			if (null != mkdir && mkdir.getStatus() == 0) {
+				uploadFile.setMtime(mkdir.getMtime());
+				addDirToLocalFile(uploadFile);
 				return true;
 			}
 		} catch (ApiException e) {
@@ -177,6 +174,16 @@ public class UpLoadFileConent implements UpLoadCheckFileStep,
 	@Override
 	public void onWrite(long sum, long commit) {
 		StatusMent.setProperty(StatusMent.UPLOAD_SIZE, commit);
+	}
+
+	/**
+	 * 往本地列表里面添加一条数据,以免本直列表再一次上传
+	 * 
+	 * @param downloadFile
+	 */
+	private final void addDirToLocalFile(LocalFile downloadFile) {
+		downloadFile.setNewest(false);
+		localFileDao.insert(downloadFile);
 	}
 
 }

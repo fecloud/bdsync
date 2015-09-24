@@ -63,7 +63,7 @@ public class LocalFileDao extends BaseDao {
 			for (LocalFile f : cache) {
 				prepareStatement.setString(1, f.getPath());
 				prepareStatement.setLong(2, f.getLength());
-				prepareStatement.setInt(3, f.isDir() ? 1 : 0);
+				prepareStatement.setBoolean(3, f.isDir());
 				prepareStatement.setLong(4, f.getMtime());
 				prepareStatement.setString(5, f.toFid());
 				prepareStatement.setString(6, f.getMd5());
@@ -144,7 +144,34 @@ public class LocalFileDao extends BaseDao {
 		}
 		return false;
 	}
-	
+
+	public synchronized boolean insert(LocalFile file) {
+		try {
+			final Connection connection = getConnection();
+			final PreparedStatement prepareStatement = connection.prepareStatement(String.format(
+					"INSERT INTO %s ('path','length','isdir','mtime','fid','md5','newest') VALUES (?,?,?,?,?,?,?)",
+					getTableName()));
+			prepareStatement.setString(1, file.getPath());
+			prepareStatement.setLong(2, file.getLength());
+			prepareStatement.setBoolean(3, file.isDir());
+			prepareStatement.setLong(4, file.getMtime());
+			prepareStatement.setString(5, file.toFid());
+			prepareStatement.setString(6, file.getMd5());
+			prepareStatement.setBoolean(7, file.isNewest());
+			prepareStatement.addBatch();
+			connection.setAutoCommit(false);
+			int result = prepareStatement.executeUpdate();
+			connection.commit();
+			connection.setAutoCommit(true);
+			connection.close();
+
+			return result > 0;
+		} catch (Exception e) {
+
+		}
+		return false;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

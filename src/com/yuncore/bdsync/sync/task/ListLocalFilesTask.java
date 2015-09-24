@@ -71,7 +71,7 @@ public class ListLocalFilesTask implements SyncStepTask {
 	 */
 	@Override
 	public String getStepName() {
-		return "com.yuncore.bdsync.sync.task.ListLocalFiles";
+		return "com.yuncore.bdsync.sync.task.ListLocalFilesTask";
 	}
 
 	/*

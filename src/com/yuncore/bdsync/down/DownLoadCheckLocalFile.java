@@ -7,6 +7,7 @@ package com.yuncore.bdsync.down;
 
 import java.io.File;
 
+import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.FileUtil;
 import com.yuncore.bdsync.util.Log;
@@ -21,12 +22,14 @@ public class DownLoadCheckLocalFile implements DownLoadCheckFileStep {
 
 	private String root;
 
+	private LocalFileDao localFileDao;
 	/**
 	 * @param root
 	 */
 	public DownLoadCheckLocalFile(String root) {
 		super();
 		this.root = root;
+		this.localFileDao = new LocalFileDao();
 	}
 
 	private static final boolean mkdir(String root, String path) {
@@ -53,6 +56,7 @@ public class DownLoadCheckLocalFile implements DownLoadCheckFileStep {
 			if (downloadFile.isDir()) {
 				// 如果是文件夹,直接建立
 				if (mkdir(root, downloadFile.getAbsolutePath())) {
+					addDirToLocalFile(downloadFile);
 					Log.d("DownLoadCheckLocalFile", "mkdir:" + downloadFile.getAbsolutePath());
 					downloadOperate.deleteRecord(downloadFile);
 				}
@@ -85,6 +89,15 @@ public class DownLoadCheckLocalFile implements DownLoadCheckFileStep {
 		// 两个文件大小不一样或者类型不一样
 		downloadOperate.deleteRecord(downloadFile);
 		return false;
+	}
+	
+	/**
+	 * 往本地列表里面添加一条数据,以免本直列表再一次上传
+	 * @param downloadFile
+	 */
+	private final void addDirToLocalFile(LocalFile downloadFile){
+		downloadFile.setNewest(false);
+		localFileDao.insert(downloadFile);
 	}
 
 }

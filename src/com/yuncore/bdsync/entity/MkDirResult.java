@@ -8,9 +8,9 @@ public class MkDirResult implements EntityJSON {
 
 	private String path;
 
-	private long ctime;
+	private int ctime;
 
-	private long mtime;
+	private int mtime;
 
 	private int status;
 
@@ -40,15 +40,15 @@ public class MkDirResult implements EntityJSON {
 		return ctime;
 	}
 
-	public void setCtime(long ctime) {
+	public void setCtime(int ctime) {
 		this.ctime = ctime;
 	}
 
-	public long getMtime() {
+	public int getMtime() {
 		return mtime;
 	}
 
-	public void setMtime(long mtime) {
+	public void setMtime(int mtime) {
 		this.mtime = mtime;
 	}
 
@@ -99,12 +99,12 @@ public class MkDirResult implements EntityJSON {
 
 		if (null != object) {
 			if (object.has("ctime")) {
-				ctime = object.getLong("ctime");
+				ctime = object.getInt("ctime");
 			}
 		}
 		if (null != object) {
 			if (object.has("mtime")) {
-				mtime = object.getLong("mtime");
+				mtime = object.getInt("mtime");
 			}
 		}
 		if (null != object) {

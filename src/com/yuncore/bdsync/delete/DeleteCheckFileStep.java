@@ -25,6 +25,6 @@ public interface DeleteCheckFileStep {
 	 * @param args
 	 * @return false不再继续检查了
 	 */
-	boolean check(LocalFile deleteFile, LocalFile compareFile, Object... args);
-
+	boolean check(LocalFile deleteFile, LocalFile compareFile, DeleteOperate deleteOperate);
+	
 }

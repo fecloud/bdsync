@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 public class CloudPageFile implements EntityJSON {
 
-	private int errno;
+	private int errno = Integer.MIN_VALUE;
 
 	private List<CloudFile> list;
 
@@ -17,7 +17,7 @@ public class CloudPageFile implements EntityJSON {
 		if (object.has("errno")) {
 			errno = object.getInt("errno");
 		}
-		
+
 		list = new ArrayList<CloudFile>();
 		if (object.has("list")) {
 			final JSONArray array = object.getJSONArray("list");

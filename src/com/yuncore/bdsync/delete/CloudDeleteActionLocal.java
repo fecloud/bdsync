@@ -24,11 +24,17 @@ import com.yuncore.bdsync.util.Log;
  */
 public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 
+	private CloudFileDeleteDao fileDeleteDao;
+
+	private LocalFileDao localFileDao;
+
 	/**
 	 * @param root
 	 */
 	public CloudDeleteActionLocal(String root) {
 		super(root);
+		localFileDao = new LocalFileDao();
+		fileDeleteDao = new CloudFileDeleteDao();
 	}
 
 	/*
@@ -60,13 +66,24 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	 * .bdsync.entity.LocalFile)
 	 */
 	@Override
-	protected boolean deleteFile(LocalFile deleteFile) throws Exception {
+	public boolean deleteFile(LocalFile deleteFile) {
+		boolean result = false;
 		final File file = new File(getRoot(), deleteFile.getAbsolutePath());
-		final boolean result = file.delete();
+		try {
+			if (file.exists()) {
+				// 如果要删除的文件存在
+				result = file.delete();
+			} else {
+				// 如果要删除的文件不见了
+				result = true;
+			}
+		} catch (Exception e) {
+			Log.e(getTag(), "", e);
+		}
 		if (result) {
-			Log.w(getTag(), "deleteFile:" + file.getAbsolutePath() + " success");
+			Log.w(getTag(), "deleteFile " + file.getAbsolutePath() + " success");
 		} else {
-			Log.w(getTag(), "deleteFile:" + file.getAbsolutePath() + " fail");
+			Log.w(getTag(), "deleteFile " + file.getAbsolutePath() + " fail");
 		}
 		return result;
 	}
@@ -79,15 +96,8 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	 * .bdsync.entity.LocalFile)
 	 */
 	@Override
-	protected boolean deleteRecord(LocalFile deleteFile) {
-		final CloudFileDeleteDao fileDeleteDao = new CloudFileDeleteDao();
-		boolean result = fileDeleteDao.deleteByFid(deleteFile.getfId());
-		if (result) {
-			// 如果云端最后的列表里面有本地删除的文件,也删除了,以名下次对比的时候发现删除了,再来一次删除本地文件
-			final LocalFileDao localFileDao = new LocalFileDao();
-			localFileDao.deleteByFid(deleteFile.getfId());
-		}
-		return result;
+	public boolean deleteRecord(LocalFile deleteFile) {
+		return fileDeleteDao.deleteByFid(deleteFile.getfId());
 	}
 
 	/*
@@ -101,4 +111,18 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 			throws ApiException {
 		return FileUtil.getLocalFile(getRoot(), deleteFile.getAbsolutePath());
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.yuncore.bdsync.delete.LocalDeleteActionCloud#deleteAnotherRecord(
+	 * com.yuncore.bdsync.entity.LocalFile)
+	 */
+	@Override
+	public boolean deleteAnotherRecord(LocalFile file) {
+		// 如果云端最后的列表里面有本地删除的文件,也删除了,以名下次对比的时候发现删除了,再来一次删除本地文件
+		return localFileDao.deleteByFid(file.getfId());
+	}
+
 }

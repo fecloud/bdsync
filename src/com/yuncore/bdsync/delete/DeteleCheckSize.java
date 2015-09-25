@@ -16,27 +16,51 @@ import com.yuncore.bdsync.entity.LocalFile;
  */
 public class DeteleCheckSize implements DeleteCheckFileStep {
 
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see
+	// * com.yuncore.bdsync.delete.DeleteCheckFileStep#check(com.yuncore.bdsync.
+	// * entity.LocalFile, com.yuncore.bdsync.entity.LocalFile,
+	// * java.lang.Object[])
+	// */
+	// @Override
+	// public boolean check(LocalFile deleteFile, LocalFile compareFile,
+	// Object... args) {
+	// if (deleteFile.isDir() && compareFile.isDir()) {
+	// // 两个都是文件夹,进行下一步时间检查
+	// return true;
+	// } else if (deleteFile.isFile() && compareFile.isFile()) {
+	// if (deleteFile.getLength() == compareFile.getLength()) {
+	// // 两个文件大小一样,可以删除
+	// return false;
+	// }
+	// }
+	// // 两个文件大小不一样或者类型不一样
+	// return true;
+	// }
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.yuncore.bdsync.delete.DeleteCheckFileStep#check(com.yuncore.bdsync.
-	 * entity.LocalFile, com.yuncore.bdsync.entity.LocalFile,
-	 * java.lang.Object[])
+	 * com.yuncore.bdsync.delete.DeleteCheckFileStep#check(com.yuncore.bdsync
+	 * .entity.LocalFile, com.yuncore.bdsync.entity.LocalFile,
+	 * com.yuncore.bdsync.delete.DeleteOperate)
 	 */
 	@Override
-	public boolean check(LocalFile deleteFile, LocalFile compareFile, Object... args) {
-		if (deleteFile.isDir() && compareFile.isDir()) {
-			// 两个都是文件夹,进行下一步时间检查
+	public boolean check(LocalFile deleteFile, LocalFile compareFile,
+			DeleteOperate deleteOperate) {
+		if (compareFile == null) {
+			// 说明目录可能是自己删除的,进入删除文件
 			return true;
-		} else if (deleteFile.isFile() && compareFile.isFile()) {
-			if (deleteFile.getLength() == compareFile.getLength()) {
-				// 两个文件大小一样,可以删除
-				return false;
+		} else {
+			if (deleteFile.toFid().equals(compareFile.toFid())) {
+				if (deleteFile.isFile()) {
+					return true;
+				}
 			}
 		}
-		// 两个文件大小不一样或者类型不一样
-		return true;
+		return false;
 	}
-
 }

@@ -6,7 +6,7 @@ import com.yuncore.bdsync.entity.LocalFile;
 
 public class FileUtil {
 
-	private static String BYTE_SIZE_UNIT[] = { "BYTE", "KB", "MB", "GB", "TB" };
+	private static String BYTE_SIZE_UNIT[] = { "byte", "KB", "MB", "GB", "TB" };
 
 	public static final LocalFile getLocalFile(String root, String path) {
 		final File file = new File(root, path);

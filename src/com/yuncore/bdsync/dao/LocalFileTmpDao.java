@@ -14,6 +14,7 @@ package com.yuncore.bdsync.dao;
 public class LocalFileTmpDao extends LocalFileDao {
 
 	public LocalFileTmpDao() {
+		executeSQL("DROP TABLE IF EXISTS localfile_tmp");
 		executeSQL(
 				"CREATE TABLE IF NOT EXISTS localfile_tmp (id INTEGER PRIMARY KEY AUTOINCREMENT ,path TEXT, length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, newest INTEGER);");
 	}

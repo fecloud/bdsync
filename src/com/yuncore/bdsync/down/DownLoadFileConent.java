@@ -31,7 +31,7 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 	private String tmpDir;
 
 	private FSApi fsApi;
-	
+
 	private LocalFileDao localFileDao;
 
 	/**
@@ -161,14 +161,20 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 			return -1;
 		}
 	}
-	
+
 	/**
 	 * 往本地列表里面添加一条数据,以免本直列表再一次上传
+	 * 
 	 * @param downloadFile
 	 */
-	private final void addDirToLocalFile(LocalFile downloadFile){
+	private final void addDirToLocalFile(LocalFile downloadFile) {
 		downloadFile.setNewest(false);
-		localFileDao.insert(downloadFile);
+		if (localFileDao.queryByPath(downloadFile.getAbsolutePath()) == null) {
+			localFileDao.insert(downloadFile);
+		} else {
+			localFileDao.updateByPath(downloadFile);
+		}
+
 	}
 
 }

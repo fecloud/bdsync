@@ -55,10 +55,11 @@ public class LocalFileDao extends BaseDao {
 			stopwatch.start();
 			final Connection connection = getConnection();
 
-			final String sql = String.format(
-					"INSERT INTO %s ('path','length','isdir','mtime','fid','md5','newest') VALUES (?,?,?,?,?,?,?)",
-					getTableName());
-			final PreparedStatement prepareStatement = connection.prepareStatement(sql);
+			final String sql = String
+					.format("INSERT INTO %s ('path','length','isdir','mtime','fid','md5','newest') VALUES (?,?,?,?,?,?,?)",
+							getTableName());
+			final PreparedStatement prepareStatement = connection
+					.prepareStatement(sql);
 
 			for (LocalFile f : cache) {
 				prepareStatement.setString(1, f.getPath());
@@ -96,7 +97,8 @@ public class LocalFileDao extends BaseDao {
 
 		try {
 			final PreparedStatement prepareStatement = connection
-					.prepareStatement(String.format("SELECT * FROM %s WHERE fid=?", getTableName()));
+					.prepareStatement(String.format(
+							"SELECT * FROM %s WHERE fid=?", getTableName()));
 			prepareStatement.setString(1, fid);
 			final ResultSet executeQuery = prepareStatement.executeQuery();
 			LocalFile localFile = null;
@@ -126,11 +128,12 @@ public class LocalFileDao extends BaseDao {
 		return file;
 	}
 
-	public boolean deleteByFid(String fid) {
+	public synchronized boolean deleteByFid(String fid) {
 		try {
 			final Connection connection = getConnection();
 			final PreparedStatement prepareStatement = connection
-					.prepareStatement(String.format("DELETE FROM %s WHERE fid=?", getTableName()));
+					.prepareStatement(String.format(
+							"DELETE FROM %s WHERE fid=?", getTableName()));
 			prepareStatement.setString(1, fid);
 			connection.setAutoCommit(false);
 			int result = prepareStatement.executeUpdate();
@@ -148,17 +151,19 @@ public class LocalFileDao extends BaseDao {
 	public synchronized boolean insert(LocalFile file) {
 		try {
 			final Connection connection = getConnection();
-			final PreparedStatement prepareStatement = connection.prepareStatement(String.format(
-					"INSERT INTO %s ('path','length','isdir','mtime','fid','md5','newest') VALUES (?,?,?,?,?,?,?)",
-					getTableName()));
+			final PreparedStatement prepareStatement = connection
+					.prepareStatement(String
+							.format("INSERT INTO %s ('path','length','isdir','mtime','fid','md5','newest') VALUES (?,?,?,?,?,?,?)",
+									getTableName()));
 			prepareStatement.setString(1, file.getPath());
 			prepareStatement.setLong(2, file.getLength());
 			prepareStatement.setBoolean(3, file.isDir());
-			prepareStatement.setLong(4, file.getMtime());
+			prepareStatement.setInt(4, file.getMtime());
 			prepareStatement.setString(5, file.toFid());
 			prepareStatement.setString(6, file.getMd5());
 			prepareStatement.setBoolean(7, file.isNewest());
 			prepareStatement.addBatch();
+
 			connection.setAutoCommit(false);
 			int result = prepareStatement.executeUpdate();
 			connection.commit();
@@ -170,6 +175,64 @@ public class LocalFileDao extends BaseDao {
 
 		}
 		return false;
+	}
+
+	public synchronized LocalFile queryByPath(String path) {
+		final Connection connection = getConnection();
+
+		try {
+			final PreparedStatement prepareStatement = connection
+					.prepareStatement(String.format(
+							"SELECT * FROM %s WHERE path=?", getTableName()));
+			prepareStatement.setString(1, path);
+			final ResultSet executeQuery = prepareStatement.executeQuery();
+			LocalFile localFile = null;
+			if (executeQuery.next()) {
+				localFile = buildLocalFile(executeQuery);
+			}
+
+			executeQuery.close();
+			prepareStatement.close();
+			connection.close();
+			return localFile;
+		} catch (SQLException e) {
+		}
+		return null;
+	}
+
+	/**
+	 * 根据路径更新
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public synchronized boolean updateByPath(LocalFile file) {
+		final Connection connection = getConnection();
+
+		boolean result = false;
+		try {
+			final PreparedStatement prepareStatement = connection
+					.prepareStatement(String
+							.format("UPDATE %s SET length=?,isdir=?,mtime=?,fid=?,md5=?,newest=?  WHERE path=?",
+									getTableName()));
+			prepareStatement.setLong(1, file.getLength());
+			prepareStatement.setBoolean(2, file.isDir());
+			prepareStatement.setInt(3, file.getMtime());
+			prepareStatement.setString(4, file.toFid());
+			prepareStatement.setString(5, file.getMd5());
+			prepareStatement.setBoolean(6, file.isNewest());
+			prepareStatement.setString(7, file.getAbsolutePath());
+
+			connection.setAutoCommit(false);
+			prepareStatement.executeUpdate();
+			connection.commit();
+			connection.setAutoCommit(true);
+			connection.close();
+
+			result = true;
+		} catch (SQLException e) {
+		}
+		return result;
 	}
 
 	/*

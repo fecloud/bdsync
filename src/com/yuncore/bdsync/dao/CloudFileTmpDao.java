@@ -14,6 +14,7 @@ package com.yuncore.bdsync.dao;
 public class CloudFileTmpDao extends CloudFileDao {
 
 	public CloudFileTmpDao() {
+		executeSQL("DROP TABLE IF EXISTS cloudfile_tmp");
 		executeSQL(
 				"CREATE TABLE IF NOT EXISTS cloudfile_tmp (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT , length INTEGER, isdir INTEGER, mtime INTEGER, fid TEXT, md5 TEXT, newest INTEGER);");
 

@@ -718,6 +718,8 @@ public class FSApiImple implements FSApi {
 		} else if (list.getErrno() == -9) {
 			// 文件夹不存在
 			return null;
+		}else {
+			throw new ApiException("list file error:" + list.getErrno());
 		}
 		return null;
 	}

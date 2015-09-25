@@ -48,12 +48,17 @@ public class LocalUpload implements UpLoadOperate {
 
 			upLocalFile = uploadDao.query();
 			if (upLocalFile != null) {
-				Log.d(TAG,
-						"getUpload "
-								+ upLocalFile.getAbsolutePath()
-								+ " size:"
-								+ FileUtil.byteSizeToHuman(upLocalFile
-										.getLength()));
+				if (upLocalFile.isFile()) {
+					Log.d(TAG,
+							"getUpload file "
+									+ upLocalFile.getAbsolutePath()
+									+ " size:"
+									+ FileUtil.byteSizeToHuman(upLocalFile
+											.getLength()));
+				} else {
+					Log.d(TAG,
+							"getUpload dir " + upLocalFile.getAbsolutePath());
+				}
 				StatusMent.setProperty(StatusMent.UPLOADING, upLocalFile);
 				StatusMent.setProperty(StatusMent.UPLOADING, 0);
 
@@ -105,6 +110,23 @@ public class LocalUpload implements UpLoadOperate {
 	@Override
 	public boolean getUpLoadStatus() {
 		return flag;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.yuncore.bdsync.upload.UpLoadOperate#addAnotherRecord(com.yuncore.
+	 * bdsync.entity.LocalFile)
+	 */
+	@Override
+	public boolean addAnotherRecord(LocalFile file) {
+		file.setNewest(false);
+		if (cloudFileDao.queryByPath(file.getAbsolutePath()) == null) {
+			return cloudFileDao.insert(file);
+		} else {
+			return cloudFileDao.updateByPath(file);
+		}
 	}
 
 }

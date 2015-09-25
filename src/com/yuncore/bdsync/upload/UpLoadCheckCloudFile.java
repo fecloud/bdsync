@@ -6,9 +6,9 @@
 package com.yuncore.bdsync.upload;
 
 import com.yuncore.bdsync.api.FSApi;
-import com.yuncore.bdsync.dao.CloudFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
+import com.yuncore.bdsync.util.Log;
 
 /**
  * The class <code>UpLoadCheckCloudFile</code>
@@ -18,9 +18,9 @@ import com.yuncore.bdsync.exception.ApiException;
  */
 public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 
+	private static final String TAG = "UpLoadCheckCloudFile";
+
 	private FSApi fsApi;
-	
-	private CloudFileDao cloudFileDao;
 
 	/**
 	 * @param fsApi
@@ -28,7 +28,6 @@ public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 	public UpLoadCheckCloudFile(FSApi fsApi) {
 		super();
 		this.fsApi = fsApi;
-		this.cloudFileDao = new CloudFileDao();
 	}
 
 	/*
@@ -52,20 +51,20 @@ public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 			return true;
 		}
 
-		if (uploadFile.isDir() == uploadFile.isDir()) {
-			// 类型相同
-			if (uploadFile.isDir()) {
-				// 是文件夹
-				addDirToCloudFile(cloudFile);
-				uploadOperate.deleteRecord(uploadFile);
-				return false;
-			} else {
-				// 是文件
-				if (uploadFile.getLength() != cloudFile.getLength()) {
-					// 如果它们俩长度不一样时,本地文件大于云端则可以上传
-					if (uploadFile.getMtime() > cloudFile.getMtime()) {
-						return true;
-					}
+		if (uploadFile.toFid().equals(cloudFile.toFid())) {
+			Log.d(TAG,
+					String.format("cloud has %s", uploadFile.getAbsolutePath()));
+			// 是文件夹或者文件,云端也有
+			uploadOperate.deleteRecord(uploadFile);
+			return false;
+		}
+
+		if (uploadFile.isFile() && cloudFile.isFile()) {
+			// 是文件
+			if (uploadFile.getLength() != cloudFile.getLength()) {
+				// 如果它们俩长度不一样时,本地文件大于云端则可以上传
+				if (uploadFile.getMtime() > cloudFile.getMtime()) {
+					return true;
 				}
 			}
 		}
@@ -75,12 +74,4 @@ public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 		return false;
 	}
 
-	/**
-	 * 往云端列表添加一条数据,以免本直列表再一次下载
-	 * @param uploadFile
-	 */
-	private final void addDirToCloudFile(LocalFile uploadFile){
-		uploadFile.setNewest(false);
-		cloudFileDao.insert(uploadFile);
-	}
 }

@@ -30,4 +30,11 @@ public interface UpLoadOperate {
 	 */
 	boolean getUpLoadStatus();
 	
+	/**
+	 * 添加对方表的记录
+	 * @param file
+	 * @return
+	 */
+	boolean addAnotherRecord(LocalFile file);
+	
 }

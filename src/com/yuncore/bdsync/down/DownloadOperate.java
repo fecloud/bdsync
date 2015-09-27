@@ -24,6 +24,13 @@ public interface DownloadOperate {
 	boolean deleteRecord(LocalFile file);
 
 	/**
+	 * 添加对方表的记录
+	 * @param file
+	 * @return
+	 */
+	boolean addAnotherRecord(LocalFile file);
+	
+	/**
 	 * 返回下载的状态
 	 * 
 	 * @return

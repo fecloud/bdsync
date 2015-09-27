@@ -15,9 +15,9 @@
 PROG="bdsync"
 PROG_PATH="/data/app/$PROG" #::# Not need, but sometimes helpful (if $PROG resides in /opt for example).
 VM_RUN="/data/app/jdk1.8.0_60/bin/java"
-VM_ARGS="-Dbdsync.db=/var/lib/$PROG/$PROG.db -Dbdsync.log.file=/var/log/$PROG.log -Dbdsync.cookie=$PROG_PATH/resource/cookie.json"
+VM_ARGS="-Dbdsync.db=$PROG_PATH/resource/$PROG.db -Dbdsync.log.file=/var/log/$PROG.log -Dbdsync.cookie=$PROG_PATH/resource/cookie.json"
 VM_JAR="$PROG_PATH/lib/bdsync.jar"
-PROG_ARGS="sync /hdd -l git bak tmp thum s 影视 -c 160 apps soft  编程相关 pdf"
+PROG_ARGS="sync /hdd -l git bak tmp thum s 影视 TDDOWNLOAD ThunderDB lost+found -c 160 apps"
 MSG_PREFIX=" *"
 USER="linaro"
 

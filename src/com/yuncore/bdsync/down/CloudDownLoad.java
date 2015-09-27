@@ -8,6 +8,7 @@ import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.DownloadDao;
+import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.util.Log;
@@ -20,6 +21,8 @@ public class CloudDownLoad implements DownloadOperate {
 
 	private DownloadDao downloadDao;
 
+	private LocalFileDao localFileDao;
+
 	private List<DownLoadCheckFileStep> steps = new ArrayList<DownLoadCheckFileStep>();
 
 	protected volatile boolean flag;
@@ -27,6 +30,7 @@ public class CloudDownLoad implements DownloadOperate {
 	public CloudDownLoad(String root, String tmpDir) {
 		fsApi = new FSApiImple();
 		downloadDao = new DownloadDao();
+		localFileDao = new LocalFileDao();
 
 		steps.add(new DownLoadCheckLocalFile(root));
 		steps.add(new DownLoadCheckCloudFile(fsApi));
@@ -101,6 +105,23 @@ public class CloudDownLoad implements DownloadOperate {
 	@Override
 	public boolean getDownLoadStatus() {
 		return flag;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.yuncore.bdsync.down.DownloadOperate#addAnotherRecord(com.yuncore.
+	 * bdsync.entity.LocalFile)
+	 */
+	@Override
+	public boolean addAnotherRecord(LocalFile file) {
+		file.setNewest(false);
+		if (localFileDao.queryByPath(file.getAbsolutePath()) == null) {
+			return localFileDao.insert(file);
+		} else {
+			return localFileDao.updateByPath(file);
+		}
 	}
 
 }

@@ -59,11 +59,13 @@ public class LocalUpload implements UpLoadOperate {
 					Log.d(TAG,
 							"getUpload dir " + upLocalFile.getAbsolutePath());
 				}
+				
 				StatusMent.setProperty(StatusMent.UPLOADING, upLocalFile);
-				StatusMent.setProperty(StatusMent.UPLOADING, 0);
+				StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
 
 				checkAndUpLoad(upLocalFile);
-
+				
+				StatusMent.setProperty(StatusMent.UPLOADING, 0);
 			} else {
 				break;
 			}

@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.DownloadInputStream;
 import com.yuncore.bdsync.api.FSApi;
-import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.FileMV;
 import com.yuncore.bdsync.util.Log;
@@ -32,8 +31,6 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 
 	private FSApi fsApi;
 
-	private LocalFileDao localFileDao;
-
 	/**
 	 * @param root
 	 */
@@ -42,7 +39,6 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 		this.root = root;
 		this.tmpDir = tmpDir;
 		this.fsApi = fsApi;
-		this.localFileDao = new LocalFileDao();
 	}
 
 	/*
@@ -57,7 +53,7 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 	@Override
 	public boolean check(LocalFile downloadFile, DownloadOperate downloadOperate) {
 		if (downloadFile(downloadFile, downloadOperate)) {
-			addDirToLocalFile(downloadFile);
+			downloadOperate.addAnotherRecord(downloadFile);
 			// 成功下载后删了记录
 			downloadOperate.deleteRecord(downloadFile);
 		}
@@ -160,21 +156,6 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 		} else {
 			return -1;
 		}
-	}
-
-	/**
-	 * 往本地列表里面添加一条数据,以免本直列表再一次上传
-	 * 
-	 * @param downloadFile
-	 */
-	private final void addDirToLocalFile(LocalFile downloadFile) {
-		downloadFile.setNewest(false);
-		if (localFileDao.queryByPath(downloadFile.getAbsolutePath()) == null) {
-			localFileDao.insert(downloadFile);
-		} else {
-			localFileDao.updateByPath(downloadFile);
-		}
-
 	}
 
 }

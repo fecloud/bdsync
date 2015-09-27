@@ -16,10 +16,8 @@ cp -r -v -n ./lib  $PROG_PATH/
 cp -r -v -n ./bin  $PROG_PATH/
 cp -r -v -n ./resource $PROG_PATH/
 
-mkdir -p /var/lib/$PROG
-
-chmod 777 /var/lib/$PROG
 chmod 777 $PROG_PATH/bin/bdsync
+chmod 777 $PROG_PATH/resource
 chmod 777 $PROG_PATH/resource/*
 
 

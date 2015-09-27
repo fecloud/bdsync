@@ -7,7 +7,6 @@ package com.yuncore.bdsync.down;
 
 import java.io.File;
 
-import com.yuncore.bdsync.dao.LocalFileDao;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.FileUtil;
 import com.yuncore.bdsync.util.Log;
@@ -20,16 +19,16 @@ import com.yuncore.bdsync.util.Log;
  */
 public class DownLoadCheckLocalFile implements DownLoadCheckFileStep {
 
+	private static final String TAG = "DownLoadCheckLocalFile";
+	
 	private String root;
 
-	private LocalFileDao localFileDao;
 	/**
 	 * @param root
 	 */
 	public DownLoadCheckLocalFile(String root) {
 		super();
 		this.root = root;
-		this.localFileDao = new LocalFileDao();
 	}
 
 	private static final boolean mkdir(String root, String path) {
@@ -53,11 +52,13 @@ public class DownLoadCheckLocalFile implements DownLoadCheckFileStep {
 		final LocalFile loalFile = FileUtil.getLocalFile(root, downloadFile.getAbsolutePath());
 		// 本地文件不在
 		if (loalFile == null) {
+			Log.d(TAG, downloadFile.getAbsolutePath() + " not exists local");
 			if (downloadFile.isDir()) {
 				// 如果是文件夹,直接建立
 				if (mkdir(root, downloadFile.getAbsolutePath())) {
-					addDirToLocalFile(downloadFile);
-					Log.d("DownLoadCheckLocalFile", "mkdir:" + downloadFile.getAbsolutePath());
+					downloadFile.setMtime((int) (System.currentTimeMillis() / 1000));
+					downloadOperate.addAnotherRecord(downloadFile);
+					Log.d(TAG, "mkdir " + downloadFile.getAbsolutePath());
 					downloadOperate.deleteRecord(downloadFile);
 				}
 				return false;
@@ -77,12 +78,13 @@ public class DownLoadCheckLocalFile implements DownLoadCheckFileStep {
 				downloadOperate.deleteRecord(downloadFile);
 				return false;
 			} else {
-				// 如果要下载的文件跟本地一样大小,当要下载的文件修改时间大于本地文件,可以下载
+				// 如果要下载的文件跟本地一样大小不一样,当要下载的文件修改时间大于本地文件,可以下载
 				if (downloadFile.getMtime() > loalFile.getMtime()) {
 					return true;
 				} else {
 					// 不能下载
 					downloadOperate.deleteRecord(downloadFile);
+					return false;
 				}
 			}
 		}
@@ -91,13 +93,4 @@ public class DownLoadCheckLocalFile implements DownLoadCheckFileStep {
 		return false;
 	}
 	
-	/**
-	 * 往本地列表里面添加一条数据,以免本直列表再一次上传
-	 * @param downloadFile
-	 */
-	private final void addDirToLocalFile(LocalFile downloadFile){
-		downloadFile.setNewest(false);
-		localFileDao.insert(downloadFile);
-	}
-
 }

@@ -24,7 +24,7 @@ import com.yuncore.bdsync.util.Log;
  */
 public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 
-	private CloudFileDeleteDao fileDeleteDao;
+	private CloudFileDeleteDao cloudFileDeleteDao;
 
 	private LocalFileDao localFileDao;
 
@@ -34,7 +34,7 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	public CloudDeleteActionLocal(String root) {
 		super(root);
 		localFileDao = new LocalFileDao();
-		fileDeleteDao = new CloudFileDeleteDao();
+		cloudFileDeleteDao = new CloudFileDeleteDao();
 	}
 
 	/*
@@ -54,7 +54,6 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	 */
 	@Override
 	protected LocalFile query() {
-		final CloudFileDeleteDao cloudFileDeleteDao = new CloudFileDeleteDao();
 		return cloudFileDeleteDao.query();
 	}
 
@@ -97,7 +96,7 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	 */
 	@Override
 	public boolean deleteRecord(LocalFile deleteFile) {
-		return fileDeleteDao.deleteByFid(deleteFile.getfId());
+		return cloudFileDeleteDao.delete(deleteFile);
 	}
 
 	/*

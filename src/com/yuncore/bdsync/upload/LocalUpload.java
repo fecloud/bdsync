@@ -1,5 +1,6 @@
 package com.yuncore.bdsync.upload;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +37,16 @@ public class LocalUpload implements UpLoadOperate {
 
 		steps.add(new UpLoadCheckLocalFile(root));
 		steps.add(new UpLoadCheckCloudFile(api));
-		steps.add(new UpLoadFileConent(root, api));
+		steps.add(new UpLoadFileConent(api));
+		steps.add(new UpLoadFileSecondConent(root,api));
+		steps.add(new UpLoadFileNormalConent(root,api));
+		
+		// 建立临时文件目录
+		final File file = new File(tmpDir);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+				
 	}
 
 	public boolean start() {
@@ -97,7 +107,7 @@ public class LocalUpload implements UpLoadOperate {
 	 */
 	@Override
 	public boolean deleteRecord(LocalFile file) {
-		if (uploadDao.deleteByFid(file.getfId())) {
+		if (uploadDao.delete(file)) {
 			Log.i(TAG, "delUpload " + file.getAbsolutePath());
 			return true;
 		}

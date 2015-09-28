@@ -162,7 +162,6 @@ public class LocalFileDao extends BaseDao {
 			prepareStatement.setString(5, file.toFid());
 			prepareStatement.setString(6, file.getMd5());
 			prepareStatement.setBoolean(7, file.isNewest());
-			prepareStatement.addBatch();
 
 			connection.setAutoCommit(false);
 			int result = prepareStatement.executeUpdate();
@@ -172,7 +171,6 @@ public class LocalFileDao extends BaseDao {
 
 			return result > 0;
 		} catch (Exception e) {
-
 		}
 		return false;
 	}

@@ -76,6 +76,7 @@ public class DownLoadCheckLocalFile implements DownLoadCheckFileStep {
 			if (downloadFile.getLength() == loalFile.getLength()) {
 				// 两个文件大小一样,进入文件修改时间检查
 				downloadOperate.deleteRecord(downloadFile);
+				downloadOperate.addAnotherRecord(downloadFile);
 				return false;
 			} else {
 				// 如果要下载的文件跟本地一样大小不一样,当要下载的文件修改时间大于本地文件,可以下载

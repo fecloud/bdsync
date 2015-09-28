@@ -61,9 +61,9 @@ public final class BDSYNCURL {
 	 * @return
 	 */
 
-	public static String mkdir(String bdstoken) {
-		final String ex_url = "http://pan.baidu.com/api/create?a=commit&bdstoken=%s&channel=chunlei&clienttype=0&web=1&app_id=%s";
-		return String.format(ex_url, bdstoken, APPID);
+	public static String createfile(String bdstoken, boolean overwrite) {
+		final String ex_url = "http://pan.baidu.com/api/create?a=commit&bdstoken=%s&channel=chunlei&clienttype=0&web=1&app_id=%s%s";
+		return String.format(ex_url, bdstoken, APPID, (overwrite ? "&rtype=2" : ""));
 	}
 
 	/**
@@ -212,9 +212,9 @@ public final class BDSYNCURL {
 	 * 
 	 * @return
 	 */
-	public static String getsecondupload(String dir, String filename, long content_length, String content_md5, String slice_md5 ,String BDUSS,String bdstoken) {
-		final String ex_url = "http://c.pcs.baidu.com/rest/2.0/pcs/file?method=rapidupload&app_id=%s&ondup=newcopy&dir=%s&filename=%s&content-length=%s&content-md5=%s&slice-md5=%s&path=%s&BDUSS=%s&bdstoken=%s";
-		return String.format(ex_url, APPID, dir, filename, content_length, content_md5, slice_md5, String.format("%s%s",dir,filename), BDUSS, bdstoken);
+	public static String getsecondupload(boolean overwrite, String dir, String filename, long content_length, String content_md5, String slice_md5 ,String BDUSS,String bdstoken) {
+		final String ex_url = "http://c.pcs.baidu.com/rest/2.0/pcs/file?method=rapidupload&app_id=%s&ondup=%s&dir=%s&filename=%s&content-length=%s&content-md5=%s&slice-md5=%s&path=%s&BDUSS=%s&bdstoken=%s";
+		return String.format(ex_url, APPID, (overwrite ? "overwrite" : "newcopy" ), dir, filename, content_length, content_md5, slice_md5, String.format("%s%s",dir,filename), BDUSS, bdstoken);
 	}
 	
 	/**
@@ -223,8 +223,20 @@ public final class BDSYNCURL {
 	 * 
 	 * @return
 	 */
-	public static String getuploadfile2(String BDUSS) {
+	public static String getuploadtmpfile(String BDUSS) {
 		final String ex_url = "http://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&type=tmpfile&app_id=%s&BDUSS=%s";
+		return String.format(ex_url, APPID,BDUSS);
+	}
+	
+	/**
+	 * 合并上传
+	 *  http://c.pcs.baidu.com/rest/2.0/pcs/file?method=createsuperfile&app_id=250528&path=%2Fmacbook-reveal-en-20150309_848x480.mp4&ondup=overwrite&BDUSS=
+	 * @param path
+	 * @param BDUSS
+	 * @return
+	 */
+	public static String getcreatesuperfile(String path, String BDUSS){
+		final String ex_url = "http://c.pcs.baidu.com/rest/2.0/pcs/file?method=createsuperfile&app_id=%s&path=%s&ondup=overwrite&BDUSS=%s";
 		return String.format(ex_url, APPID,BDUSS);
 	}
 	

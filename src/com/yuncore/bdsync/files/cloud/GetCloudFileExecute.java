@@ -53,7 +53,7 @@ public class GetCloudFileExecute extends TaskExecute {
 	protected void doTask(Task task) {
 		final GetCloudFileTask fileTask = (GetCloudFileTask) task;
 		try {
-			final CloudPageFile listFiles = new FSApiImple().list(fileTask.getDir());
+			final CloudPageFile listFiles = new FSApiImple().list(fileTask.getDir(), 1, 200000);
 			if (listFiles != null) {
 				if (listFiles.getErrno() == 0 && listFiles.getList() != null) {
 
@@ -76,7 +76,7 @@ public class GetCloudFileExecute extends TaskExecute {
 			} else {
 				Log.w(TAG, "CloudPageFile listFiles null");
 				// 因为某种原因没有取得成功
-				//休息1s
+				// 休息1s
 				taskContainer.addTask(task);
 			}
 		} catch (ApiException e) {

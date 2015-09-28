@@ -100,14 +100,6 @@ public final class Environment {
 		System.setProperty(SYNCDIR, dir);
 	}
 
-	public static final String getSyncTmpDir() {
-		return System.getProperty(SYNCTMPDIR, null);
-	}
-
-	public static final void setSyncTmpDir(String dir) {
-		System.setProperty(SYNCTMPDIR, dir);
-	}
-
 	public static final String getContextClassName() {
 		return System.getProperty(CONTEXT, null);
 	}

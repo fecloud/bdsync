@@ -26,7 +26,7 @@ public class CloudFileDeleteDao extends DownloadDao {
 	public List<LocalFile> query(long start, int num) {
 		try {
 			final List<LocalFile> list = new ArrayList<LocalFile>();
-			final String sql = String.format("SELECT * FROM %s ORDER BY isdir ASC LIMIT %s,%s", getTableName(), start,
+			final String sql = String.format("SELECT * FROM %s ORDER BY isdir ASC,path DESC LIMIT %s,%s", getTableName(), start,
 					num);
 
 			final Connection connection = getConnection();

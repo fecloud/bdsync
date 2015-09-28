@@ -33,7 +33,7 @@ public class LocalDeleteActionCloud implements DeleteOperate {
 
 	protected volatile boolean flag;
 	
-	private LocalFileDeleteDao fileDeleteDao ;
+	private LocalFileDeleteDao localFileDeleteDao ;
 
 	private CloudFileDao cloudFileDao;
 
@@ -45,9 +45,9 @@ public class LocalDeleteActionCloud implements DeleteOperate {
 	public LocalDeleteActionCloud(String root) {
 		super();
 		this.root = root;
-		this.fileDeleteDao = new LocalFileDeleteDao();
+		this.localFileDeleteDao = new LocalFileDeleteDao();
 		this.cloudFileDao = new CloudFileDao();
-		steps.add(new DeteleCheckSize());
+		steps.add(new DeteleCheckLocal());
 		steps.add(new DeleteFile());
 		// steps.add(new DeteleCheckMtime());
 	}
@@ -138,11 +138,10 @@ public class LocalDeleteActionCloud implements DeleteOperate {
 	 * @return
 	 */
 	public boolean deleteRecord(LocalFile deleteFile) {
-		return fileDeleteDao.deleteByFid(deleteFile.getfId());
+		return localFileDeleteDao.delete(deleteFile);
 	}
 
 	protected LocalFile query() {
-		final LocalFileDeleteDao localFileDeleteDao = new LocalFileDeleteDao();
 		return localFileDeleteDao.query();
 	}
 

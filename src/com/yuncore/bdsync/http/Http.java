@@ -2,7 +2,6 @@ package com.yuncore.bdsync.http;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -98,8 +97,9 @@ public class Http {
 		conn.setConnectTimeout(20000);
 		conn.setReadTimeout(20000);
 
-		addFormString();
-		addFormData();
+		if(!addFormData()){
+			return false;
+		}
 
 		conn.connect();
 		if (DEBUG)
@@ -173,17 +173,12 @@ public class Http {
 		return result;
 	}
 
-	protected boolean addFormString() throws UnsupportedEncodingException, IOException {
+	protected boolean addFormData() throws IOException {
 		if (null != formString) {
 			conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 			conn.getOutputStream().write(formString.getBytes("UTF-8"));
 		}
 		return true;
-	}
-
-	protected boolean addFormData() throws IOException {
-
-		return false;
 	}
 
 	private boolean setCookie() {

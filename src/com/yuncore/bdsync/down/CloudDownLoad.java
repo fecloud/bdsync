@@ -90,7 +90,7 @@ public class CloudDownLoad implements DownloadOperate {
 	@Override
 	public boolean deleteRecord(LocalFile file) {
 		StatusMent.setProperty(StatusMent.DOWNLOADING, "");
-		final boolean result = downloadDao.deleteByFid(file.getfId());
+		final boolean result = downloadDao.delete(file);
 		if (result) {
 			Log.d(TAG, "deleteRecord " + file.getAbsolutePath());
 		}

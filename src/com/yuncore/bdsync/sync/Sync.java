@@ -1,6 +1,5 @@
 package com.yuncore.bdsync.sync;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +9,6 @@ import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
-import com.yuncore.bdsync.app.ClientContext;
 import com.yuncore.bdsync.ctrl.Httpd;
 import com.yuncore.bdsync.dao.SyncProcessDao;
 import com.yuncore.bdsync.entity.SyncProcess;
@@ -34,7 +32,6 @@ public class Sync implements Runnable {
 	private static final String TAG = "Sync";
 
 	private String syncdir;
-	private String synctmpdir;
 
 	private int httpPort = 18080;
 
@@ -58,7 +55,6 @@ public class Sync implements Runnable {
 	public Sync(String[] args) {
 		this.args = args;
 		syncdir = args[1];
-		synctmpdir = args[1] + File.separator + ".bdsync";
 		setHttpPort(args);
 		startHttp();
 
@@ -90,12 +86,10 @@ public class Sync implements Runnable {
 
 	private void setEnv() {
 		Environment.setSyncDir(syncdir);
-		Environment.setSyncTmpDir(synctmpdir);
 
 		// System.setProperty(Const.TMP,
 		// String.format("%s%s%s", syncdir, File.separator, Const.TMP_DIR));
 		// System.setProperty("http_proxy", "localhost:8888");
-		Environment.setContextClassName(ClientContext.class.getName());
 		Environment.setCookiecontainerClassName(FileCookieContainer.class
 				.getName());
 

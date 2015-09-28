@@ -65,6 +65,31 @@ public abstract class BaseDao {
 
 		return count;
 	}
+	
+	/**
+	 * 查询表数据条数
+	 * 
+	 * @return
+	 */
+	public synchronized long count(String tableName) {
+		long count = 0l;
+		try {
+			final Connection connection = getConnection();
+			final PreparedStatement prepareStatement = connection
+					.prepareStatement(String.format("SELECT COUNT(*) FROM %s", tableName));
+			final ResultSet resultSet = prepareStatement.executeQuery();
+			if (null != resultSet && resultSet.next()) {
+				count = resultSet.getLong(1);
+				resultSet.close();
+			}
+			prepareStatement.close();
+			connection.close();
+		} catch (SQLException e) {
+			Log.e(getTag(), "count", e);
+		}
+
+		return count;
+	}
 
 	/**
 	 * 删除表

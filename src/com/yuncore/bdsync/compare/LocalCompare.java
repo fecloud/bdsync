@@ -76,6 +76,8 @@ public class LocalCompare {
 
 		compareDao.clearTables();
 
+		printCounts();
+		
 		return true;
 	}
 
@@ -83,4 +85,14 @@ public class LocalCompare {
 		return "LocalCompare";
 	}
 
+	/**
+	 * 打印数据统计
+	 */
+	public void printCounts(){
+		final long actionNums = compareDao.count(compareDao.getActionTableName());
+		Log.w(getTag(), "需上传" + actionNums);
+		final long deleteNums = compareDao.count(compareDao.getDeleteTableName());
+		Log.w(getTag(), "删除了" + deleteNums);
+	}
+	
 }

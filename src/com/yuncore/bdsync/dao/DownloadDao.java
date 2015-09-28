@@ -35,45 +35,49 @@ public class DownloadDao extends BaseDao {
 		}
 		return false;
 	}
+	
+//	public boolean delete(String id) {
+//		try {
+//			final Connection connection = getConnection();
+//			final PreparedStatement prepareStatement = connection
+//					.prepareStatement(String.format("DELETE FROM %s WHERE id=?", getTableName()));
+//			prepareStatement.setString(1, id);
+//			connection.setAutoCommit(false);
+//			int result = prepareStatement.executeUpdate();
+//			connection.commit();
+//			connection.setAutoCommit(true);
+//			connection.close();
+//
+//			return result > 0;
+//		} catch (SQLException e) {
+//			Log.e(getTag(), "delete error", e);
+//		}
+//		return false;
+//	}
 
-	public boolean delete(String id) {
-		try {
-			final Connection connection = getConnection();
-			final PreparedStatement prepareStatement = connection
-					.prepareStatement(String.format("DELETE FROM %s WHERE id=?", getTableName()));
-			prepareStatement.setString(1, id);
-			connection.setAutoCommit(false);
-			int result = prepareStatement.executeUpdate();
-			connection.commit();
-			connection.setAutoCommit(true);
-			connection.close();
-
-			return result > 0;
-		} catch (SQLException e) {
-			Log.e(getTag(), "delete error", e);
-		}
-		return false;
-	}
-
-	public boolean deleteByFid(String fid) {
-		try {
-			final Connection connection = getConnection();
-			final PreparedStatement prepareStatement = connection
-					.prepareStatement(String.format("DELETE FROM %s WHERE fid=?", getTableName()));
-			prepareStatement.setString(1, fid);
-			connection.setAutoCommit(false);
-			int result = prepareStatement.executeUpdate();
-			connection.commit();
-			connection.setAutoCommit(true);
-			connection.close();
-
-			return result > 0;
-		} catch (SQLException e) {
-			Log.e(getTag(), "delete error", e);
-		}
-		return false;
-	}
-
+//	public boolean deleteByFid(String fid) {
+//		try {
+//			final Stopwatch stopwatch = new Stopwatch();
+//			stopwatch.start();
+//			final Connection connection = getConnection();
+//			stopwatch.stop("deleteByFid 1 ");
+//			stopwatch.start();
+//			final PreparedStatement prepareStatement = connection
+//					.prepareStatement(String.format("DELETE FROM %s WHERE fid=?", getTableName()));
+//			prepareStatement.setString(1, fid);
+//			connection.setAutoCommit(false);
+//			int result = prepareStatement.executeUpdate();
+//			connection.commit();
+//			connection.setAutoCommit(true);
+//			connection.close();
+//			stopwatch.stop("deleteByFid 2 ");
+//			return result > 0;
+//		} catch (SQLException e) {
+//			Log.e(getTag(), "delete error", e);
+//		}
+//		return false;
+//	}
+	
 	public boolean delete(LocalFile file) {
 		try {
 			final Connection connection = getConnection();
@@ -85,7 +89,7 @@ public class DownloadDao extends BaseDao {
 			connection.commit();
 			connection.setAutoCommit(true);
 			connection.close();
-
+			
 			return result > 0;
 		} catch (SQLException e) {
 			Log.e(getTag(), "delete error", e);

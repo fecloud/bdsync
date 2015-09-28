@@ -40,6 +40,8 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	private LocalFile uploadFile;
 
 	private UpLoadOperate uploadOperate;
+	
+	private FileInputStream fileInputStream;
 
 	/**
 	 * @param root
@@ -91,6 +93,12 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 
 			} catch (ApiException e) {
 			} finally {
+				if(null != fileInputStream){
+					try {
+						fileInputStream.close();
+					} catch (IOException e) {
+					}
+				}
 				StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
 			}
 		}
@@ -147,8 +155,8 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	 */
 	@Override
 	public InputStream getInputStream() throws IOException {
-		final FileInputStream in = new FileInputStream(root + uploadFile.getAbsolutePath());
-		return in;
+		fileInputStream = new FileInputStream(root + uploadFile.getAbsolutePath());
+		return fileInputStream;
 	}
 
 }

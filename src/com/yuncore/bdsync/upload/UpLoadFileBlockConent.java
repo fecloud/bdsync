@@ -8,18 +8,21 @@ package com.yuncore.bdsync.upload;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
+import com.yuncore.bdsync.entity.CloudFile;
 import com.yuncore.bdsync.entity.LocalFile;
+import com.yuncore.bdsync.exception.ApiException;
+import com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener;
+import com.yuncore.bdsync.http.HttpUploadFile.FileSource;
 
 /**
  * The class <code>UpLoadFileBlockConent</code>
@@ -29,7 +32,8 @@ import com.yuncore.bdsync.entity.LocalFile;
  * @author Feng OuYang
  * @version 1.0
  */
-public class UpLoadFileBlockConent implements UpLoadCheckFileStep {
+public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource,
+		FileOutputListener {
 
 	/**
 	 * 每10m一块
@@ -46,9 +50,13 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep {
 
 	private UpLoadOperate uploadOperate;
 
+	private FileInputStream fileInputStream;
+
 	private String sclieFileName;
 
 	private List<String> sclies = new ArrayList<String>();
+
+	private long commited;
 
 	/**
 	 * @param root
@@ -72,8 +80,51 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep {
 	public boolean check(LocalFile uploadFile, UpLoadOperate uploadOperate) {
 		this.uploadFile = uploadFile;
 		this.uploadOperate = uploadOperate;
-		this.sclieFileName = tmpDir + File.separator + uploadFile.getfId() + ".sclies";
-		this.sclies.clear();
+		this.sclieFileName = tmpDir + File.separator + uploadFile.getfId()
+				+ ".sclies";
+
+		readSlicesMd5();
+
+		while (uploadOperate.getUpLoadStatus()) {
+			String md5 = null;
+			try {
+				md5 = fsApi.uploadTmpFile(this, this);
+			} catch (ApiException e) {
+				continue;
+			}
+			if (md5 == null) {
+				continue;
+			} else {
+				commited += getFileLength();
+				sclies.add(md5);
+				writeSlicesMd5(md5);
+			}
+
+			if (!uploadOperate.getUpLoadStatus()) {
+				break;
+			}
+
+			if (!fileEnd()) {
+				continue;
+			} else {
+				try {
+					final CloudFile createSuperFile = fsApi.createSuperFile(
+							uploadFile.getAbsolutePath(), scliesToArray());
+					if (createSuperFile != null) {
+						deleteSlicesMd5();
+						uploadOperate.addAnotherRecord(uploadFile);
+						uploadOperate.deleteRecord(uploadFile);
+					}
+					break;
+				} catch (ApiException e) {
+				}
+				break;
+			}
+
+		}
+
+		sclies.clear();
+		commited = 0;
 
 		return false;
 	}
@@ -85,8 +136,8 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep {
 	 */
 	private final void writeSlicesMd5(String slice_md5) {
 		try {
-			final OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(sclieFileName, true),
-					"UTF-8");
+			final OutputStreamWriter writer = new OutputStreamWriter(
+					new FileOutputStream(sclieFileName, true), "UTF-8");
 			writer.write(slice_md5);
 			writer.write("\r\n");
 			writer.flush();
@@ -111,7 +162,8 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep {
 	private final void readSlicesMd5() {
 		try {
 			final BufferedReader reader = new BufferedReader(
-					new InputStreamReader(new FileInputStream(sclieFileName), "UTF-8"));
+					new InputStreamReader(new FileInputStream(sclieFileName),
+							"UTF-8"));
 			String line = null;
 			while (null != (line = reader.readLine())) {
 				sclies.add(line);
@@ -119,6 +171,86 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep {
 			reader.close();
 		} catch (Exception e) {
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener#onWrite(long,
+	 * long)
+	 */
+	@Override
+	public void onWrite(long sum, long commit) {
+		final long commitd = sclies.size() * SCLIE_SIZE + commit;
+		StatusMent.setProperty(StatusMent.UPLOAD_SIZE, commitd);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.yuncore.bdsync.http.HttpUploadFile.FileSource#getFileLength()
+	 */
+	@Override
+	public long getFileLength() {
+		final long uploaded = sclies.size() * SCLIE_SIZE;
+		final long waitUpload = uploadFile.getLength() - uploaded;
+		if (waitUpload >= SCLIE_SIZE) {
+			return SCLIE_SIZE;
+		} else {
+			return waitUpload;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.yuncore.bdsync.http.HttpUploadFile.FileSource#getFileName()
+	 */
+	@Override
+	public String getFileName() {
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.yuncore.bdsync.http.HttpUploadFile.FileSource#isInterrupt()
+	 */
+	@Override
+	public boolean isInterrupt() {
+		return uploadOperate.getUpLoadStatus();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.yuncore.bdsync.http.HttpUploadFile.FileSource#getInputStream()
+	 */
+	@Override
+	public InputStream getInputStream() throws IOException {
+		final long uploaded = sclies.size() * SCLIE_SIZE;
+		if (uploadFile.getLength() > uploaded) {
+			fileInputStream = new FileInputStream(root
+					+ uploadFile.getAbsolutePath());
+			fileInputStream.skip(uploaded);
+			return fileInputStream;
+		}
+		return null;
+	}
+
+	private final boolean fileEnd() {
+		if (commited == uploadFile.getLength()) {
+			return true;
+		}
+		return false;
+	}
+
+	private final String[] scliesToArray() {
+		final int size = sclies.size();
+		final String[] array = new String[size];
+		sclies.toArray(array);
+		return array;
 	}
 
 }

@@ -95,11 +95,13 @@ public class UpLoadFileSecondConent implements UpLoadCheckFileStep {
 							Log.i(TAG, "upload " + uploadFile.getParentPath() + " success");
 							uploadOperate.addAnotherRecord(uploadFile);
 							uploadOperate.deleteRecord(uploadFile);
+							return false;
 						}
 					}
 				}
 			} catch (Exception e) {
 				Log.e(TAG, String.format("secondFileContext file:%s error", uploadFile.getAbsolutePath()), e);
+				return false;
 			}
 		}
 		return true;

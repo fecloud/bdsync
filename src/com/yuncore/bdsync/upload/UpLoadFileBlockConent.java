@@ -23,6 +23,7 @@ import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener;
 import com.yuncore.bdsync.http.HttpUploadFile.FileSource;
+import com.yuncore.bdsync.util.Log;
 
 /**
  * The class <code>UpLoadFileBlockConent</code>
@@ -32,9 +33,9 @@ import com.yuncore.bdsync.http.HttpUploadFile.FileSource;
  * @author Feng OuYang
  * @version 1.0
  */
-public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource,
-		FileOutputListener {
+public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, FileOutputListener {
 
+	private static final String TAG = "UpLoadFileBlockConent";
 	/**
 	 * 每10m一块
 	 */
@@ -55,8 +56,6 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource,
 	private String sclieFileName;
 
 	private List<String> sclies = new ArrayList<String>();
-
-	private long commited;
 
 	/**
 	 * @param root
@@ -80,53 +79,65 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource,
 	public boolean check(LocalFile uploadFile, UpLoadOperate uploadOperate) {
 		this.uploadFile = uploadFile;
 		this.uploadOperate = uploadOperate;
-		this.sclieFileName = tmpDir + File.separator + uploadFile.getfId()
-				+ ".sclies";
+		this.sclieFileName = tmpDir + File.separator + uploadFile.getfId() + ".sclies";
+
+		Log.d(TAG, "UpLoadFileBlockConent uploading...");
 
 		readSlicesMd5();
 
-		while (uploadOperate.getUpLoadStatus()) {
+		final int nums = coutBlock();
+		for (int i = sclies.size(); i < nums; i++) {
+			if (!uploadOperate.getUpLoadStatus()) {
+				StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
+				return true;
+			}
+
 			String md5 = null;
+
 			try {
+				Log.d(TAG, "uploading block " + i);
 				md5 = fsApi.uploadTmpFile(this, this);
 			} catch (ApiException e) {
+				i--;
 				continue;
+			} finally {
+				if (null != fileInputStream) {
+					try {
+						fileInputStream.close();
+					} catch (IOException e) {
+					}
+				}
 			}
+
 			if (md5 == null) {
+				i--;
 				continue;
 			} else {
-				commited += getFileLength();
 				sclies.add(md5);
 				writeSlicesMd5(md5);
 			}
 
-			if (!uploadOperate.getUpLoadStatus()) {
-				break;
-			}
-
-			if (!fileEnd()) {
-				continue;
-			} else {
-				try {
-					final CloudFile createSuperFile = fsApi.createSuperFile(
-							uploadFile.getAbsolutePath(), scliesToArray());
-					if (createSuperFile != null) {
-						deleteSlicesMd5();
-						uploadOperate.addAnotherRecord(uploadFile);
-						uploadOperate.deleteRecord(uploadFile);
-					}
-					break;
-				} catch (ApiException e) {
-				}
-				break;
-			}
-
 		}
 
-		sclies.clear();
-		commited = 0;
+		if (!uploadOperate.getUpLoadStatus()) {
+			StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
+			return true;
+		}
 
-		return false;
+		try {
+			final CloudFile createSuperFile = fsApi.createSuperFile(uploadFile.getAbsolutePath(), scliesToArray());
+			if (createSuperFile != null) {
+				deleteSlicesMd5();
+				uploadOperate.addAnotherRecord(uploadFile);
+				uploadOperate.deleteRecord(uploadFile);
+			}
+
+		} catch (ApiException e) {
+		}
+
+		StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
+
+		return true;
 	}
 
 	/**
@@ -136,8 +147,8 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource,
 	 */
 	private final void writeSlicesMd5(String slice_md5) {
 		try {
-			final OutputStreamWriter writer = new OutputStreamWriter(
-					new FileOutputStream(sclieFileName, true), "UTF-8");
+			final OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(sclieFileName, true),
+					"UTF-8");
 			writer.write(slice_md5);
 			writer.write("\r\n");
 			writer.flush();
@@ -161,16 +172,31 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource,
 	 */
 	private final void readSlicesMd5() {
 		try {
-			final BufferedReader reader = new BufferedReader(
-					new InputStreamReader(new FileInputStream(sclieFileName),
-							"UTF-8"));
-			String line = null;
-			while (null != (line = reader.readLine())) {
-				sclies.add(line);
+			final File file = new File(sclieFileName);
+			if (file.exists()) {
+				final BufferedReader reader = new BufferedReader(
+						new InputStreamReader(new FileInputStream(file), "UTF-8"));
+				String line = null;
+				while (null != (line = reader.readLine())) {
+					sclies.add(line);
+				}
+				reader.close();
 			}
-			reader.close();
 		} catch (Exception e) {
 		}
+	}
+
+	/**
+	 * 计算要几块
+	 * 
+	 * @return
+	 */
+	private final int coutBlock() {
+		int nums = (int) (uploadFile.getLength() / SCLIE_SIZE);
+		if (uploadFile.getLength() % SCLIE_SIZE > 0) {
+			nums++;
+		}
+		return nums;
 	}
 
 	/*
@@ -209,7 +235,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource,
 	 */
 	@Override
 	public String getFileName() {
-		return null;
+		return "part";
 	}
 
 	/*
@@ -231,19 +257,11 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource,
 	public InputStream getInputStream() throws IOException {
 		final long uploaded = sclies.size() * SCLIE_SIZE;
 		if (uploadFile.getLength() > uploaded) {
-			fileInputStream = new FileInputStream(root
-					+ uploadFile.getAbsolutePath());
+			fileInputStream = new FileInputStream(root + uploadFile.getAbsolutePath());
 			fileInputStream.skip(uploaded);
 			return fileInputStream;
 		}
 		return null;
-	}
-
-	private final boolean fileEnd() {
-		if (commited == uploadFile.getLength()) {
-			return true;
-		}
-		return false;
 	}
 
 	private final String[] scliesToArray() {

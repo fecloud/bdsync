@@ -40,6 +40,7 @@ public class LocalUpload implements UpLoadOperate {
 		steps.add(new UpLoadFileConent(api));
 		steps.add(new UpLoadFileSecondConent(root,api));
 		steps.add(new UpLoadFileNormalConent(root,api));
+		steps.add(new UpLoadFileBlockConent(root, tmpDir, api));
 		
 		// 建立临时文件目录
 		final File file = new File(tmpDir);
@@ -75,7 +76,8 @@ public class LocalUpload implements UpLoadOperate {
 
 				checkAndUpLoad(upLocalFile);
 				
-				StatusMent.setProperty(StatusMent.UPLOADING, 0);
+				StatusMent.setProperty(StatusMent.UPLOADING, false);
+				StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
 			} else {
 				break;
 			}

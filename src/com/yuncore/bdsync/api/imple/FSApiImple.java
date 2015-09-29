@@ -55,165 +55,7 @@ public class FSApiImple implements FSApi {
 			time = System.currentTimeMillis();
 		}
 	}
-	//
-	// private String getpassport() {
-	// try {
-	// final long c_time = DateUtil.current_time_ss();
-	// final String url = BDSYNCURL.getpassport(c_time);
-	// final Http http = new Http(url, Method.GET);
-	// if (http.http()) {
-	// return http.result();
-	// }
-	// } catch (Exception e) {
-	// Log.e(TAG, "getpassport error", e);
-	// }
-	// return null;
-	// }
-	//
-	// private boolean getbaidu() {
-	// try {
-	// final String url = "http://www.baidu.com";
-	// final Http http = new Http(url, Method.GET);
-	// if (http.http()) {
-	// if (http.getResponseCode() == HttpsURLConnection.HTTP_MOVED_TEMP) {
-	// String location = http.getConnet().getHeaderField("Location");
-	// Log.d(TAG, "location:" + location);
-	// if (location != null) {
-	// final Http httpsbaidu = new Http(location, Method.GET);
-	// if (httpsbaidu.http()) {
-	// return true;
-	// }
-	// }
-	// } else if (http.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-	// return true;
-	// }
-	// }
-	// } catch (Exception e) {
-	// Log.e(TAG, "vistWWWBAIDUCOM error", e);
-	// }
-	// return false;
-	// }
-	//
-	// private String logincheck(String token, String username) {
-	// try {
-	// final long c_time = DateUtil.current_time_ss();
-	// final String url = BDSYNCURL.getlogincheck(token, c_time, username);
-	// final Http http = new Http(url, Method.GET);
-	// if (http.http()) {
-	// return http.result();
-	// }
-	// } catch (Exception e) {
-	// Log.e(TAG, "logincheck error", e);
-	// }
-	// return null;
-	// }
-	//
-	// private String getpublickey(String token, String username) {
-	// try {
-	// final long c_time = DateUtil.current_time_ss();
-	// final String url = BDSYNCURL.getpublickey(token, c_time);
-	// final Http http = new Http(url, Method.GET);
-	// if (http.http()) {
-	// return http.result();
-	// }
-	// } catch (Exception e) {
-	// Log.e(TAG, "logincheck error", e);
-	// }
-	// return null;
-	// }
-	//
-	// private String buildloginform(String token, long time, String username,
-	// String password) {
-	// String ex =
-	// "staticpage=http://pan.baidu.com/res/static/thirdparty/pass_v3_jump.html&charset=utf-8&token=%s&tpl=netdisk&subpro=&apiver=v3&tt=%s&codestring=&safeflg=0&u=http://pan.baidu.com/&isPhone=&quick_user=0&logintype=basicLogin&logLoginType=pc_loginBasic&idc=&loginmerge=true&username=%s&password=%s&verifycode=&mem_pass=on&rsakey=&crypttype=&ppui_logintime=2602&callback=parent.bd__pcbs__msdlhs";
-	// return String.format(ex, token, time, username, password);
-	// }
-	//
-	// private String passportlogin(String token, String username, String
-	// password) {
-	// final String url = BDSYNCURL.getloginurl();
-	// final long c_time = DateUtil.current_time_ss();
-	//
-	// Http http = new Http(url, Method.POST, buildloginform(token, c_time,
-	// username, password));
-	// try {
-	// if (http.http()) {
-	// return http.result();
-	// }
-	// } catch (IOException e) {
-	// Log.e(TAG, "passportlogin error", e);
-	// }
-	// return null;
-	// }
-	//
-	// @Override
-	// public boolean login(String username, String password) throws
-	// ApiException {
-	// Log.w(TAG, String.format("use name:%s pwd:%s login", username,
-	// password));
-	// // 1.判断是否登录
-	// if (islogin()) {
-	// return true;
-	// }
-	//
-	// if (!getbaidu()) {
-	// return false;
-	// }
-	//
-	// // 2.得到cookie
-	// String passport = getpassport();
-	//
-	// if (passport == null) {
-	// return false;
-	// }
-	//
-	// passport = passport.replace("bd__cbs__nflaog(", "");
-	// passport = passport.substring(0, passport.length() - 1);
-	// if (DEBUG)
-	// Log.d(TAG, "passport:\n" + passport);
-	// JSONObject object = new JSONObject(passport);
-	// String token = null;
-	//
-	// String logincheck = null;
-	// if (object.has("data")) {
-	// token = object.getJSONObject("data").getString("token");
-	// if (object.getJSONObject("data").has("codeString")) {
-	// Log.w(TAG, "login need codeString");
-	// }
-	// logincheck = logincheck(token, username);
-	// } else {
-	// return false;
-	// }
-	//
-	// if (null == logincheck)
-	// return false;
-	//
-	// String publickey = getpublickey(token, username);
-	// if (null == publickey)
-	// return false;
-	//
-	// publickey = publickey.replace("bd__cbs__wl95ks(", "");
-	// publickey = publickey.substring(0, publickey.length() - 1);
-	//
-	// String publickey_keystring = new
-	// JSONObject(publickey).getString("pubkey");
-	// String publickey_key = new JSONObject(publickey).getString("key");
-	// if (DEBUG)
-	// Log.d(TAG, String.format("publickey_keystring:%s\npublickey_key:%s",
-	// publickey_keystring, publickey_key));
-	//
-	// String loginresult = passportlogin(token, username, password);
-	// if (null == loginresult) {
-	// return false;
-	// }
-	// if (DEBUG)
-	// Log.d(TAG, "loginresult :" + loginresult);
-	// if (loginresult.contains("err_no=0")) {
-	// return true;
-	// }
-	// return false;
-	// }
-
+	
 	/**
 	 * 下载文件 注意响应头有Content-MD5
 	 */
@@ -325,64 +167,7 @@ public class FSApiImple implements FSApi {
 			throw new ApiException("diskHomePage error", e);
 		}
 	}
-	//
-	// @Override
-	// public boolean islogin() throws ApiException {
-	// final String url = BDSYNCURL.diskHomePage();
-	// final Http http = new Http(url, Method.GET);
-	// try {
-	// if (http.http()) {
-	// if (http.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-	// // if (DEBUG)
-	// // logger.debug("islogin\n" + http.result());
-	// return true;
-	// }
-	// }
-	// } catch (IOException e) {
-	// throw new ApiException("search error", e);
-	// }
-	// return false;
-	// }
-
-	// @Override
-	// public boolean upload(String localpath, String cloudpath)
-	// throws ApiException {
-	// return upload(localpath, cloudpath, null);
-	// }
-	//
-	// @Override
-	// public boolean upload(String localpath, String cloudpath,
-	// OutputDataListener listener) throws ApiException {
-	// try {
-	// if (context.load()) {
-	// final String BDUSS = HttpCookieContainer.getInstance()
-	// .getCookie("BDUSS").getValue();
-	// final LocalFile cloudFile = new LocalFile(cloudpath);
-	// final String url = BDSYNCURL.getuploadfile(
-	// URLEncoder.encode(cloudFile.getParentPath(), "UTF-8"),
-	// URLEncoder.encode(cloudFile.getName(), "UTF-8"), BDUSS);
-	//
-	// final HttpFormOutput http = new HttpFormOutput(url, localpath,
-	// listener);
-	// if (http.http()) {
-	// if (DEBUG)
-	// Log.i(TAG, String.format("upload result:%s",
-	// http.result()));
-	// final String resultString = http.result();
-	// final JSONObject object = new JSONObject(resultString);
-	// if (object.has("md5")) {
-	// return true;
-	// }
-	//
-	// }
-	//
-	// }
-	// } catch (Exception e) {
-	// throw new ApiException("upload error", e);
-	// }
-	// return false;
-	// }
-
+	
 	@Override
 	public boolean secondUpload(String localpath, String content_md5, String cloudpath, boolean overwrite)
 			throws ApiException {
@@ -408,7 +193,6 @@ public class FSApiImple implements FSApi {
 				if (object.has("md5")) {
 					return true;
 				}
-
 			}
 
 		} catch (Exception e) {
@@ -623,7 +407,7 @@ public class FSApiImple implements FSApi {
 		try {
 			load();
 			final String BDUSS = HttpCookieContainer.getInstance().getCookie("BDUSS").getValue();
-			final String url = BDSYNCURL.getcreatesuperfile(path, URLEncoder.encode(BDUSS, "UTF-8"));
+			final String url = BDSYNCURL.getcreatesuperfile(URLEncoder.encode(path, "UTF-8"), URLEncoder.encode(BDUSS, "UTF-8"));
 
 			final JSONArray blocks = new JSONArray();
 			for (String s : block_list) {

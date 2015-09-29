@@ -40,7 +40,7 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	private LocalFile uploadFile;
 
 	private UpLoadOperate uploadOperate;
-	
+
 	private FileInputStream fileInputStream;
 
 	/**
@@ -62,10 +62,12 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	 */
 	@Override
 	public boolean check(LocalFile uploadFile, UpLoadOperate uploadOperate) {
-		
+
 		this.uploadFile = uploadFile;
 		this.uploadOperate = uploadOperate;
-		
+
+		Log.d(TAG, "UpLoadFileNormalConent uploading...");
+
 		if (uploadFile.getLength() <= MAX_SIZE) {
 			try {
 				final String md5 = fsApi.uploadTmpFile(this, this);
@@ -85,15 +87,13 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 					Log.w(TAG, "upload " + uploadFile.getAbsolutePath() + " success");
 					uploadOperate.addAnotherRecord(uploadFile);
 					uploadOperate.deleteRecord(uploadFile);
-					return true;
-				} else {
-					// 失败
 				}
 				return false;
 
 			} catch (ApiException e) {
+				return false;
 			} finally {
-				if(null != fileInputStream){
+				if (null != fileInputStream) {
 					try {
 						fileInputStream.close();
 					} catch (IOException e) {
@@ -101,6 +101,8 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 				}
 				StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
 			}
+		} else {
+			Log.d(TAG, "file too big");
 		}
 
 		return true;

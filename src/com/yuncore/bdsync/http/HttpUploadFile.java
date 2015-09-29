@@ -107,13 +107,19 @@ public class HttpUploadFile extends Http {
 		final InputStream in = source.getInputStream();
 		long commit = 0;
 		int len = 0;
+		long free = source.getFileLength();
 		// 缓存大小
 		final byte[] buffer = new byte[1024 * 50];
-		while ((len = in.read(buffer)) != -1) {
+		while (free > 0 && (len = in.read(buffer)) != -1) {
 
 			if (!source.isInterrupt()) {
 				return false;
 			}
+
+			if (len > free) {
+				len = (int) free;
+			}
+			free -= len;
 
 			digest.update(buffer, 0, len);
 			out.write(buffer, 0, len);

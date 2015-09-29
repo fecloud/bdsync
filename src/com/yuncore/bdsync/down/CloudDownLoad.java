@@ -33,7 +33,7 @@ public class CloudDownLoad implements DownloadOperate {
 		localFileDao = new LocalFileDao();
 
 		steps.add(new DownLoadCheckLocalFile(root));
-		steps.add(new DownLoadCheckCloudFile(fsApi));
+		steps.add(new DownLoadCheckCloudFile(tmpDir, fsApi));
 		steps.add(new DownLoadFileConent(root, tmpDir, fsApi));
 
 		// 建立临时文件目录
@@ -61,6 +61,7 @@ public class CloudDownLoad implements DownloadOperate {
 			}
 		}
 		StatusMent.setProperty(StatusMent.DOWNLOADING, false);
+		StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, 0);
 		return true;
 	}
 

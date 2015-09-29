@@ -237,7 +237,7 @@ public final class BDSYNCURL {
 	 */
 	public static String getcreatesuperfile(String path, String BDUSS){
 		final String ex_url = "http://c.pcs.baidu.com/rest/2.0/pcs/file?method=createsuperfile&app_id=%s&path=%s&ondup=overwrite&BDUSS=%s";
-		return String.format(ex_url, APPID,BDUSS);
+		return String.format(ex_url, APPID, path, BDUSS);
 	}
 	
 }

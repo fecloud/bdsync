@@ -5,6 +5,8 @@
  */
 package com.yuncore.bdsync.down;
 
+import java.io.File;
+
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
@@ -17,13 +19,16 @@ import com.yuncore.bdsync.exception.ApiException;
  */
 public class DownLoadCheckCloudFile implements DownLoadCheckFileStep {
 
+	private String tmpDir;
+	
 	private FSApi fsApi;
 
 	/**
 	 * @param fsApi
 	 */
-	public DownLoadCheckCloudFile(FSApi fsApi) {
+	public DownLoadCheckCloudFile(String tmpDir,FSApi fsApi) {
 		super();
+		this.tmpDir = tmpDir;
 		this.fsApi = fsApi;
 	}
 
@@ -45,6 +50,7 @@ public class DownLoadCheckCloudFile implements DownLoadCheckFileStep {
 
 		if (cloudFile == null) {
 			// 要下载的文件被删除了
+			deleteDownLoadTmpFile(downloadFile);
 			downloadOperate.deleteRecord(downloadFile);
 			return false;
 		}
@@ -58,6 +64,19 @@ public class DownLoadCheckCloudFile implements DownLoadCheckFileStep {
 		// 类型不一样下载不了,修改时间不一样,md5不一样
 		downloadOperate.deleteRecord(downloadFile);
 		return false;
+	}
+	
+	/**
+	 * 删除下载的临时文件
+	 * @param downloadFile
+	 * @return
+	 */
+	private final boolean deleteDownLoadTmpFile(LocalFile downloadFile){
+		final File file = new File(tmpDir, downloadFile.toFid());
+		if(file.exists()){
+			return file.delete();
+		}
+		return true;
 	}
 
 }

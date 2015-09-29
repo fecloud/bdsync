@@ -141,7 +141,7 @@ public class FSApiImple implements FSApi {
 			if (http.http() && http.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				if (DEBUG)
 					Log.d(TAG, String.format("diskHomePage:%s", http.result()));
-				final Pattern pattern = Pattern.compile("yunData\\.\\w+\\s*=\\s*['|\"]\\w*['|\"];");
+				final Pattern pattern = Pattern.compile("yunData\\.\\w+\\s*=\\s*['|\"].*['|\"];");
 				final Matcher matcher = pattern.matcher(http.result());
 				String temp = null;
 				String[] strings = null;

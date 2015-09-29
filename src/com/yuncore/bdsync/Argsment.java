@@ -40,7 +40,7 @@ public final class Argsment {
 	}
 
 	public static final long getBDSyncInterval() {
-		return Long.parseLong(System.getProperty(INTERVAL, "60000"));
+		return Long.parseLong(System.getProperty(INTERVAL, "600000"));
 	}
 
 	public static final void getBDSyncInterval(long interval) {

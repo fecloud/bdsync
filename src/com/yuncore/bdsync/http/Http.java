@@ -94,8 +94,8 @@ public class Http {
 		if (DEBUG)
 			printRequestHead();
 
-		conn.setConnectTimeout(20000);
-		conn.setReadTimeout(20000);
+		conn.setConnectTimeout(10000);
+		conn.setReadTimeout(10000);
 
 		if(!addFormData()){
 			return false;

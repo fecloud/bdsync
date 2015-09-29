@@ -255,10 +255,15 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 	 */
 	@Override
 	public InputStream getInputStream() throws IOException {
-		final long uploaded = sclies.size() * SCLIE_SIZE;
+		long uploaded = sclies.size() * SCLIE_SIZE;
 		if (uploadFile.getLength() > uploaded) {
 			fileInputStream = new FileInputStream(root + uploadFile.getAbsolutePath());
-			fileInputStream.skip(uploaded);
+			while(uploaded > 0){
+				//因为这个skip不一定每次都跳过指定的字节,所以要对返回值作判断
+				final long skip = fileInputStream.skip(uploaded);
+				uploaded -=skip;
+			}
+			
 			return fileInputStream;
 		}
 		return null;

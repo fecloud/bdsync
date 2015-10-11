@@ -10,34 +10,35 @@ import com.yuncore.bdsync.entity.EntityJSON;
 public class StatusMent {
 
 	/**
-	 * 正在上传的文件
+	 * 正在操作的文件
 	 */
-	public static final String UPLOADING = "uploading";
+	public static final String DOFILE = "dofile";
 
 	/**
-	 * 正在上传的文件已上传大小
+	 * 正在操作的文件已完成大小
 	 */
-	public static final String UPLOAD_SIZE = "upload_size";
-
-	/**
-	 * 正在下载的文件
-	 */
-	public static final String DOWNLOADING = "downloading";
-
-	/**
-	 * 正在下载的文件已上传大小
-	 */
-	public static final String DOWNLOAD_SIZE = "download_size";
+	public static final String DOFILE_SIZE = "dofile_size";
 
 	/**
 	 * 同步服务正在进行的任务
 	 */
 	public static final String SYNCWORKING = "syncworking";
 
+	/**
+	 * 同步服务正在进行的任务code
+	 */
+	public static final String SYNCWORKINGCODE = "syncworkingcode";
+	
 	private static final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
 	public static final void setProperty(String key, Object value) {
 		env.put(key, value);
+	}
+	
+	public static final void removeProperty(String key) {
+		if (env.containsKey(key)) {
+			env.remove(key);
+		}
 	}
 
 	public static final Object getProperty(String key, Object defaltValue) {

@@ -72,4 +72,12 @@ public class CloudDownloadTask implements SyncStepTask {
 		return "下载云端文件到本地";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.sync.task.SyncStepTask#getCode()
+	 */
+	@Override
+	public int getCode() {
+		return 4;
+	}
+
 }

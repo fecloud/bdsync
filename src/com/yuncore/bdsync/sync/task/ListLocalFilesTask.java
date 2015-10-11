@@ -104,4 +104,12 @@ public class ListLocalFilesTask implements SyncStepTask {
 		return "获取本地文件列表";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.sync.task.SyncStepTask#getCode()
+	 */
+	@Override
+	public int getCode() {
+		return 5;
+	}
+
 }

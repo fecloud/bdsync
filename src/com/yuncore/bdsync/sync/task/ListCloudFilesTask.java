@@ -65,4 +65,11 @@ public class ListCloudFilesTask extends ListLocalFilesTask {
 		return "获取云端文件列表";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.sync.task.ListLocalFilesTask#getCode()
+	 */
+	@Override
+	public int getCode() {
+		return 1;
+	}
 }

@@ -72,4 +72,12 @@ public class LocalUploadTask implements SyncStepTask {
 		return "上传本地文件到云端";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.sync.task.SyncStepTask#getCode()
+	 */
+	@Override
+	public int getCode() {
+		return 8;
+	}
+
 }

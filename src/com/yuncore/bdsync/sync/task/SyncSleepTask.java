@@ -84,4 +84,12 @@ public class SyncSleepTask implements SyncStepTask {
 		return "等待下一次同步中";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.sync.task.SyncStepTask#getCode()
+	 */
+	@Override
+	public int getCode() {
+		return 9;
+	}
+
 }

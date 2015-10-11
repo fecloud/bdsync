@@ -179,6 +179,7 @@ public class Sync implements Runnable {
 
 			StatusMent.setProperty(StatusMent.SYNCWORKING,
 					current.getRealName());
+			StatusMent.setProperty(StatusMent.SYNCWORKINGCODE, current.getCode());
 
 			Log.w(TAG, current.getRealName() + " start");
 			// 任务执行成功

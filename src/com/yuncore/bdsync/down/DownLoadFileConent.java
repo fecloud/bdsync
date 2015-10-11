@@ -80,7 +80,7 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 				}
 			}
 
-			StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, fileStart);
+			StatusMent.setProperty(StatusMent.DOFILE_SIZE, fileStart);
 			DownloadInputStream in = null;
 			FileOutputStream out = null;
 
@@ -119,7 +119,7 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 
 				while (downloadOperate.getDownLoadStatus()
 						&& -1 != (len = in.read(buffer))) {
-					StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, sum);
+					StatusMent.setProperty(StatusMent.DOFILE_SIZE, sum);
 					out.write(buffer, 0, len);
 					sum += len;
 					if (sum == downloadFile.getLength()) {

@@ -46,4 +46,12 @@ public class CloudCompareTask extends LocalCompareTask {
 		return "云端文件对比";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.sync.task.LocalCompareTask#getCode()
+	 */
+	@Override
+	public int getCode() {
+		return 2;
+	}
+	
 }

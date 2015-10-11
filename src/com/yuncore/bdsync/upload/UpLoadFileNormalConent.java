@@ -99,7 +99,7 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 					} catch (IOException e) {
 					}
 				}
-				StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
+				StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
 			}
 		} else {
 			Log.d(TAG, "file too big");
@@ -117,7 +117,7 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	 */
 	@Override
 	public void onWrite(long sum, long commit) {
-		StatusMent.setProperty(StatusMent.UPLOAD_SIZE, commit);
+		StatusMent.setProperty(StatusMent.DOFILE_SIZE, commit);
 	}
 
 	/*

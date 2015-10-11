@@ -51,8 +51,8 @@ public class CloudDownLoad implements DownloadOperate {
 
 			downloadFile = downloadDao.query();
 			if (downloadFile != null) {
-				StatusMent.setProperty(StatusMent.DOWNLOADING, downloadFile);
-				StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, 0);
+				StatusMent.setProperty(StatusMent.DOFILE, downloadFile);
+				StatusMent.setProperty(StatusMent.DOFILE_SIZE, 0);
 
 				checkAndDownLoad(downloadFile);
 
@@ -60,8 +60,8 @@ public class CloudDownLoad implements DownloadOperate {
 				break;
 			}
 		}
-		StatusMent.setProperty(StatusMent.DOWNLOADING, false);
-		StatusMent.setProperty(StatusMent.DOWNLOAD_SIZE, 0);
+		StatusMent.removeProperty(StatusMent.DOFILE);
+		StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
 		return true;
 	}
 
@@ -90,7 +90,7 @@ public class CloudDownLoad implements DownloadOperate {
 	 */
 	@Override
 	public boolean deleteRecord(LocalFile file) {
-		StatusMent.setProperty(StatusMent.DOWNLOADING, "");
+		StatusMent.removeProperty(StatusMent.DOFILE);
 		final boolean result = downloadDao.delete(file);
 		if (result) {
 			Log.d(TAG, "deleteRecord " + file.getAbsolutePath());

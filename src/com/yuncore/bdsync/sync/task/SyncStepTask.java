@@ -29,5 +29,11 @@ public interface SyncStepTask {
 	 * @return
 	 */
 	String getRealName();
+	
+	/**
+	 * 步骤code
+	 * @return
+	 */
+	int getCode();
 
 }

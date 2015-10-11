@@ -63,4 +63,12 @@ public class SyncStopTask implements SyncStepTask {
 		return "同步服务已停止";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.sync.task.SyncStepTask#getCode()
+	 */
+	@Override
+	public int getCode() {
+		return 10;
+	}
+
 }

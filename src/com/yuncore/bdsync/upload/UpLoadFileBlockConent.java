@@ -88,7 +88,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 		final int nums = coutBlock();
 		for (int i = sclies.size(); i < nums; i++) {
 			if (!uploadOperate.getUpLoadStatus()) {
-				StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
+				StatusMent.setProperty(StatusMent.DOFILE_SIZE, 0);
 				return true;
 			}
 
@@ -120,7 +120,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 		}
 
 		if (!uploadOperate.getUpLoadStatus()) {
-			StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
+			StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
 			return true;
 		}
 
@@ -135,7 +135,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 		} catch (ApiException e) {
 		}
 
-		StatusMent.setProperty(StatusMent.UPLOAD_SIZE, 0);
+		StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
 
 		return true;
 	}
@@ -209,7 +209,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 	@Override
 	public void onWrite(long sum, long commit) {
 		final long commitd = sclies.size() * SCLIE_SIZE + commit;
-		StatusMent.setProperty(StatusMent.UPLOAD_SIZE, commitd);
+		StatusMent.setProperty(StatusMent.DOFILE_SIZE, commitd);
 	}
 
 	/*

@@ -68,4 +68,12 @@ public class CloudDeleteActionLocalTask implements SyncStepTask {
 		return "执行云端文件删除并删除本地文件";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.sync.task.SyncStepTask#getCode()
+	 */
+	@Override
+	public int getCode() {
+		return 3;
+	}
+
 }

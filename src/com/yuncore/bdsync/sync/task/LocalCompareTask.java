@@ -58,4 +58,12 @@ public class LocalCompareTask implements SyncStepTask {
 		return "本地文件对比";
 	}
 
+	/* (non-Javadoc)
+	 * @see com.yuncore.bdsync.sync.task.SyncStepTask#getCode()
+	 */
+	@Override
+	public int getCode() {
+		return 6;
+	}
+
 }

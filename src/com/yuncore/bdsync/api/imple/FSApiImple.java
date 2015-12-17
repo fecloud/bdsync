@@ -141,20 +141,25 @@ public class FSApiImple implements FSApi {
 			if (http.http() && http.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				if (DEBUG)
 					Log.d(TAG, String.format("diskHomePage:%s", http.result()));
-				final Pattern pattern = Pattern.compile("yunData\\.\\w+\\s*=\\s*['|\"].*['|\"];");
+				final Pattern pattern = Pattern.compile("yunData.setData\\(.*;");
 				final Matcher matcher = pattern.matcher(http.result());
 				String temp = null;
-				String[] strings = null;
+				String json = null;
 				final Map<String, String> maps = new Hashtable<String, String>();
 				while (matcher.find()) {
 					temp = matcher.group();
-					if (null != temp) {
-						strings = temp.split("=");
-						if (null != strings && strings.length == 2) {
-							maps.put(strings[0].trim().replaceAll("yunData.", ""),
-									strings[1].trim().replaceAll("'", "").replaceAll(";", "").replaceAll("\"", ""));
-						}
+					temp = temp.trim();
+					int star = "yunData.setData(".length();
+					int end = temp.length() -");".length();
+					json = temp.substring(star, end);
+					final JSONObject jsonObject = new JSONObject(json);
+					if(jsonObject.has("username")){
+						maps.put("MYNAME", jsonObject.getString("username"));
 					}
+					if(jsonObject.has("bdstoken")){
+						maps.put(BDSTOKEN, jsonObject.getString("bdstoken"));
+					}
+					break;
 				}
 				if (maps.isEmpty()) {
 					throw new ApiException("diskHomePage error maps empty");

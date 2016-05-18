@@ -141,7 +141,7 @@ public class FSApiImple implements FSApi {
 			if (http.http() && http.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				if (DEBUG)
 					Log.d(TAG, String.format("diskHomePage:%s", http.result()));
-				final Pattern pattern = Pattern.compile("yunData.setData\\(.*;");
+				final Pattern pattern = Pattern.compile("context=\\{.*\\};");
 				final Matcher matcher = pattern.matcher(http.result());
 				String temp = null;
 				String json = null;
@@ -149,8 +149,8 @@ public class FSApiImple implements FSApi {
 				while (matcher.find()) {
 					temp = matcher.group();
 					temp = temp.trim();
-					int star = "yunData.setData(".length();
-					int end = temp.length() -");".length();
+					int star = "context=".length();
+					int end = temp.length() -";".length();
 					json = temp.substring(star, end);
 					final JSONObject jsonObject = new JSONObject(json);
 					if(jsonObject.has("username")){

@@ -172,6 +172,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 	 */
 	private final void readSlicesMd5() {
 		try {
+			sclies.clear();
 			final File file = new File(sclieFileName);
 			if (file.exists()) {
 				final BufferedReader reader = new BufferedReader(

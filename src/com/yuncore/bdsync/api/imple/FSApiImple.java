@@ -43,7 +43,7 @@ public class FSApiImple implements FSApi {
 	/**
 	 * 10分针刷新一次
 	 */
-	protected static final int INTERVAL = 10 * 60 * 1000;
+	protected static final int INTERVAL = 60 * 1000;
 
 	protected static volatile long time;
 

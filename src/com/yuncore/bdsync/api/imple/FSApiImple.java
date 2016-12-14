@@ -28,7 +28,6 @@ import com.yuncore.bdsync.http.HttpInput;
 import com.yuncore.bdsync.http.HttpUploadFile;
 import com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener;
 import com.yuncore.bdsync.http.HttpUploadFile.FileSource;
-import com.yuncore.bdsync.http.cookie.HttpCookieContainer;
 import com.yuncore.bdsync.util.Log;
 import com.yuncore.bdsync.util.MD5;
 
@@ -179,7 +178,7 @@ public class FSApiImple implements FSApi {
 		try {
 			load();
 
-			final String BDUSS = HttpCookieContainer.getInstance().getCookie("BDUSS").getValue();
+			final String BDUSS = System.getProperty("BDUSS");//HttpCookieContainer.getInstance().getCookie("BDUSS").getValue();
 			final String bdstoken = CONTEXT.getProperty(BDSTOKEN, "");
 			final File file = new File(localpath);
 			final LocalFile cloudFile = new LocalFile(cloudpath);
@@ -384,7 +383,7 @@ public class FSApiImple implements FSApi {
 	public String uploadTmpFile(FileSource soure, FileOutputListener listener) throws ApiException {
 		try {
 			load();
-			final String BDUSS = HttpCookieContainer.getInstance().getCookie("BDUSS").getValue();
+			final String BDUSS = System.getProperty("BDUSS");//HttpCookieContainer.getInstance().getCookie("BDUSS").getValue();
 			final String url = BDSYNCURL.getuploadtmpfile(URLEncoder.encode(BDUSS, "UTF-8"));
 
 			final HttpUploadFile http = new HttpUploadFile(url, soure, listener);
@@ -411,7 +410,8 @@ public class FSApiImple implements FSApi {
 	public CloudFile createSuperFile(String path, String[] block_list) throws ApiException {
 		try {
 			load();
-			final String BDUSS = HttpCookieContainer.getInstance().getCookie("BDUSS").getValue();
+			
+			final String BDUSS = System.getProperty("BDUSS");//HttpCookieContainer.getInstance().getCookie("BDUSS").getValue();
 			final String url = BDSYNCURL.getcreatesuperfile(URLEncoder.encode(path, "UTF-8"), URLEncoder.encode(BDUSS, "UTF-8"));
 
 			final JSONArray blocks = new JSONArray();

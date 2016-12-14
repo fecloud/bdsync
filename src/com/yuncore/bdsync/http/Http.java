@@ -2,6 +2,9 @@ package com.yuncore.bdsync.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -14,9 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.yuncore.bdsync.http.cookie.Cookie;
-import com.yuncore.bdsync.http.cookie.CookieContainer;
-import com.yuncore.bdsync.http.cookie.HttpCookieContainer;
+import org.json.Cookie;
+
+import com.yuncore.bdsync.http.cookie.InMemoryCookieStore;
+import com.yuncore.bdsync.http.cookie.PersistentCookieStore;
 import com.yuncore.bdsync.http.log.HttpLog;
 import com.yuncore.bdsync.http.log.HttpLogLoader;
 import com.yuncore.bdsync.util.Gzip;
@@ -34,13 +38,14 @@ public class Http {
 
 	protected HttpURLConnection conn;
 
-	protected CookieContainer container = HttpCookieContainer.getInstance();
+	protected static CookieManager manager = new CookieManager(new InMemoryCookieStore(),
+			CookiePolicy.ACCEPT_ALL);
 
 	private String result;
 
 	private Hashtable<String, String> requestHeader = new Hashtable<String, String>();
 
-	private final boolean DEBUG = false;
+	private final boolean DEBUG = true;
 
 	private HttpLog httpLog = HttpLogLoader.getInstance();
 
@@ -70,7 +75,8 @@ public class Http {
 			httpLog.log(String.format("url:%s", url));
 			httpLog.log(String.format("method:%s", method == Method.GET ? "GET" : "POST"));
 		}
-		final String proxyString = System.getProperty("http_proxy");
+		CookieHandler.setDefault(manager);
+		final String proxyString = /*"127.0.0.1:8888";*/System.getProperty("http_proxy");
 		if (null != proxyString && proxyString.split(":").length == 2) {
 			final String[] proxyArray = proxyString.split(":");
 			final Proxy proxy = new Proxy(Type.HTTP,
@@ -90,7 +96,7 @@ public class Http {
 		conn.addRequestProperty("Accept", "*/*");
 		addRequestProperty();
 		addRequestHeader();
-		addCookie();
+//		addCookie();
 		if (DEBUG)
 			printRequestHead();
 
@@ -105,7 +111,7 @@ public class Http {
 		if (DEBUG)
 			printResponeHead();
 
-		setCookie();
+//		setCookie();
 		return execResult();
 	}
 
@@ -181,22 +187,22 @@ public class Http {
 		return true;
 	}
 
-	private boolean setCookie() {
-		final Map<String, List<String>> headerFields = conn.getHeaderFields();
-		final List<String> list = headerFields.get("Set-Cookie");
-
-		if (null != list) {
-			if (DEBUG)
-				httpLog.log("Set-Cookie list:" + list);
-			for (String c : list) {
-				if (DEBUG)
-					httpLog.log("Set-Cookie one:" + c);
-				if (null != c)
-					container.addCookieOrUpdate(c.trim());
-			}
-		}
-		return true;
-	}
+//	private boolean setCookie() {
+//		final Map<String, List<String>> headerFields = conn.getHeaderFields();
+//		final List<String> list = headerFields.get("Set-Cookie");
+//
+//		if (null != list) {
+//			if (DEBUG)
+//				httpLog.log("Set-Cookie list:" + list);
+//			for (String c : list) {
+//				if (DEBUG)
+//					httpLog.log("Set-Cookie one:" + c);
+//				if (null != c)
+//					container.addCookieOrUpdate(c.trim());
+//			}
+//		}
+//		return true;
+//	}
 
 	private void printRequestHead() {
 		final Map<String, List<String>> headerFields = conn.getRequestProperties();
@@ -232,25 +238,25 @@ public class Http {
 		return true;
 	}
 
-	private boolean addCookie() {
-		final List<Cookie> cookies = container.getCookieList(url);
-		if (cookies != null && !cookies.isEmpty()) {
-			final StringBuilder cookie_str = new StringBuilder();
-			for (int i = 0; i < cookies.size(); i++) {
-				cookie_str.append(cookies.get(i).getName()).append("=").append(cookies.get(i).getValue());
-				if (i != cookies.size() - 1) {
-					cookie_str.append(";");
-				}
-			}
-			conn.addRequestProperty("Cookie", cookie_str.toString());
-		}
-		return true;
-	}
+//	private boolean addCookie() {
+//		final List<Cookie> cookies = container.getCookieList(url);
+//		if (cookies != null && !cookies.isEmpty()) {
+//			final StringBuilder cookie_str = new StringBuilder();
+//			for (int i = 0; i < cookies.size(); i++) {
+//				cookie_str.append(cookies.get(i).getName()).append("=").append(cookies.get(i).getValue());
+//				if (i != cookies.size() - 1) {
+//					cookie_str.append(";");
+//				}
+//			}
+//			conn.addRequestProperty("Cookie", cookie_str.toString());
+//		}
+//		return true;
+//	}
 
-	public boolean clearCookie() {
-		container.clear();
-		container.save();
-		return true;
-
-	}
+//	public boolean clearCookie() {
+//		container.clear();
+//		container.save();
+//		return true;
+//
+//	}
 }

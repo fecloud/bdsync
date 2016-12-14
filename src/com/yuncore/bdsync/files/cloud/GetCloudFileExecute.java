@@ -13,7 +13,6 @@ import com.yuncore.bdsync.entity.CloudPageFile;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.files.FileExclude;
-import com.yuncore.bdsync.http.cookie.AppCookieContainer;
 import com.yuncore.bdsync.task.Task;
 import com.yuncore.bdsync.task.TaskContainer;
 import com.yuncore.bdsync.task.TaskExecute;
@@ -66,7 +65,7 @@ public class GetCloudFileExecute extends TaskExecute {
 				} else {
 					if (listFiles.getErrno() == -6) {
 						Log.w(TAG, "cookie problem"); // cookie有错误
-						System.setProperty(AppCookieContainer.COOKIE_LOAD, "false");
+//						System.setProperty(AppCookieContainer.COOKIE_LOAD, "false");
 					}
 					Log.w(TAG, "CloudPageFile listFiles error:" + listFiles.getErrno());
 					// 因为某种原因没有取得成功

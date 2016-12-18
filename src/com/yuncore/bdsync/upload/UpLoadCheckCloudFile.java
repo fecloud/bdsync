@@ -43,6 +43,7 @@ public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 		try {
 			cloudFile = fsApi.getMeta(uploadFile.getAbsolutePath());
 		} catch (ApiException e) {
+			Log.e(TAG, "", e);
 			return false;
 		}
 

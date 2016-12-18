@@ -165,6 +165,7 @@ public class FSApiImple implements FSApi {
 				}
 				return maps;
 			} else {
+				System.exit(0);
 				throw new ApiException("diskHomePage error not load " + url);
 			}
 		} catch (IOException e) {

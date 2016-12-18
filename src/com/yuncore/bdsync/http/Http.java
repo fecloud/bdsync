@@ -17,10 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.json.Cookie;
-
 import com.yuncore.bdsync.http.cookie.InMemoryCookieStore;
-import com.yuncore.bdsync.http.cookie.PersistentCookieStore;
 import com.yuncore.bdsync.http.log.HttpLog;
 import com.yuncore.bdsync.http.log.HttpLogLoader;
 import com.yuncore.bdsync.util.Gzip;
@@ -44,8 +41,10 @@ public class Http {
 	private String result;
 
 	private Hashtable<String, String> requestHeader = new Hashtable<String, String>();
+	
+	private static boolean setCookieManager = false;
 
-	private final boolean DEBUG = true;
+	public static final  boolean DEBUG = false;
 
 	private HttpLog httpLog = HttpLogLoader.getInstance();
 
@@ -55,12 +54,21 @@ public class Http {
 
 	public Http() {
 		super();
+		if(!setCookieManager){
+			CookieHandler.setDefault(manager);
+			setCookieManager = true;
+		}
+		
 	}
 
 	public Http(String url, Method method) {
 		super();
 		this.url = url;
 		this.method = method;
+		if(!setCookieManager){
+			CookieHandler.setDefault(manager);
+			setCookieManager = true;
+		}
 	}
 
 	public Http(String url, Method method, String formString) {
@@ -68,6 +76,10 @@ public class Http {
 		this.url = url;
 		this.method = method;
 		this.formString = formString;
+		if(!setCookieManager){
+			CookieHandler.setDefault(manager);
+			setCookieManager = true;
+		}
 	}
 
 	public boolean http() throws MalformedURLException, IOException {
@@ -75,7 +87,7 @@ public class Http {
 			httpLog.log(String.format("url:%s", url));
 			httpLog.log(String.format("method:%s", method == Method.GET ? "GET" : "POST"));
 		}
-		CookieHandler.setDefault(manager);
+		
 		final String proxyString = /*"127.0.0.1:8888";*/System.getProperty("http_proxy");
 		if (null != proxyString && proxyString.split(":").length == 2) {
 			final String[] proxyArray = proxyString.split(":");
@@ -176,6 +188,18 @@ public class Http {
 				this.result = TextUtil.readToString(conn.getInputStream(), "UTF-8");
 			}
 		}
+		if(DEBUG){
+			
+			if(result != null){
+				if(result.length() > 30){
+					httpLog.log(result.substring(0, 29));
+				}else {
+					httpLog.log(result);
+				}
+				
+			}
+		}
+		
 		return result;
 	}
 
@@ -220,7 +244,18 @@ public class Http {
 		httpLog.log("[===============respone header ===================]");
 		for (Entry<String, List<String>> entry : headerFields.entrySet()) {
 			if (entry.getKey() != null) {
-				httpLog.log(String.format("[%s:%s]", entry.getKey(), entry.getValue()));
+				final List<String> strings = entry.getValue();
+				if(null != strings){
+					final StringBuilder builder = new StringBuilder();
+					builder.append(String.format("[%s:",entry.getKey()));
+					for(String string:strings){
+						builder.append(string);
+						builder.append(";");
+					}
+					builder.append("]");
+					httpLog.log(builder.toString());
+				}
+				
 			} else {
 				httpLog.log(String.format("[%s]", entry.getValue()));
 			}

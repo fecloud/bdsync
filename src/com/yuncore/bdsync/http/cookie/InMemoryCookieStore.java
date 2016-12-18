@@ -24,6 +24,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.yuncore.bdsync.Environment;
+import com.yuncore.bdsync.http.Http;
+import com.yuncore.bdsync.http.log.HttpLog;
+import com.yuncore.bdsync.http.log.HttpLogLoader;
 
 /**
  * The class <code>InMemoryCookieStore</code>
@@ -44,6 +47,8 @@ public class InMemoryCookieStore implements CookieStore {
 
 	// use ReentrantLock instead of syncronized for scalability
 	private ReentrantLock lock = null;
+	
+	private HttpLog httpLog = HttpLogLoader.getInstance();
 
 	/**
 	 * The default ctor
@@ -64,6 +69,10 @@ public class InMemoryCookieStore implements CookieStore {
 		// pre-condition : argument can't be null
 		if (cookie == null) {
 			throw new NullPointerException("cookie is null");
+		}
+		
+		if (Http.DEBUG) {
+			httpLog.log(String.format("add uri:%s cookie:%s", uri, cookie));
 		}
 
 		lock.lock();
@@ -99,6 +108,10 @@ public class InMemoryCookieStore implements CookieStore {
 		if (uri == null) {
 			throw new NullPointerException("uri is null");
 		}
+		
+		if (Http.DEBUG) {
+			httpLog.log(String.format("get uri:%s", uri));
+		}
 
 		List<HttpCookie> cookies = new ArrayList<HttpCookie>();
 		boolean secureLink = "https".equalsIgnoreCase(uri.getScheme());
@@ -112,6 +125,13 @@ public class InMemoryCookieStore implements CookieStore {
 			lock.unlock();
 		}
 
+
+		if (Http.DEBUG) {
+			for (HttpCookie e : cookies) {
+				httpLog.log(String.format("get uri:%s e:%s", uri, e));
+			}
+
+		}
 		return cookies;
 	}
 
@@ -135,6 +155,9 @@ public class InMemoryCookieStore implements CookieStore {
 			save();
 		}
 
+		if (Http.DEBUG) {
+			httpLog.log(String.format("getCookies:%s", rt.size()));
+		}
 		return rt;
 	}
 
@@ -163,6 +186,9 @@ public class InMemoryCookieStore implements CookieStore {
 			lock.unlock();
 		}
 
+		if (Http.DEBUG) {
+			httpLog.log(String.format("getURIs:%s", uris.size()));
+		}
 		return uris;
 	}
 
@@ -184,6 +210,9 @@ public class InMemoryCookieStore implements CookieStore {
 			lock.unlock();
 		}
 
+		if (Http.DEBUG) {
+			httpLog.log(String.format("remove uri:%s ck:%s", uri, ck));
+		}
 		return modified;
 	}
 
@@ -201,6 +230,9 @@ public class InMemoryCookieStore implements CookieStore {
 			lock.unlock();
 		}
 
+		if (Http.DEBUG) {
+			httpLog.log(String.format("removeAll"));
+		}
 		return true;
 	}
 

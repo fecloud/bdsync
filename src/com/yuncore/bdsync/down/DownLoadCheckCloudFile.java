@@ -10,6 +10,7 @@ import java.io.File;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
+import com.yuncore.bdsync.util.Log;
 
 /**
  * The class <code>DownLoadCheckCloudFile</code>
@@ -19,6 +20,8 @@ import com.yuncore.bdsync.exception.ApiException;
  */
 public class DownLoadCheckCloudFile implements DownLoadCheckFileStep {
 
+	private static final String TAG = "DownLoadCheckCloudFile";
+	
 	private String tmpDir;
 	
 	private FSApi fsApi;
@@ -45,6 +48,7 @@ public class DownLoadCheckCloudFile implements DownLoadCheckFileStep {
 		try {
 			cloudFile = fsApi.getMeta(downloadFile.getAbsolutePath());
 		} catch (ApiException e) {
+			Log.e(TAG, "", e);
 			return false;
 		}
 

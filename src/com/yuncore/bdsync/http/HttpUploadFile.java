@@ -13,6 +13,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
+import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.util.MD5;
 
 /**
@@ -109,7 +110,13 @@ public class HttpUploadFile extends Http {
 		int len = 0;
 		long free = source.getFileLength();
 		// 缓存大小
-		final byte[] buffer = new byte[1024 * 50];
+		final int speed = Integer.valueOf(Environment.getUploadSpeed());
+		 byte[] buffer = null;
+		if (speed == 0) {
+			buffer = new byte[1024 * 50];
+		} else {
+			buffer = new byte[1024 * speed];
+		}
 		while (free > 0 && (len = in.read(buffer)) != -1) {
 
 			if (!source.isInterrupt()) {
@@ -132,6 +139,13 @@ public class HttpUploadFile extends Http {
 			commit += len;
 			if (null != output) {
 				output.onWrite(source.getFileLength(), commit);
+			}
+			if(speed > 0){
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		final byte[] md = digest.digest();

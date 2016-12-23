@@ -46,6 +46,8 @@ public final class Environment {
 	public static final String LOCALLIST = "bdsync.locallist";
 
 	public static final String CLOUDLIST = "bdsync.cloudlist";
+	
+	public static final String UPLOAD_SPEED = "bdsync.uploadspeed";
 
 	/**
 	 * 程序启动时间
@@ -134,5 +136,9 @@ public final class Environment {
 
 	public static final String getCommdLine() {
 		return System.getProperty(CMD, "");
+	}
+	
+	public static final String getUploadSpeed() {
+		return System.getProperty(UPLOAD_SPEED, "0");
 	}
 }

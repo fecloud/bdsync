@@ -13,7 +13,6 @@ import com.yuncore.bdsync.ctrl.Httpd;
 import com.yuncore.bdsync.dao.SyncProcessDao;
 import com.yuncore.bdsync.entity.SyncProcess;
 import com.yuncore.bdsync.exception.ApiException;
-import com.yuncore.bdsync.http.cookie.FileCookieContainer;
 import com.yuncore.bdsync.sync.task.CloudCompareTask;
 import com.yuncore.bdsync.sync.task.CloudDeleteActionLocalTask;
 import com.yuncore.bdsync.sync.task.CloudDownloadTask;
@@ -51,9 +50,12 @@ public class Sync implements Runnable {
 	private SyncProcessDao syncProcessDao;
 
 	private volatile boolean flag;
+	
+	private String action;
 
 	public Sync(String[] args) {
 		this.args = args;
+		this.action = args[0];
 		syncdir = args[1];
 		setHttpPort(args);
 		startHttp();
@@ -90,8 +92,8 @@ public class Sync implements Runnable {
 		// System.setProperty(Const.TMP,
 		// String.format("%s%s%s", syncdir, File.separator, Const.TMP_DIR));
 		// System.setProperty("http_proxy", "localhost:8888");
-		Environment.setCookiecontainerClassName(FileCookieContainer.class
-				.getName());
+//		Environment.setCookiecontainerClassName(FileCookieContainer.class
+//				.getName());
 
 	}
 
@@ -128,15 +130,30 @@ public class Sync implements Runnable {
 		steps = new ArrayList<SyncStepTask>();
 		steps.add(new SyncStopTask());
 
-		 steps.add(new ListCloudFilesTask(args));
-		 steps.add(new CloudCompareTask());
-		 steps.add(new CloudDeleteActionLocalTask(args));
-		 steps.add(new CloudDownloadTask(args));
+		if (action.equalsIgnoreCase("sync")) {
+			steps.add(new ListCloudFilesTask(args));
+			steps.add(new CloudCompareTask());
+			steps.add(new CloudDeleteActionLocalTask(args));
+			steps.add(new CloudDownloadTask(args));
 
-		steps.add(new ListLocalFilesTask(args));
-		steps.add(new LocalCompareTask());
-		steps.add(new LocalDeleteActionCloudTask(args));
-		steps.add(new LocalUploadTask(args));
+			steps.add(new ListLocalFilesTask(args));
+			steps.add(new LocalCompareTask());
+			steps.add(new LocalDeleteActionCloudTask(args));
+			steps.add(new LocalUploadTask(args));
+		} else if (action.equalsIgnoreCase("up")) {
+			steps.add(new ListLocalFilesTask(args));
+			steps.add(new LocalCompareTask());
+//			steps.add(new LocalDeleteActionCloudTask(args));
+			steps.add(new LocalUploadTask(args));
+		} else if (action.equalsIgnoreCase("down")) {
+
+			steps.add(new ListCloudFilesTask(args));
+			steps.add(new CloudCompareTask());
+//			steps.add(new CloudDeleteActionLocalTask(args));
+			steps.add(new CloudDownloadTask(args));
+		}
+		
+
 
 		steps.add(new SyncSleepTask());
 	}

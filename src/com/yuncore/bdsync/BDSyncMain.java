@@ -27,7 +27,9 @@ public class BDSyncMain implements BDSyncServiceListener {
 			printHelp();
 		} else {
 			final String action = args[0].trim();
-			if ("sync".equalsIgnoreCase(action)) {
+			if ("sync".equalsIgnoreCase(action)
+					|| "down".equalsIgnoreCase(action)
+					|| "up".equalsIgnoreCase(action)) {
 				if (args.length >= 2) {
 					final BDSyncMain bdsyncMain = new BDSyncMain(args);
 					new BDSycService(bdsyncMain).start();
@@ -55,7 +57,7 @@ public class BDSyncMain implements BDSyncServiceListener {
 		System.err.println("Usage:bdsync [sync|stop]");
 		System.err.println("");
 		System.err
-				.println("sync <local_dir> [-p port] [-l exinclude dir] [-c exinclude dir]");
+				.println("[sync down up] <local_dir> [-p port] [-l exinclude dir] [-c exinclude dir]");
 		System.err.println("");
 		System.err.println("stop");
 		System.err.println("");

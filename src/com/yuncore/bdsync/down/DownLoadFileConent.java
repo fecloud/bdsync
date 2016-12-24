@@ -8,6 +8,7 @@ package com.yuncore.bdsync.down;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.DownloadInputStream;
 import com.yuncore.bdsync.api.FSApi;
@@ -114,7 +115,11 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 			}
 
 			if (in != null) {
-				final byte[] buffer = new byte[1024 * 1024];
+				int downSpeed = Integer.valueOf(Environment.getDownSpeed());
+				byte[] buffer = new byte[1024 * 1024];
+				if (downSpeed > 0) {
+					buffer = new byte[1024 * downSpeed];
+				}
 				int len = -1;
 
 				while (downloadOperate.getDownLoadStatus()
@@ -124,6 +129,9 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 					sum += len;
 					if (sum == downloadFile.getLength()) {
 						break;
+					}
+					if (downSpeed > 0) {
+						Thread.sleep(1000);
 					}
 				}
 				out.flush();

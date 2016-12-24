@@ -138,6 +138,7 @@ public class FSApiImple implements FSApi {
 	public Map<String, String> diskHomePage() throws ApiException {
 		final String url = BDSYNCURL.diskHomePage();
 
+		final Map<String, String> maps = new Hashtable<String, String>();
 		final Http http = new Http(url, Method.GET);
 		try {
 			if (http.http() && http.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -147,7 +148,7 @@ public class FSApiImple implements FSApi {
 				final Matcher matcher = pattern.matcher(http.result());
 				String temp = null;
 				String json = null;
-				final Map<String, String> maps = new Hashtable<String, String>();
+				
 				while (matcher.find()) {
 					temp = matcher.group();
 					temp = temp.trim();
@@ -167,19 +168,29 @@ public class FSApiImple implements FSApi {
 					throw new ApiException("diskHomePage error maps empty");
 				}
 				return maps;
-			} else {
-				try {
-					SendMail.sendMail("Cookie错误", "Cookie错误 " + DateUtil.formatTime(System.currentTimeMillis()));
-				} catch (EmailException e) {
+			} else if(http.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
+				Log.e(TAG, "http 302 location:" + http.getLocation());
+				//有时候运营商会拦截http请求
+				if(http.getLocation() != null && 
+						http.getLocation().equalsIgnoreCase("/") && 
+						http.getLocation().contains("baidu")){
+					try {
+						SendMail.sendMail("Cookie错误", "Cookie错误 " + DateUtil.formatTime(System.currentTimeMillis()));
+					} catch (EmailException e) {
+						try {
+							SendMail.sendMail("Cookie错误", "Cookie错误 " + DateUtil.formatTime(System.currentTimeMillis()));
+						} catch (EmailException e1) {
+						}
+					}
+					Log.e(TAG, "cookie error exit");
 					System.exit(0);
-					throw new ApiException("SendMail.sendMail ",e);
 				}
-				System.exit(0);
-				throw new ApiException("diskHomePage error not load " + url);
 			}
 		} catch (IOException e) {
 			throw new ApiException("diskHomePage error", e);
 		}
+		
+		return maps;
 	}
 	
 	@Override

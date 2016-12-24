@@ -202,6 +202,10 @@ public class Http {
 		
 		return result;
 	}
+	
+	public String getLocation(){
+		return conn.getHeaderField("Location");
+	}
 
 	protected boolean addFormData() throws IOException {
 		if (null != formString) {

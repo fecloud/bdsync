@@ -131,12 +131,12 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 				deleteSlicesMd5();
 				Log.w(TAG, "upload " + uploadFile.getAbsolutePath() + " success");
 				final boolean uploaddelfile = Boolean.valueOf(Environment.getUploadDelFile());
-				if(uploaddelfile){
-					final boolean del = new File(uploadFile.getAbsolutePath()).delete();
-					if(del){
-						Log.w(TAG, "upload delfile" + uploadFile.getAbsolutePath() + " success");
-					}else {
-						Log.w(TAG, "upload delfile" + uploadFile.getAbsolutePath() + " fail");
+				if (uploaddelfile) {
+					final boolean del = new File(root + uploadFile.getAbsolutePath()).delete();
+					if (del) {
+						Log.w(TAG, "upload delfile " + uploadFile.getAbsolutePath() + " success");
+					} else {
+						Log.w(TAG, "upload delfile " + uploadFile.getAbsolutePath() + " fail");
 					}
 				}
 				uploadOperate.addAnotherRecord(uploadFile);

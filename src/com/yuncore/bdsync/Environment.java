@@ -53,6 +53,11 @@ public final class Environment {
 	public static final String UPLOAD_SPEED = "bdsync.uploadspeed";
 	
 	/**
+	 * 上传完成是否删除文件
+	 */
+	public static final String UPLOAD_DELFILE = "bdsync.uploaddelfile";
+	
+	/**
 	 * 下载限速
 	 */
 	public static final String DOWN_SPEED = "bdsync.downspeed";
@@ -172,6 +177,10 @@ public final class Environment {
 	
 	public static final String getUploadSpeed() {
 		return System.getProperty(UPLOAD_SPEED, "0");
+	}
+	
+	public static final String getUploadDelFile() {
+		return System.getProperty(UPLOAD_DELFILE, "false");
 	}
 	
 	public static final String getName() {

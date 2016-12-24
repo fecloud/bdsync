@@ -5,10 +5,12 @@
  */
 package com.yuncore.bdsync.upload;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.entity.LocalFile;
@@ -85,6 +87,15 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 				if (createFile) {
 					// 成功
 					Log.w(TAG, "upload " + uploadFile.getAbsolutePath() + " success");
+					final boolean uploaddelfile = Boolean.getBoolean(Environment.getUploadDelFile());
+					if(uploaddelfile){
+						final boolean del = new File(uploadFile.getAbsolutePath()).delete();
+						if(del){
+							Log.w(TAG, "upload delfile" + uploadFile.getAbsolutePath() + " success");
+						}else {
+							Log.w(TAG, "upload delfile" + uploadFile.getAbsolutePath() + " fail");
+						}
+					}
 					uploadOperate.addAnotherRecord(uploadFile);
 					uploadOperate.deleteRecord(uploadFile);
 				}

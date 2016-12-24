@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.security.MessageDigest;
 
+import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.Log;
@@ -93,6 +94,15 @@ public class UpLoadFileSecondConent implements UpLoadCheckFileStep {
 						if (result) {
 							Log.d(TAG, "secondFileContext ok");
 							Log.i(TAG, "upload " + uploadFile.getParentPath() + " success");
+							final boolean uploaddelfile = Boolean.getBoolean(Environment.getUploadDelFile());
+							if(uploaddelfile){
+								final boolean del = new File(uploadFile.getAbsolutePath()).delete();
+								if(del){
+									Log.w(TAG, "upload delfile" + uploadFile.getAbsolutePath() + " success");
+								}else {
+									Log.w(TAG, "upload delfile" + uploadFile.getAbsolutePath() + " fail");
+								}
+							}
 							uploadOperate.addAnotherRecord(uploadFile);
 							uploadOperate.deleteRecord(uploadFile);
 							return false;

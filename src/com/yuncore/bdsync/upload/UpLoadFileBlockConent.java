@@ -16,6 +16,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.entity.CloudFile;
@@ -128,6 +129,16 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 			final CloudFile createSuperFile = fsApi.createSuperFile(uploadFile.getAbsolutePath(), scliesToArray());
 			if (createSuperFile != null) {
 				deleteSlicesMd5();
+				Log.w(TAG, "upload " + uploadFile.getAbsolutePath() + " success");
+				final boolean uploaddelfile = Boolean.getBoolean(Environment.getUploadDelFile());
+				if(uploaddelfile){
+					final boolean del = new File(uploadFile.getAbsolutePath()).delete();
+					if(del){
+						Log.w(TAG, "upload delfile" + uploadFile.getAbsolutePath() + " success");
+					}else {
+						Log.w(TAG, "upload delfile" + uploadFile.getAbsolutePath() + " fail");
+					}
+				}
 				uploadOperate.addAnotherRecord(uploadFile);
 				uploadOperate.deleteRecord(uploadFile);
 			}

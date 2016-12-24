@@ -94,7 +94,7 @@ public class UpLoadFileSecondConent implements UpLoadCheckFileStep {
 						if (result) {
 							Log.d(TAG, "secondFileContext ok");
 							Log.i(TAG, "upload " + uploadFile.getParentPath() + " success");
-							final boolean uploaddelfile = Boolean.getBoolean(Environment.getUploadDelFile());
+							final boolean uploaddelfile = Boolean.valueOf(Environment.getUploadDelFile());
 							if(uploaddelfile){
 								final boolean del = new File(uploadFile.getAbsolutePath()).delete();
 								if(del){

@@ -87,7 +87,7 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 				if (createFile) {
 					// 成功
 					Log.w(TAG, "upload " + uploadFile.getAbsolutePath() + " success");
-					final boolean uploaddelfile = Boolean.getBoolean(Environment.getUploadDelFile());
+					final boolean uploaddelfile = Boolean.valueOf(Environment.getUploadDelFile());
 					if(uploaddelfile){
 						final boolean del = new File(uploadFile.getAbsolutePath()).delete();
 						if(del){

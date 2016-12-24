@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.mail.EmailException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,8 +29,10 @@ import com.yuncore.bdsync.http.HttpInput;
 import com.yuncore.bdsync.http.HttpUploadFile;
 import com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener;
 import com.yuncore.bdsync.http.HttpUploadFile.FileSource;
+import com.yuncore.bdsync.util.DateUtil;
 import com.yuncore.bdsync.util.Log;
 import com.yuncore.bdsync.util.MD5;
+import com.yuncore.bdsync.util.SendMail;
 
 public class FSApiImple implements FSApi {
 
@@ -165,6 +168,12 @@ public class FSApiImple implements FSApi {
 				}
 				return maps;
 			} else {
+				try {
+					SendMail.sendMail("Cookie错误", "Cookie错误 " + DateUtil.formatTime(System.currentTimeMillis()));
+				} catch (EmailException e) {
+					System.exit(0);
+					throw new ApiException("SendMail.sendMail ",e);
+				}
 				System.exit(0);
 				throw new ApiException("diskHomePage error not load " + url);
 			}

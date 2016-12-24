@@ -47,7 +47,35 @@ public final class Environment {
 
 	public static final String CLOUDLIST = "bdsync.cloudlist";
 	
+	/**
+	 * 上传限速
+	 */
 	public static final String UPLOAD_SPEED = "bdsync.uploadspeed";
+	
+	/**
+	 * 下载限速
+	 */
+	public static final String DOWN_SPEED = "bdsync.downspeed";
+	
+	/**
+	 * 机器标识
+	 */
+	public static final String NAME = "bdsync.name";
+	
+	/**
+	 * 发送邮件的收件人
+	 */
+	public static final String MAILTO = "bdsync.mailto";
+	
+	/**
+	 * 发送邮件的发件人
+	 */
+	public static final String MAILFROM = "bdsync.mailfrom";
+	
+	/**
+	 * 发送邮件的发件人的密码
+	 */
+	public static final String MAILFROMPASS = "bdsync.mailfrompass";
 
 	/**
 	 * 程序启动时间
@@ -138,7 +166,26 @@ public final class Environment {
 		return System.getProperty(CMD, "");
 	}
 	
+	public static final String getDownSpeed() {
+		return System.getProperty(DOWN_SPEED, "0");
+	}
+	
 	public static final String getUploadSpeed() {
 		return System.getProperty(UPLOAD_SPEED, "0");
+	}
+	
+	public static final String getName() {
+		return System.getProperty(NAME, System.getProperty("user.name"));
+	}
+	
+	public static final String getMailTo() {
+		return System.getProperty(MAILTO);
+	}
+	public static final String getMailFrom() {
+		return System.getProperty(MAILFROM);
+	}
+	
+	public static final String getMailFromPass() {
+		return System.getProperty(MAILFROMPASS);
 	}
 }

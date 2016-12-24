@@ -34,7 +34,7 @@
 		<javac srcdir="${src.dir}" destdir="${dest.dir}" encoding="${java.encoding}" includeantruntime="false" verbose="${verbose}" debug="false">
 			<classpath>
 				<fileset dir="${libs.dir}">
-					<include name="json-1.6.jar" />
+					<include name="*.jar" />
 				</fileset>
 			</classpath>
 		</javac>
@@ -49,6 +49,8 @@
 			<fileset dir="${dest.dir}" />
 			<zipfileset src="${libs.dir}/json-1.6.jar" />
 			<zipfileset src="${libs.dir}/sqlite-jdbc-3.8.10.1.jar" />
+			<zipfileset src="${libs.dir}/mail.jar" />
+			<zipfileset src="${libs.dir}/commons-email-1.2.jar" />
 			<manifest>
 				<attribute name="Main-class" value="com.yuncore.bdsync.BDSyncMain" />
 			</manifest>

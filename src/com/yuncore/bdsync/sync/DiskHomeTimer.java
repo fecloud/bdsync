@@ -32,7 +32,7 @@ public class DiskHomeTimer extends Thread {
 	 */
 	@Override
 	public void run() {
-		
+		setName(TAG);
 		while(flag){
 			checkCookie();
 			try {

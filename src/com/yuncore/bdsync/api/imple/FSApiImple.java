@@ -49,7 +49,7 @@ public class FSApiImple implements FSApi {
 
 	protected static volatile long time;
 
-	private final void load() throws ApiException {
+	private synchronized final void load() throws ApiException {
 		if (time == 0 || System.currentTimeMillis() - time > INTERVAL) {
 			Map<String, String> diskHomePage = diskHomePage();
 			CONTEXT.clear();

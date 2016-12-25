@@ -182,6 +182,7 @@ public class Sync implements Runnable {
 	 * 循环执行所有任务
 	 */
 	private void work() {
+		new DiskHomeTimer().start();
 		final int size = steps.size();
 		final int lastIndex = size - 1;
 		for (; currentIndex < size && flag;) {

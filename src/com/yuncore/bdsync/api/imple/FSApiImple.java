@@ -185,6 +185,7 @@ public class FSApiImple implements FSApi {
 					Log.e(TAG, "cookie error exit");
 					System.exit(0);
 				}
+				return maps;
 			}
 		} catch (IOException e) {
 			throw new ApiException("diskHomePage error", e);

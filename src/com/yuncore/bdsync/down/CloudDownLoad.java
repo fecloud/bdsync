@@ -2,6 +2,7 @@ package com.yuncore.bdsync.down;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 import com.yuncore.bdsync.StatusMent;
@@ -26,6 +27,8 @@ public class CloudDownLoad implements DownloadOperate {
 	private List<DownLoadCheckFileStep> steps = new ArrayList<DownLoadCheckFileStep>();
 
 	protected volatile boolean flag;
+	
+	protected Hashtable<Object, Object> lock = new Hashtable<Object, Object>();
 
 	public CloudDownLoad(String root, String tmpDir) {
 		fsApi = new FSApiImple();
@@ -45,21 +48,38 @@ public class CloudDownLoad implements DownloadOperate {
 	}
 
 	public boolean start() {
-		LocalFile downloadFile = null;
+//		LocalFile downloadFile = null;
 		flag = true;
+//		while (flag) {
+//
+//			downloadFile = downloadDao.query();
+//			if (downloadFile != null) {
+//				StatusMent.setProperty(StatusMent.DOFILE, downloadFile);
+//				StatusMent.setProperty(StatusMent.DOFILE_SIZE, 0);
+//
+//				checkAndDownLoad(downloadFile);
+//
+//			} else {
+//				break;
+//			}
+//		}
+		int cpuNum = Runtime.getRuntime().availableProcessors() * 2;
+		for(int i =0;i < cpuNum;i++){
+			new CloudDownLoadThread(i).start();
+		}
 		while (flag) {
+			try {
+				Thread.sleep(1000);
 
-			downloadFile = downloadDao.query();
-			if (downloadFile != null) {
-				StatusMent.setProperty(StatusMent.DOFILE, downloadFile);
-				StatusMent.setProperty(StatusMent.DOFILE_SIZE, 0);
-
-				checkAndDownLoad(downloadFile);
-
-			} else {
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			if (lock.isEmpty()) {
 				break;
 			}
 		}
+		
+		
 		StatusMent.removeProperty(StatusMent.DOFILE);
 		StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
 		return true;
@@ -89,10 +109,11 @@ public class CloudDownLoad implements DownloadOperate {
 	 * entity.LocalFile)
 	 */
 	@Override
-	public boolean deleteRecord(LocalFile file) {
+	public synchronized boolean deleteRecord(LocalFile file) {
 		StatusMent.removeProperty(StatusMent.DOFILE);
 		final boolean result = downloadDao.delete(file);
 		if (result) {
+			lock.remove(file);
 			Log.d(TAG, "deleteRecord " + file.getAbsolutePath());
 		}
 		return result;
@@ -104,7 +125,7 @@ public class CloudDownLoad implements DownloadOperate {
 	 * @see com.yuncore.bdsync.down.DownloadOperate#getDownLoadStatus()
 	 */
 	@Override
-	public boolean getDownLoadStatus() {
+	public synchronized boolean getDownLoadStatus() {
 		return flag;
 	}
 
@@ -116,7 +137,7 @@ public class CloudDownLoad implements DownloadOperate {
 	 * bdsync.entity.LocalFile)
 	 */
 	@Override
-	public boolean addAnotherRecord(LocalFile file) {
+	public synchronized boolean addAnotherRecord(LocalFile file) {
 		file.setNewest(false);
 		if (localFileDao.queryByPath(file.getAbsolutePath()) == null) {
 			return localFileDao.insert(file);
@@ -124,5 +145,55 @@ public class CloudDownLoad implements DownloadOperate {
 			return localFileDao.updateByPath(file);
 		}
 	}
+	
+	public synchronized LocalFile getDownLoadTask(LocalFile file) {
 
+		LocalFile temp = null;
+		if (null != file) {
+			// 任务完成失败了
+			if (lock.containsKey(file)) {
+				return  file;
+			}
+		}
+		List<LocalFile> querys = downloadDao.query(lock.size(), 1);
+		if (querys != null && !querys.isEmpty()) {
+			LocalFile once = querys.get(0);
+			lock.put(once, once);
+			temp = once;
+		}
+
+		return temp;
+	}
+
+	
+	/**
+	 * 下载线程
+	 * @author FENG
+	 *
+	 */
+	private class CloudDownLoadThread extends Thread {
+
+		private int id;
+		
+		public CloudDownLoadThread(int id) {
+			super();
+			this.id = id;
+		}
+
+		@Override
+		public void run() {
+			setName("CloudDownLoadThread-" + id);
+			LocalFile downLoadTask = null;
+			while(getDownLoadStatus()){
+				downLoadTask = getDownLoadTask(downLoadTask);
+				if(null != downLoadTask){
+					checkAndDownLoad(downLoadTask);
+				}else {
+					break;
+				}
+			}
+		}
+		
+	}
+	
 }

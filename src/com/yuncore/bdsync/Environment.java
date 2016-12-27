@@ -81,6 +81,11 @@ public final class Environment {
 	 * 发送邮件的发件人的密码
 	 */
 	public static final String MAILFROMPASS = "bdsync.mailfrompass";
+	
+	/**
+	 * 下载线程的倍数cpu个数*
+	 */
+	public static final String DOWNTHREAD = "bdsync.downthread";
 
 	/**
 	 * 程序启动时间
@@ -196,5 +201,9 @@ public final class Environment {
 	
 	public static final String getMailFromPass() {
 		return System.getProperty(MAILFROMPASS);
+	}
+	
+	public static final String getDownThread() {
+		return System.getProperty(DOWNTHREAD,"1");
 	}
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
@@ -63,7 +64,8 @@ public class CloudDownLoad implements DownloadOperate {
 //				break;
 //			}
 //		}
-		int cpuNum = Runtime.getRuntime().availableProcessors() * 2;
+		int downThread = Integer.valueOf(Environment.getDownThread());
+		int cpuNum = Runtime.getRuntime().availableProcessors() * downThread;
 		for(int i =0;i < cpuNum;i++){
 			new CloudDownLoadThread(i).start();
 		}

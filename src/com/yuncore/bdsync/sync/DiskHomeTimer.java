@@ -65,6 +65,7 @@ public class DiskHomeTimer extends Thread {
 			}
 		} catch (ApiException e) {
 			e.printStackTrace();
+			return false;
 		}
 		Log.w(TAG, "cookie error exit");
 		System.exit(1);

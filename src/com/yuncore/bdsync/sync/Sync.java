@@ -91,9 +91,9 @@ public class Sync implements Runnable {
 
 	private void setEnv() {
 		Environment.setSyncDir(syncdir);
-		if(clouddir.equals("/")){
+		if (clouddir.equals("/")) {
 			Environment.setCloudDir("");
-		}else {
+		} else {
 			Environment.setCloudDir(clouddir);
 		}
 		// System.setProperty(Const.TMP,

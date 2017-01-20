@@ -20,6 +20,7 @@ import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.entity.CloudFile;
+import com.yuncore.bdsync.entity.DoingFile;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener;
@@ -92,7 +93,8 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 		final int nums = coutBlock();
 		for (int i = sclies.size(); i < nums; i++) {
 			if (!uploadOperate.getUpLoadStatus()) {
-				StatusMent.setProperty(StatusMent.DOFILE_SIZE, 0);
+				StatusMent.getDoingfile().put(uploadFile.getAbsolutePath(), 
+						new DoingFile(uploadFile).setDoingSize(0));
 				return true;
 			}
 
@@ -124,7 +126,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 		}
 
 		if (!uploadOperate.getUpLoadStatus()) {
-			StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
+			StatusMent.getDoingfile().remove(uploadFile.getAbsolutePath());
 			return true;
 		}
 
@@ -149,7 +151,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 		} catch (ApiException e) {
 		}
 
-		StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
+		StatusMent.getDoingfile().remove(uploadFile.getAbsolutePath());
 
 		return true;
 	}
@@ -224,7 +226,8 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 	@Override
 	public void onWrite(long sum, long commit) {
 		final long commitd = sclies.size() * SCLIE_SIZE + commit;
-		StatusMent.setProperty(StatusMent.DOFILE_SIZE, commitd);
+		StatusMent.getDoingfile().put(uploadFile.getAbsolutePath(), 
+				new DoingFile(uploadFile).setDoingSize(commitd));
 	}
 
 	/*

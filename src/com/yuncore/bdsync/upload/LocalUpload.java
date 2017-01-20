@@ -12,6 +12,7 @@ import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.CloudFileDao;
 import com.yuncore.bdsync.dao.UploadDao;
 import com.yuncore.bdsync.entity.LocalFile;
+import com.yuncore.bdsync.util.FileUtil;
 import com.yuncore.bdsync.util.Log;
 
 public class LocalUpload implements UpLoadOperate {
@@ -56,42 +57,19 @@ public class LocalUpload implements UpLoadOperate {
 	}
 
 	public boolean start() {
-
-//		LocalFile upLocalFile = null;
 		flag = true;
 
-//		while (flag) {
-//
-//			upLocalFile = uploadDao.query();
-//			if (upLocalFile != null) {
-//				if (upLocalFile.isFile()) {
-//					Log.d(TAG,
-//							"getUpload file "
-//									+ upLocalFile.getAbsolutePath()
-//									+ " size:"
-//									+ FileUtil.byteSizeToHuman(upLocalFile
-//											.getLength()));
-//				} else {
-//					Log.d(TAG,
-//							"getUpload dir " + upLocalFile.getAbsolutePath());
-//				}
-//				
-//				StatusMent.setProperty(StatusMent.DOFILE, upLocalFile);
-//				StatusMent.setProperty(StatusMent.DOFILE_SIZE, 0);
-//
-//				checkAndUpLoad(upLocalFile);
-//				
-//				StatusMent.removeProperty(StatusMent.DOFILE);
-//				StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
-//			} else {
-//				break;
-//			}
-//		}
+		StatusMent.getDoingfile().clear();
 		
 		int upThread = Integer.valueOf(Environment.getUpThread());
 		int cpuNum = Runtime.getRuntime().availableProcessors() * upThread;
-		for(int i =0;i < cpuNum;i++){
-			new LocalUploadThread(i).start();
+		
+		final List<LocalUploadThread> list = new ArrayList<LocalUploadThread>(cpuNum);
+		LocalUploadThread localUploadThread = null;
+		for(int i = 0;i < cpuNum;i++){
+			localUploadThread = new LocalUploadThread(i);
+			list.add(localUploadThread);
+			localUploadThread.start();
 		}
 		while (flag) {
 			try {
@@ -100,13 +78,20 @@ public class LocalUpload implements UpLoadOperate {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			if (lock.isEmpty()) {
+
+			boolean isEnd = true;
+			for (LocalUploadThread thread : list) {
+				if (thread.runing) {
+					isEnd = false;
+					break;
+				}
+			}
+			if (isEnd) {
 				break;
 			}
 		}
 		
-		StatusMent.removeProperty(StatusMent.DOFILE);
-		StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
+		StatusMent.getDoingfile().clear();
 		return true;
 	}
 
@@ -114,6 +99,15 @@ public class LocalUpload implements UpLoadOperate {
 	 * 
 	 */
 	private final void checkAndUpLoad(LocalFile upLocalFile) {
+
+		if (upLocalFile.isFile()) {
+			Log.d(TAG,
+					"getUpload file " + upLocalFile.getAbsolutePath()
+							+ " size:"
+							+ FileUtil.byteSizeToHuman(upLocalFile.getLength()));
+		} else {
+			Log.d(TAG, "getUpload dir " + upLocalFile.getAbsolutePath());
+		}
 		// 如果云端文件还在
 		for (UpLoadCheckFileStep step : steps) {
 			if (!flag) {
@@ -134,7 +128,7 @@ public class LocalUpload implements UpLoadOperate {
 	 */
 	@Override
 	public synchronized boolean deleteRecord(LocalFile file) {
-		StatusMent.removeProperty(StatusMent.DOFILE);
+		StatusMent.getDoingfile().remove(file.getAbsolutePath());
 		final boolean result = uploadDao.delete(file);
 		if (result) {
 			lock.remove(file);
@@ -198,6 +192,8 @@ public class LocalUpload implements UpLoadOperate {
 
 		private int id;
 		
+		private boolean runing;
+		
 		public LocalUploadThread(int id) {
 			super();
 			this.id = id;
@@ -205,6 +201,7 @@ public class LocalUpload implements UpLoadOperate {
 
 		@Override
 		public void run() {
+			runing = true;
 			setName("LocalUploadThread-" + id);
 			LocalFile upLoadTask = null;
 			while(getUpLoadStatus()){
@@ -215,6 +212,7 @@ public class LocalUpload implements UpLoadOperate {
 					break;
 				}
 			}
+			runing = false;
 		}
 		
 	}

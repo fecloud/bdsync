@@ -12,6 +12,7 @@ import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.DownloadInputStream;
 import com.yuncore.bdsync.api.FSApi;
+import com.yuncore.bdsync.entity.DoingFile;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.util.FileMV;
 import com.yuncore.bdsync.util.Log;
@@ -85,7 +86,8 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 				}
 			}
 
-			StatusMent.setProperty(StatusMent.DOFILE_SIZE, fileStart);
+			StatusMent.getDoingfile().put(downloadFile.getAbsolutePath(), 
+					new DoingFile(downloadFile).setDoingSize(fileStart));
 			DownloadInputStream in = null;
 			FileOutputStream out = null;
 
@@ -128,7 +130,8 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 
 				while (downloadOperate.getDownLoadStatus()
 						&& -1 != (len = in.read(buffer))) {
-					StatusMent.setProperty(StatusMent.DOFILE_SIZE, sum);
+					StatusMent.getDoingfile().put(downloadFile.getAbsolutePath(), 
+							new DoingFile(downloadFile).setDoingSize(sum));
 					out.write(buffer, 0, len);
 					sum += len;
 					if (sum == downloadFile.getLength()) {

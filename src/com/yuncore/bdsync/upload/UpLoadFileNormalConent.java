@@ -13,6 +13,7 @@ import java.io.InputStream;
 import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
+import com.yuncore.bdsync.entity.DoingFile;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener;
@@ -113,7 +114,7 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 					} catch (IOException e) {
 					}
 				}
-				StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
+				StatusMent.getDoingfile().remove(uploadFile.getAbsolutePath());
 			}
 		} else {
 			Log.d(TAG, "file too big");
@@ -131,7 +132,8 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	 */
 	@Override
 	public void onWrite(long sum, long commit) {
-		StatusMent.setProperty(StatusMent.DOFILE_SIZE, commit);
+		StatusMent.getDoingfile().put(uploadFile.getAbsolutePath(), 
+				new DoingFile(uploadFile).setDoingSize(commit));
 	}
 
 	/*

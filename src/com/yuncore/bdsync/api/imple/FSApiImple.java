@@ -70,7 +70,7 @@ public class FSApiImple implements FSApi {
 			final HttpInput http = new HttpInput(url, Method.GET);
 			if (http.http()) {
 				final DownloadInputStream in = new DownloadInputStream(http.getInputStream());
-				in.setLength(http.getConnet().getContentLength());
+				in.setLength(http.getConnet().getContentLengthLong());
 				if (http.getConnet().getHeaderFields().containsKey("Accept-Ranges")) {
 					in.setRange(true);
 				}

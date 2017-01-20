@@ -5,6 +5,7 @@
  */
 package com.yuncore.bdsync.sync.task;
 
+import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.files.cloud.GetCloudFile;
 
 /**
@@ -40,7 +41,7 @@ public class ListCloudFilesTask extends ListLocalFilesTask {
 	@Override
 	protected boolean listNewFiles() {
 		final GetCloudFile getCloudFile = new GetCloudFile(Runtime.getRuntime()
-				.availableProcessors() * 2, "/");
+				.availableProcessors() * 2, Environment.getCloudDir());
 		getCloudFile.addExclude(excludeFiles);
 		return getCloudFile.list();
 	}

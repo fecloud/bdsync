@@ -20,7 +20,7 @@ public class LocalUploadTask implements SyncStepTask {
 
 	private LocalUpload localUpload;
 
-	private String[] args;
+	protected String[] args;
 
 	/*
 	 * (non-Javadoc)
@@ -36,7 +36,8 @@ public class LocalUploadTask implements SyncStepTask {
 
 	@Override
 	public boolean start() {
-		localUpload = new LocalUpload(args[1], args[1] + File.separator
+		localUpload = new LocalUpload(Environment.getCloudDir(), Environment.getSyncDir(),
+				Environment.getSyncDir() + File.separator
 				+ Environment.SYNCTMPDIR);
 		return localUpload.start();
 	}

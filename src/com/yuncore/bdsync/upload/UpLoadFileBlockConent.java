@@ -42,6 +42,8 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 	 */
 	private static final long SCLIE_SIZE = 1024l * 1024l * 10l;
 
+	private String croot;
+	
 	private String root;
 
 	private String tmpDir;
@@ -62,8 +64,9 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 	 * @param root
 	 * @param fsApi
 	 */
-	public UpLoadFileBlockConent(String root, String tmpDir, FSApi fsApi) {
+	public UpLoadFileBlockConent(String croot, String root, String tmpDir, FSApi fsApi) {
 		super();
+		this.croot = croot;
 		this.root = root;
 		this.tmpDir = tmpDir;
 		this.fsApi = fsApi;
@@ -126,7 +129,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep, FileSource, F
 		}
 
 		try {
-			final CloudFile createSuperFile = fsApi.createSuperFile(uploadFile.getAbsolutePath(), scliesToArray());
+			final CloudFile createSuperFile = fsApi.createSuperFile(croot + uploadFile.getAbsolutePath(), scliesToArray());
 			if (createSuperFile != null) {
 				deleteSlicesMd5();
 				Log.w(TAG, "upload " + uploadFile.getAbsolutePath() + " success");

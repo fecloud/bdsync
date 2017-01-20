@@ -37,7 +37,7 @@ public class GetCloudFile extends PreemptiveTaskService {
 		Stopwatch stopwatch = new Stopwatch();
 		stopwatch.start();
 		Environment.setCloudlist("" + System.currentTimeMillis());
-		taskContainer.addTask(new GetCloudFileTask(dir));
+		taskContainer.addTask(new GetCloudFileTask("/"));
 		waitTaskFinish();
 		cloudFileDao.insertAllCacaheFlush();
 		stopwatch.stop(getTaskExecuteName());
@@ -56,7 +56,7 @@ public class GetCloudFile extends PreemptiveTaskService {
 	 */
 	@Override
 	protected TaskExecute newTaskExecute() {
-		return new GetCloudFileExecute(taskStatus, taskContainer, exclude,
+		return new GetCloudFileExecute(dir, taskStatus, taskContainer, exclude,
 				cloudFileDao);
 	}
 

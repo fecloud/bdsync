@@ -20,7 +20,7 @@ public class CloudDownloadTask implements SyncStepTask {
 
 	private CloudDownLoad cloudDownLoad;
 
-	private String[] args;
+	protected String[] args;
 
 	/**
 	 * @param args
@@ -37,7 +37,9 @@ public class CloudDownloadTask implements SyncStepTask {
 	 */
 	@Override
 	public boolean start() {
-		cloudDownLoad = new CloudDownLoad(args[1], args[1] + File.separator + Environment.SYNCTMPDIR);
+		cloudDownLoad = new CloudDownLoad(Environment.getSyncDir(),
+				Environment.getSyncDir() + File.separator
+						+ Environment.SYNCTMPDIR, Environment.getCloudDir());
 		return cloudDownLoad.start();
 	}
 

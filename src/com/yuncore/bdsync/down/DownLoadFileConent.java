@@ -27,6 +27,8 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 	private static final String TAG = "DownLoadFileConent";
 
 	private String root;
+	
+	private String croot;
 
 	private String tmpDir;
 
@@ -34,10 +36,12 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 
 	/**
 	 * @param root
+	 * @param croot 
 	 */
-	public DownLoadFileConent(String root, String tmpDir, FSApi fsApi) {
+	public DownLoadFileConent(String root, String tmpDir, FSApi fsApi, String croot) {
 		super();
 		this.root = root;
+		this.croot = croot;
 		this.tmpDir = tmpDir;
 		this.fsApi = fsApi;
 	}
@@ -88,7 +92,7 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 			if (fileStart > 0) {
 				Log.d(TAG, "continue download file start:" + fileStart);
 				sum = fileStart;
-				in = fsApi.download(downloadFile, fileStart);
+				in = fsApi.download(croot + downloadFile.getAbsolutePath(), fileStart);
 				if (in.getLength() + sum != downloadFile.getLength()) {
 					// 下载返回来的文件大小与要下载的大小不一致,可能文件被改了
 					return true;
@@ -96,7 +100,7 @@ public class DownLoadFileConent implements DownLoadCheckFileStep {
 				out = new FileOutputStream(tmpFile, true);
 			} else {
 				Log.d(TAG, "new download file start:0");
-				in = fsApi.download(downloadFile);
+				in = fsApi.download(croot + downloadFile.getAbsolutePath());
 				if (in.getLength() != downloadFile.getLength()) {
 					// 下载返回来的文件大小与要下载的大小不一致,可能文件被改了
 					return true;

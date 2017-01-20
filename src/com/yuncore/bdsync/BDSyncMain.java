@@ -54,10 +54,10 @@ public class BDSyncMain implements BDSyncServiceListener {
 
 	private static final void printHelp() {
 		System.err.println("");
-		System.err.println("Usage:bdsync [sync|stop]");
+		System.err.println("Usage:bdsync [sync|stop|down|up]");
 		System.err.println("");
 		System.err
-				.println("[sync down up] <local_dir> [-p port] [-l exinclude dir] [-c exinclude dir]");
+				.println("[sync down up stop] <cloud_dir> <local_dir> [-p port] [-l exinclude dir] [-c exinclude dir]");
 		System.err.println("");
 		System.err.println("stop");
 		System.err.println("");

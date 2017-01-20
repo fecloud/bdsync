@@ -31,14 +31,14 @@ public class CloudDownLoad implements DownloadOperate {
 	
 	protected Hashtable<Object, Object> lock = new Hashtable<Object, Object>();
 
-	public CloudDownLoad(String root, String tmpDir) {
+	public CloudDownLoad(String root, String tmpDir,String croot) {
 		fsApi = new FSApiImple();
 		downloadDao = new DownloadDao();
 		localFileDao = new LocalFileDao();
 
 		steps.add(new DownLoadCheckLocalFile(root));
-		steps.add(new DownLoadCheckCloudFile(tmpDir, fsApi));
-		steps.add(new DownLoadFileConent(root, tmpDir, fsApi));
+		steps.add(new DownLoadCheckCloudFile(tmpDir, fsApi, croot));
+		steps.add(new DownLoadFileConent(root, tmpDir, fsApi, croot));
 
 		// 建立临时文件目录
 		final File file = new File(tmpDir);

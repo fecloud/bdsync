@@ -35,6 +35,8 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	 */
 	private static final long MAX_SIZE = 1024l * 1024l * 10l;
 
+	private String croot;
+	
 	private String root;
 
 	private FSApi fsApi;
@@ -49,8 +51,9 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	 * @param root
 	 * @param fsApi
 	 */
-	public UpLoadFileNormalConent(String root, FSApi fsApi) {
+	public UpLoadFileNormalConent(String croot, String root, FSApi fsApi) {
 		super();
+		this.croot = croot;
 		this.root = root;
 		this.fsApi = fsApi;
 	}
@@ -81,7 +84,7 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 					return false;
 				}
 
-				final boolean createFile = fsApi.createFile(uploadFile.getAbsolutePath(), getFileLength(),
+				final boolean createFile = fsApi.createFile(croot + uploadFile.getAbsolutePath(), getFileLength(),
 						new String[] { md5 }, true);
 
 				if (createFile) {

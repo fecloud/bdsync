@@ -5,6 +5,7 @@
  */
 package com.yuncore.bdsync.sync.task;
 
+import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.delete.LocalDeleteActionCloud;
 
 /**
@@ -15,7 +16,7 @@ import com.yuncore.bdsync.delete.LocalDeleteActionCloud;
  */
 public class LocalDeleteActionCloudTask implements SyncStepTask {
 
-	private String[] args;
+	protected String[] args;
 
 	private LocalDeleteActionCloud localDeleteActionCloud;
 
@@ -34,7 +35,7 @@ public class LocalDeleteActionCloudTask implements SyncStepTask {
 	 */
 	@Override
 	public boolean start() {
-		localDeleteActionCloud = new LocalDeleteActionCloud(args[1]);
+		localDeleteActionCloud = new LocalDeleteActionCloud(Environment.getSyncDir(), Environment.getCloudDir());
 		return localDeleteActionCloud.deletes();
 	}
 

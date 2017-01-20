@@ -33,15 +33,19 @@ public final class Environment {
 	 */
 	public static final String LOG_PRIORITY = "bdsync.log.priority";
 
+	/**
+	 * 本地文件夹
+	 */
 	public static final String SYNCDIR = "bdsync.syncdir";
+	
+	/**
+	 * 云端文件夹
+	 */
+	public static final String CLOUDCDIR = "bdsync.clouddir";
 
 	public static final String SYNCTMPDIR = ".bdsync";
 
 	public static final String TMP = "bdsync.tmpdir";
-
-	public static final String CONTEXT = "bdsync.context";
-
-	public static final String COOKIECONTAINER = "bdsync.cookiecontainer";
 
 	public static final String LOCALLIST = "bdsync.locallist";
 
@@ -139,23 +143,15 @@ public final class Environment {
 	public static final void setSyncDir(String dir) {
 		System.setProperty(SYNCDIR, dir);
 	}
-
-	public static final String getContextClassName() {
-		return System.getProperty(CONTEXT, null);
+	
+	public static final String getCloudDir() {
+		return System.getProperty(CLOUDCDIR, "/");
 	}
 
-	public static final void setContextClassName(String className) {
-		System.setProperty(CONTEXT, className);
+	public static final void setCloudDir(String dir) {
+		System.setProperty(CLOUDCDIR, dir);
 	}
-
-	public static final void setCookiecontainerClassName(String className) {
-		System.setProperty(COOKIECONTAINER, className);
-	}
-
-	public static final String getCookiecontainerClassName() {
-		return System.getProperty(COOKIECONTAINER, null);
-	}
-
+	
 	public static final void setLocallist(String ms) {
 		System.setProperty(LOCALLIST, ms);
 	}

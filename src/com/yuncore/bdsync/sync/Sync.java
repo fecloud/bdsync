@@ -31,6 +31,8 @@ public class Sync implements Runnable {
 	private static final String TAG = "Sync";
 
 	private String syncdir;
+	
+	private String clouddir;
 
 	private int httpPort = 18080;
 
@@ -56,7 +58,8 @@ public class Sync implements Runnable {
 	public Sync(String[] args) {
 		this.args = args;
 		this.action = args[0];
-		syncdir = args[1];
+		clouddir = args[1];
+		syncdir = args[2];
 		setHttpPort(args);
 		startHttp();
 
@@ -88,7 +91,11 @@ public class Sync implements Runnable {
 
 	private void setEnv() {
 		Environment.setSyncDir(syncdir);
-
+		if(clouddir.equals("/")){
+			Environment.setCloudDir("");
+		}else {
+			Environment.setCloudDir(clouddir);
+		}
 		// System.setProperty(Const.TMP,
 		// String.format("%s%s%s", syncdir, File.separator, Const.TMP_DIR));
 		// System.setProperty("http_proxy", "localhost:8888");
@@ -149,7 +156,7 @@ public class Sync implements Runnable {
 
 			steps.add(new ListCloudFilesTask(args));
 			steps.add(new CloudCompareTask());
-//			steps.add(new CloudDeleteActionLocalTask(args));
+			steps.add(new CloudDeleteActionLocalTask(args));
 			steps.add(new CloudDownloadTask(args));
 		}
 		

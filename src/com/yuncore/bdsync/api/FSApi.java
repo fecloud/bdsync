@@ -5,7 +5,6 @@ import java.util.Map;
 import com.yuncore.bdsync.entity.CloudFile;
 import com.yuncore.bdsync.entity.CloudPageFile;
 import com.yuncore.bdsync.entity.CloudRmResult;
-import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.entity.MkDirResult;
 import com.yuncore.bdsync.exception.ApiException;
 import com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener;
@@ -50,7 +49,7 @@ public interface FSApi {
 	 * @param file
 	 * @return
 	 */
-	public DownloadInputStream download(LocalFile file) throws ApiException;
+	public DownloadInputStream download(String file) throws ApiException;
 
 	/**
 	 * 下载文件(断点)
@@ -58,7 +57,7 @@ public interface FSApi {
 	 * @param file
 	 * @return
 	 */
-	public DownloadInputStream download(LocalFile file, long range)
+	public DownloadInputStream download(String file, long range)
 			throws ApiException;
 
 	/**

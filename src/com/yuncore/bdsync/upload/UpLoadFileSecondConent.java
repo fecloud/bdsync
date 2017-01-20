@@ -27,16 +27,20 @@ public class UpLoadFileSecondConent implements UpLoadCheckFileStep {
 
 	private static final String TAG = "UpLoadFileSecondConent";
 
+	private String croot;
+	
 	private String root;
 
 	private FSApi fsApi;
 
 	/**
 	 * @param root
+	 * @param root2 
 	 * @param fsApi
 	 */
-	public UpLoadFileSecondConent(String root, FSApi fsApi) {
+	public UpLoadFileSecondConent(String croot, String root, FSApi fsApi) {
 		super();
+		this.croot = croot;
 		this.root = root;
 		this.fsApi = fsApi;
 	}
@@ -90,7 +94,7 @@ public class UpLoadFileSecondConent implements UpLoadCheckFileStep {
 						// 获得密文
 						final byte[] md = digest.digest();
 						final String content_md5 = MD5.bytes2String(md);
-						final boolean result = fsApi.secondUpload(localpath, content_md5, uploadFile.getAbsolutePath(),true);
+						final boolean result = fsApi.secondUpload(localpath, content_md5, croot + uploadFile.getAbsolutePath(),true);
 						if (result) {
 							Log.d(TAG, "secondFileContext ok");
 							Log.i(TAG, "upload " + uploadFile.getParentPath() + " success");

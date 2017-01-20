@@ -24,13 +24,17 @@ public class DownLoadCheckCloudFile implements DownLoadCheckFileStep {
 	
 	private String tmpDir;
 	
+	private String croot;
+	
 	private FSApi fsApi;
 
 	/**
 	 * @param fsApi
+	 * @param croot 
 	 */
-	public DownLoadCheckCloudFile(String tmpDir,FSApi fsApi) {
+	public DownLoadCheckCloudFile(String tmpDir,FSApi fsApi, String croot) {
 		super();
+		this.croot = croot;
 		this.tmpDir = tmpDir;
 		this.fsApi = fsApi;
 	}
@@ -46,7 +50,10 @@ public class DownLoadCheckCloudFile implements DownLoadCheckFileStep {
 	public boolean check(LocalFile downloadFile, DownloadOperate downloadOperate) {
 		LocalFile cloudFile = null;
 		try {
-			cloudFile = fsApi.getMeta(downloadFile.getAbsolutePath());
+			cloudFile = fsApi.getMeta(croot + downloadFile.getAbsolutePath());
+			if(null != cloudFile && croot.length() > 0){
+				cloudFile.setPath(cloudFile.getAbsolutePath().substring(croot.length()));
+			}
 		} catch (ApiException e) {
 			Log.e(TAG, "", e);
 			return false;

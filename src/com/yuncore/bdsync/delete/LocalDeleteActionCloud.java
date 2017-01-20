@@ -28,6 +28,8 @@ import com.yuncore.bdsync.util.Log;
 public class LocalDeleteActionCloud implements DeleteOperate {
 
 	protected String root;
+	
+	protected String croot;
 
 	private FSApi fsApi;
 
@@ -42,9 +44,10 @@ public class LocalDeleteActionCloud implements DeleteOperate {
 	/**
 	 * @param root
 	 */
-	public LocalDeleteActionCloud(String root) {
+	public LocalDeleteActionCloud(String root,String croot) {
 		super();
 		this.root = root;
+		this.croot = croot;
 		this.localFileDeleteDao = new LocalFileDeleteDao();
 		this.cloudFileDao = new CloudFileDao();
 		steps.add(new DeteleCheckLocal());
@@ -106,29 +109,30 @@ public class LocalDeleteActionCloud implements DeleteOperate {
 	 * @throws Exception
 	 */
 	public boolean deleteFile(LocalFile deleteFile) {
-		if (null == fsApi) {
-			fsApi = new FSApiImple();
-		}
-
-		boolean result = false;
-		CloudRmResult rmResult;
-		try {
-			rmResult = fsApi.rm(deleteFile.getAbsolutePath());
-			if (rmResult != null) {
-				result = rmResult.getErrno() == 0;
-			}
-		} catch (ApiException e) {
-			Log.e(getTag(), "", e);
-		}
-
-		if (result) {
-			Log.w(getTag(), "deleteFile " + deleteFile.getAbsolutePath()
-					+ " success");
-		} else {
-			Log.w(getTag(), "deleteFile " + deleteFile.getAbsolutePath()
-					+ " fail");
-		}
-		return result;
+//		if (null == fsApi) {
+//			fsApi = new FSApiImple();
+//		}
+//
+//		boolean result = false;
+//		CloudRmResult rmResult;
+//		try {
+//			rmResult = fsApi.rm(croot + deleteFile.getAbsolutePath());
+//			if (rmResult != null) {
+//				result = rmResult.getErrno() == 0;
+//			}
+//		} catch (ApiException e) {
+//			Log.e(getTag(), "", e);
+//		}
+//
+//		if (result) {
+//			Log.w(getTag(), "deleteFile " + deleteFile.getAbsolutePath()
+//					+ " success");
+//		} else {
+//			Log.w(getTag(), "deleteFile " + deleteFile.getAbsolutePath()
+//					+ " fail");
+//		}
+//		return result;
+		return true;
 	}
 
 	/**

@@ -62,11 +62,11 @@ public class FSApiImple implements FSApi {
 	 * 下载文件 注意响应头有Content-MD5
 	 */
 	@Override
-	public DownloadInputStream download(LocalFile file) throws ApiException {
+	public DownloadInputStream download(String file) throws ApiException {
 		try {
 			load();
 
-			final String url = BDSYNCURL.download(file.getAbsolutePath());
+			final String url = BDSYNCURL.download(file);
 			final HttpInput http = new HttpInput(url, Method.GET);
 			if (http.http()) {
 				final DownloadInputStream in = new DownloadInputStream(http.getInputStream());
@@ -98,11 +98,11 @@ public class FSApiImple implements FSApi {
 	}
 
 	@Override
-	public DownloadInputStream download(LocalFile file, long range) throws ApiException {
+	public DownloadInputStream download(String file, long range) throws ApiException {
 		try {
 			load();
 
-			final String url = BDSYNCURL.download(file.getAbsolutePath());
+			final String url = BDSYNCURL.download(file);
 			final HttpInput http = new HttpInput(url, Method.GET);
 			http.addRequestProperty("Range", String.format("bytes=%s- ", range));
 			if (http.http()) {

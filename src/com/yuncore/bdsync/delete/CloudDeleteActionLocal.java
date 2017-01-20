@@ -32,7 +32,7 @@ public class CloudDeleteActionLocal extends LocalDeleteActionCloud {
 	 * @param root
 	 */
 	public CloudDeleteActionLocal(String root) {
-		super(root);
+		super(root, null);
 		localFileDao = new LocalFileDao();
 		cloudFileDeleteDao = new CloudFileDeleteDao();
 	}

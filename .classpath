@@ -3,9 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="libs/json-1.6.jar"/>
-	<classpathentry kind="lib" path="libs/sqlite-jdbc-3.8.10.1.jar"/>
 	<classpathentry kind="lib" path="libs/commons-email-1.2.jar"/>
 	<classpathentry kind="lib" path="libs/mail.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="libs/sqlite-jdbc-3.14.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

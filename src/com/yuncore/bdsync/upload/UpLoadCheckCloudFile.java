@@ -20,13 +20,17 @@ public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 
 	private static final String TAG = "UpLoadCheckCloudFile";
 
+	private String croot;
+	
 	private FSApi fsApi;
 
 	/**
+	 * @param croot 
 	 * @param fsApi
 	 */
-	public UpLoadCheckCloudFile(FSApi fsApi) {
+	public UpLoadCheckCloudFile(String croot, FSApi fsApi) {
 		super();
+		this.croot = croot;
 		this.fsApi = fsApi;
 	}
 
@@ -41,7 +45,7 @@ public class UpLoadCheckCloudFile implements UpLoadCheckFileStep {
 	public boolean check(LocalFile uploadFile, UpLoadOperate uploadOperate) {
 		LocalFile cloudFile = null;
 		try {
-			cloudFile = fsApi.getMeta(uploadFile.getAbsolutePath());
+			cloudFile = fsApi.getMeta(croot + uploadFile.getAbsolutePath());
 		} catch (ApiException e) {
 			Log.e(TAG, "", e);
 			return false;

@@ -21,13 +21,17 @@ public class UpLoadFileConent implements UpLoadCheckFileStep {
 
 	private static final String TAG = "UpLoadFileConent";
 
+	private String croot;
+	
 	private FSApi fsApi;
 
 	/**
+	 * @param croot 
 	 * @param fsApi
 	 */
-	public UpLoadFileConent(FSApi fsApi) {
+	public UpLoadFileConent(String croot, FSApi fsApi) {
 		super();
+		this.croot = croot;
 		this.fsApi = fsApi;
 	}
 
@@ -42,7 +46,7 @@ public class UpLoadFileConent implements UpLoadCheckFileStep {
 	public boolean check(LocalFile uploadFile, UpLoadOperate uploadOperate) {
 		if (uploadFile.isDir()) {
 			try {
-				final MkDirResult mkdir = fsApi.mkdir(uploadFile.getAbsolutePath());
+				final MkDirResult mkdir = fsApi.mkdir(croot + uploadFile.getAbsolutePath());
 				if (null != mkdir && mkdir.getStatus() == 0) {
 					uploadFile.setMtime(mkdir.getMtime());
 					uploadOperate.addAnotherRecord(uploadFile);

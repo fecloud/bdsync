@@ -28,6 +28,8 @@ public class GetCloudFileExecute extends TaskExecute {
 	private static final String TAG = "GetCloudFileExecute";
 
 	private FileExclude exclude;
+	
+	private String root;
 
 	private CloudFileDao cloudFileDao;
 
@@ -35,9 +37,10 @@ public class GetCloudFileExecute extends TaskExecute {
 	 * @param taskStatus
 	 * @param taskContainer
 	 */
-	public GetCloudFileExecute(TaskStatus taskStatus, TaskContainer taskContainer, FileExclude exclude,
+	public GetCloudFileExecute(String root,TaskStatus taskStatus, TaskContainer taskContainer, FileExclude exclude,
 			CloudFileDao cloudFileDao) {
 		super(taskStatus, taskContainer);
+		this.root = root;
 		this.exclude = exclude;
 		this.cloudFileDao = cloudFileDao;
 	}
@@ -52,12 +55,17 @@ public class GetCloudFileExecute extends TaskExecute {
 	protected void doTask(Task task) {
 		final GetCloudFileTask fileTask = (GetCloudFileTask) task;
 		try {
-			final CloudPageFile listFiles = new FSApiImple().list(fileTask.getDir(), 1, 200000);
+			final CloudPageFile listFiles = new FSApiImple().list(root + fileTask.getDir(), 1, 200000);
 			if (listFiles != null) {
 				if (listFiles.getErrno() == 0 && listFiles.getList() != null) {
 
 					checkExcludeAndAddTask(listFiles.getList());
-
+					if (listFiles.getList() != null && root.length() > 0) {
+						for (CloudFile c : listFiles.getList()) {
+							c.setPath(c.getAbsolutePath().substring(
+									root.length()));
+						}
+					}
 					cloudFileDao.insertCloudFileCache(listFiles.getList());
 
 				} else if (listFiles.getErrno() == -9) {

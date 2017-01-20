@@ -28,9 +28,9 @@ public class DeteleCheckLocal implements DeleteCheckFileStep {
 	public boolean check(LocalFile deleteFile, LocalFile compareFile, DeleteOperate deleteOperate) {
 		if (compareFile == null) {
 			// 说明目录可能是自己删除的,进入删除文件
-			deleteOperate.deleteRecord(deleteFile);
-			deleteOperate.deleteAnotherRecord(deleteFile);
-			return false;
+//			deleteOperate.deleteRecord(deleteFile);
+//			deleteOperate.deleteAnotherRecord(deleteFile);
+			return true;
 		} else {
 			if (deleteFile.toFid().equals(compareFile.toFid())) {
 				if (deleteFile.isFile()) {

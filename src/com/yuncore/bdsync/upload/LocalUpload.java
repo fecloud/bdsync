@@ -19,6 +19,8 @@ public class LocalUpload implements UpLoadOperate {
 
 	protected FSApi api;
 
+	protected String croot;
+	
 	protected String root;
 
 	protected UploadDao uploadDao;
@@ -29,18 +31,18 @@ public class LocalUpload implements UpLoadOperate {
 
 	protected volatile boolean flag;
 
-	public LocalUpload(String root, String tmpDir) {
+	public LocalUpload(String croot, String root, String tmpDir) {
+		this.croot = croot;
 		this.root = root;
 		uploadDao = new UploadDao();
 		api = new FSApiImple();
 		cloudFileDao = new CloudFileDao();
-
 		steps.add(new UpLoadCheckLocalFile(root));
-		steps.add(new UpLoadCheckCloudFile(api));
-		steps.add(new UpLoadFileConent(api));
-		steps.add(new UpLoadFileSecondConent(root,api));
-		steps.add(new UpLoadFileNormalConent(root,api));
-		steps.add(new UpLoadFileBlockConent(root, tmpDir, api));
+		steps.add(new UpLoadCheckCloudFile(croot, api));
+		steps.add(new UpLoadFileConent(croot, api));
+		steps.add(new UpLoadFileSecondConent(croot, root,api));
+		steps.add(new UpLoadFileNormalConent(croot, root,api));
+		steps.add(new UpLoadFileBlockConent(croot, root, tmpDir, api));
 		
 		// 建立临时文件目录
 		final File file = new File(tmpDir);

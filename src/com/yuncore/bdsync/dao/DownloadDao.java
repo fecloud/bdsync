@@ -90,7 +90,7 @@ public class DownloadDao extends BaseDao {
 			connection.setAutoCommit(true);
 			connection.close();
 			
-			return result > 0;
+			return result > -1;
 		} catch (SQLException e) {
 			Log.e(getTag(), "delete error", e);
 		}

@@ -90,6 +90,11 @@ public final class Environment {
 	 * 下载线程的倍数cpu个数*
 	 */
 	public static final String DOWNTHREAD = "bdsync.downthread";
+	
+	/**
+	 * 上传线程的倍数cpu个数*
+	 */
+	public static final String UPTHREAD = "bdsync.upthread";
 
 	/**
 	 * 程序启动时间
@@ -202,4 +207,9 @@ public final class Environment {
 	public static final String getDownThread() {
 		return System.getProperty(DOWNTHREAD,"1");
 	}
+	
+	public static final String getUpThread() {
+		return System.getProperty(UPTHREAD,"1");
+	}
+	
 }

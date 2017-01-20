@@ -2,15 +2,16 @@ package com.yuncore.bdsync.upload;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
+import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
 import com.yuncore.bdsync.api.imple.FSApiImple;
 import com.yuncore.bdsync.dao.CloudFileDao;
 import com.yuncore.bdsync.dao.UploadDao;
 import com.yuncore.bdsync.entity.LocalFile;
-import com.yuncore.bdsync.util.FileUtil;
 import com.yuncore.bdsync.util.Log;
 
 public class LocalUpload implements UpLoadOperate {
@@ -30,6 +31,8 @@ public class LocalUpload implements UpLoadOperate {
 	private List<UpLoadCheckFileStep> steps = new ArrayList<UpLoadCheckFileStep>();
 
 	protected volatile boolean flag;
+	
+	protected Hashtable<Object, Object> lock = new Hashtable<Object, Object>();
 
 	public LocalUpload(String croot, String root, String tmpDir) {
 		this.croot = croot;
@@ -54,36 +57,56 @@ public class LocalUpload implements UpLoadOperate {
 
 	public boolean start() {
 
-		LocalFile upLocalFile = null;
+//		LocalFile upLocalFile = null;
 		flag = true;
 
+//		while (flag) {
+//
+//			upLocalFile = uploadDao.query();
+//			if (upLocalFile != null) {
+//				if (upLocalFile.isFile()) {
+//					Log.d(TAG,
+//							"getUpload file "
+//									+ upLocalFile.getAbsolutePath()
+//									+ " size:"
+//									+ FileUtil.byteSizeToHuman(upLocalFile
+//											.getLength()));
+//				} else {
+//					Log.d(TAG,
+//							"getUpload dir " + upLocalFile.getAbsolutePath());
+//				}
+//				
+//				StatusMent.setProperty(StatusMent.DOFILE, upLocalFile);
+//				StatusMent.setProperty(StatusMent.DOFILE_SIZE, 0);
+//
+//				checkAndUpLoad(upLocalFile);
+//				
+//				StatusMent.removeProperty(StatusMent.DOFILE);
+//				StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
+//			} else {
+//				break;
+//			}
+//		}
+		
+		int upThread = Integer.valueOf(Environment.getUpThread());
+		int cpuNum = Runtime.getRuntime().availableProcessors() * upThread;
+		for(int i =0;i < cpuNum;i++){
+			new LocalUploadThread(i).start();
+		}
 		while (flag) {
+			try {
+				Thread.sleep(1000);
 
-			upLocalFile = uploadDao.query();
-			if (upLocalFile != null) {
-				if (upLocalFile.isFile()) {
-					Log.d(TAG,
-							"getUpload file "
-									+ upLocalFile.getAbsolutePath()
-									+ " size:"
-									+ FileUtil.byteSizeToHuman(upLocalFile
-											.getLength()));
-				} else {
-					Log.d(TAG,
-							"getUpload dir " + upLocalFile.getAbsolutePath());
-				}
-				
-				StatusMent.setProperty(StatusMent.DOFILE, upLocalFile);
-				StatusMent.setProperty(StatusMent.DOFILE_SIZE, 0);
-
-				checkAndUpLoad(upLocalFile);
-				
-				StatusMent.removeProperty(StatusMent.DOFILE);
-				StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
-			} else {
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			if (lock.isEmpty()) {
 				break;
 			}
 		}
+		
+		StatusMent.removeProperty(StatusMent.DOFILE);
+		StatusMent.removeProperty(StatusMent.DOFILE_SIZE);
 		return true;
 	}
 
@@ -110,12 +133,14 @@ public class LocalUpload implements UpLoadOperate {
 	 * .entity.LocalFile)
 	 */
 	@Override
-	public boolean deleteRecord(LocalFile file) {
-		if (uploadDao.delete(file)) {
-			Log.i(TAG, "delUpload " + file.getAbsolutePath());
-			return true;
+	public synchronized boolean deleteRecord(LocalFile file) {
+		StatusMent.removeProperty(StatusMent.DOFILE);
+		final boolean result = uploadDao.delete(file);
+		if (result) {
+			lock.remove(file);
+			Log.i(TAG, "deleteRecord " + file.getAbsolutePath());
 		}
-		return false;
+		return result;
 	}
 
 	/*
@@ -144,5 +169,53 @@ public class LocalUpload implements UpLoadOperate {
 			return cloudFileDao.updateByPath(file);
 		}
 	}
+	
+	public synchronized LocalFile getUpLoadTask(LocalFile file) {
 
+		LocalFile temp = null;
+		if (null != file) {
+			// 任务完成失败了
+			if (lock.containsKey(file)) {
+				return  file;
+			}
+		}
+		List<LocalFile> querys = uploadDao.query(lock.size(), 1);
+		if (querys != null && !querys.isEmpty()) {
+			LocalFile once = querys.get(0);
+			lock.put(once, once);
+			temp = once;
+		}
+
+		return temp;
+	}
+
+	/**
+	 * 上传线程
+	 * @author FENG
+	 *
+	 */
+	private class LocalUploadThread extends Thread {
+
+		private int id;
+		
+		public LocalUploadThread(int id) {
+			super();
+			this.id = id;
+		}
+
+		@Override
+		public void run() {
+			setName("LocalUploadThread-" + id);
+			LocalFile upLoadTask = null;
+			while(getUpLoadStatus()){
+				upLoadTask = getUpLoadTask(upLoadTask);
+				if(null != upLoadTask){
+					checkAndUpLoad(upLoadTask);
+				}else {
+					break;
+				}
+			}
+		}
+		
+	}
 }

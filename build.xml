@@ -51,6 +51,7 @@
 			<zipfileset src="${libs.dir}/sqlite-jdbc-3.14.2.1.jar" />
 			<zipfileset src="${libs.dir}/mail.jar" />
 			<zipfileset src="${libs.dir}/commons-email-1.2.jar" />
+			<zipfileset src="${libs.dir}/commons-codec-1.10.jar" />
 			<manifest>
 				<attribute name="Main-class" value="com.yuncore.bdsync.BDSyncMain" />
 			</manifest>

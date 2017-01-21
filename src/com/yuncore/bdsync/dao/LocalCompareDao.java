@@ -168,7 +168,7 @@ public class LocalCompareDao extends BaseDao {
 	public synchronized boolean deleteSame() {
 
 		long start = 0;
-		int count = 2000;
+		int count = 1000;
 		List<String> sames = null;
 		Stopwatch stopwatch = new Stopwatch();
 		stopwatch.start();

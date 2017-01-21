@@ -2,7 +2,8 @@ package com.yuncore.bdsync.api;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Base64;
+
+import org.apache.commons.codec.binary.Base64;
 
 public final class BDSYNCURL {
 
@@ -249,7 +250,7 @@ public final class BDSYNCURL {
 		final long date = System.currentTimeMillis();
 		String nextDouble = "0.43713035242592" ;//+ new java.util.Random().nextDouble();
 		String genString = "" + date + nextDouble;
-		String asB64 = Base64.getEncoder().encodeToString(genString.getBytes());
+		String asB64 = Base64.encodeBase64String(genString.getBytes());
 		return asB64;
 	}
 }

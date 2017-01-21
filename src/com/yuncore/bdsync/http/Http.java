@@ -210,6 +210,9 @@ public class Http {
 	protected boolean addFormData() throws IOException {
 		if (null != formString) {
 			conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+			if(DEBUG){
+				httpLog.log("Content-Type:application/x-www-form-urlencoded; charset=UTF-8");
+			}
 			conn.getOutputStream().write(formString.getBytes("UTF-8"));
 		}
 		return true;

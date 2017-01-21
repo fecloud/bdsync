@@ -2,6 +2,7 @@ package com.yuncore.bdsync.api;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Base64;
 
 public final class BDSYNCURL {
 
@@ -77,8 +78,8 @@ public final class BDSYNCURL {
 	 * @return
 	 */
 	public static String rm(String bdstoken) {
-		final String ex_url = "http://pan.baidu.com/api/filemanager?channel=chunlei&clienttype=0&web=1&opera=delete&async=2&bdstoken=%s&channel=chunlei&clienttype=0&web=1&app_id=%s";
-		return String.format(ex_url, bdstoken, APPID);
+		final String ex_url = "http://pan.baidu.com/api/filemanager?opera=delete&async=2&channel=chunlei&web=1&app_id=%s&bdstoken=%s&logid=%s=&clienttype=0";
+		return String.format(ex_url, APPID,bdstoken, genlogid());
 	}
 
 	/**
@@ -240,4 +241,15 @@ public final class BDSYNCURL {
 		return String.format(ex_url, APPID, path, BDUSS);
 	}
 	
+	/**
+	 * 生成logid
+	 * @return
+	 */
+	public static String genlogid() {
+		final long date = System.currentTimeMillis();
+		String nextDouble = "0.43713035242592" ;//+ new java.util.Random().nextDouble();
+		String genString = "" + date + nextDouble;
+		String asB64 = Base64.getEncoder().encodeToString(genString.getBytes());
+		return asB64;
+	}
 }

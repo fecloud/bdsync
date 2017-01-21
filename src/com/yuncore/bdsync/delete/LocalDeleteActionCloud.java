@@ -109,30 +109,29 @@ public class LocalDeleteActionCloud implements DeleteOperate {
 	 * @throws Exception
 	 */
 	public boolean deleteFile(LocalFile deleteFile) {
-//		if (null == fsApi) {
-//			fsApi = new FSApiImple();
-//		}
-//
-//		boolean result = false;
-//		CloudRmResult rmResult;
-//		try {
-//			rmResult = fsApi.rm(croot + deleteFile.getAbsolutePath());
-//			if (rmResult != null) {
-//				result = rmResult.getErrno() == 0;
-//			}
-//		} catch (ApiException e) {
-//			Log.e(getTag(), "", e);
-//		}
-//
-//		if (result) {
-//			Log.w(getTag(), "deleteFile " + deleteFile.getAbsolutePath()
-//					+ " success");
-//		} else {
-//			Log.w(getTag(), "deleteFile " + deleteFile.getAbsolutePath()
-//					+ " fail");
-//		}
-//		return result;
-		return true;
+		if (null == fsApi) {
+			fsApi = new FSApiImple();
+		}
+
+		boolean result = false;
+		CloudRmResult rmResult;
+		try {
+			rmResult = fsApi.rm(croot + deleteFile.getAbsolutePath());
+			if (rmResult != null) {
+				result = rmResult.getErrno() == 0;
+			}
+		} catch (ApiException e) {
+			Log.e(getTag(), "", e);
+		}
+
+		if (result) {
+			Log.w(getTag(), "deleteFile " + deleteFile.getAbsolutePath()
+					+ " success");
+		} else {
+			Log.w(getTag(), "deleteFile " + deleteFile.getAbsolutePath()
+					+ " fail");
+		}
+		return result;
 	}
 
 	/**

@@ -68,6 +68,7 @@ public class FSApiImple implements FSApi {
 
 			final String url = BDSYNCURL.download(file);
 			final HttpInput http = new HttpInput(url, Method.GET);
+			http.setInstanceFollowRedirects(true);
 			if (http.http()) {
 				final DownloadInputStream in = new DownloadInputStream(http.getInputStream());
 				in.setLength(http.getConnet().getContentLengthLong());
@@ -104,6 +105,7 @@ public class FSApiImple implements FSApi {
 
 			final String url = BDSYNCURL.download(file);
 			final HttpInput http = new HttpInput(url, Method.GET);
+			http.setInstanceFollowRedirects(true);
 			http.addRequestProperty("Range", String.format("bytes=%s- ", range));
 			if (http.http()) {
 				final DownloadInputStream in = new DownloadInputStream(http.getInputStream());

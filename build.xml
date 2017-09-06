@@ -31,7 +31,7 @@
 	<target name="compiler" depends="-pre-compiler">
 		<mkdir dir="${dest.dir}" />
 		<echo level="info">compiler start</echo>
-		<javac srcdir="${src.dir}" destdir="${dest.dir}" encoding="${java.encoding}" includeantruntime="false" verbose="${verbose}" debug="false">
+		<javac srcdir="${src.dir}" destdir="${dest.dir}" encoding="${java.encoding}" includeantruntime="false" verbose="${verbose}" debug="true">
 			<classpath>
 				<fileset dir="${libs.dir}">
 					<include name="*.jar" />

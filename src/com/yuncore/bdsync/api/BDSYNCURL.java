@@ -87,7 +87,7 @@ public final class BDSYNCURL {
 	 * 到page 取参数
 	 */
 	public static String diskHomePage() {
-		return "http://pan.baidu.com/disk/home";
+		return "https://pan.baidu.com/disk/home";
 	}
 
 	/**
@@ -115,7 +115,7 @@ public final class BDSYNCURL {
 	 */
 	public static String download(String path) {
 		try{
-			final String ex_url = "http://c.pcs.baidu.com/rest/2.0/pcs/file?method=download&app_id=%s&path=%s";
+			final String ex_url = "https://c.pcs.baidu.com/rest/2.0/pcs/file?method=download&app_id=%s&path=%s";
 			return String.format(ex_url, APPID, URLEncoder.encode(path, "UTF-8"));
 		}catch(UnsupportedEncodingException e){
 			return "";

@@ -47,6 +47,8 @@ public class Http {
 	public static final  boolean DEBUG = false;
 
 	private HttpLog httpLog = HttpLogLoader.getInstance();
+	
+	protected boolean instanceFollowRedirects;
 
 	public enum Method {
 		GET, POST
@@ -98,9 +100,9 @@ public class Http {
 			conn = (HttpURLConnection) new URL(url).openConnection();
 		}
 		conn.setDoInput(true);
-		conn.setDoOutput(true);
+		conn.setDoOutput(method == Method.GET ? false : true);
 		conn.setUseCaches(true);// 不使用Cache
-		conn.setInstanceFollowRedirects(false);
+		conn.setInstanceFollowRedirects(instanceFollowRedirects);
 		conn.setRequestMethod(method == Method.GET ? "GET" : "POST");
 		conn.addRequestProperty("User-Agent", USER_AGENT);
 		// conn.addRequestProperty("Connection", "close");
@@ -278,6 +280,14 @@ public class Http {
 		}
 
 		return true;
+	}
+
+	public boolean isInstanceFollowRedirects() {
+		return instanceFollowRedirects;
+	}
+
+	public void setInstanceFollowRedirects(boolean instanceFollowRedirects) {
+		this.instanceFollowRedirects = instanceFollowRedirects;
 	}
 
 //	private boolean addCookie() {

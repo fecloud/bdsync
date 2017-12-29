@@ -6,18 +6,13 @@
 package com.yuncore.bdsync.upload;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.StatusMent;
 import com.yuncore.bdsync.api.FSApi;
-import com.yuncore.bdsync.entity.DoingFile;
 import com.yuncore.bdsync.entity.LocalFile;
 import com.yuncore.bdsync.exception.ApiException;
-import com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener;
-import com.yuncore.bdsync.http.HttpUploadFile.FileSource;
 import com.yuncore.bdsync.util.Log;
 
 /**
@@ -28,7 +23,7 @@ import com.yuncore.bdsync.util.Log;
  * @author Feng OuYang
  * @version 1.0
  */
-public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, FileOutputListener {
+public class UpLoadFileNormalConent implements UpLoadCheckFileStep {
 
 	private static final String TAG = "UpLoadFileNormalConent";
 	/**
@@ -41,12 +36,6 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	private String root;
 
 	private FSApi fsApi;
-
-	private LocalFile uploadFile;
-
-	private UpLoadOperate uploadOperate;
-
-	private FileInputStream fileInputStream;
 
 	/**
 	 * @param root
@@ -69,14 +58,14 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 	@Override
 	public boolean check(LocalFile uploadFile, UpLoadOperate uploadOperate) {
 
-		this.uploadFile = uploadFile;
-		this.uploadOperate = uploadOperate;
+		final UploadFileSourceOutputListener listener = new UploadFileSourceOutputListener(
+				root, uploadFile, uploadOperate);
 
 		Log.d(TAG, "UpLoadFileNormalConent uploading...");
 
 		if (uploadFile.getLength() <= MAX_SIZE) {
 			try {
-				final String md5 = fsApi.uploadTmpFile(this, this);
+				final String md5 = fsApi.uploadTmpFile(listener, listener);
 				if (md5 == null) {
 					return false;
 				}
@@ -85,7 +74,7 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 					return false;
 				}
 
-				final boolean createFile = fsApi.createFile(croot + uploadFile.getAbsolutePath(), getFileLength(),
+				final boolean createFile = fsApi.createFile(croot + uploadFile.getAbsolutePath(), listener.getFileLength(),
 						new String[] { md5 }, true);
 
 				if (createFile) {
@@ -108,11 +97,11 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 			} catch (ApiException e) {
 				return false;
 			} finally {
-				if (null != fileInputStream) {
-					try {
-						fileInputStream.close();
-					} catch (IOException e) {
+				try {
+					if (null != listener.getInputStream()) {
+						listener.getInputStream().close();
 					}
+				} catch (IOException e) {
 				}
 				StatusMent.getDoingfile().remove(uploadFile.getAbsolutePath());
 			}
@@ -121,60 +110,6 @@ public class UpLoadFileNormalConent implements UpLoadCheckFileStep, FileSource, 
 		}
 
 		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.yuncore.bdsync.http.HttpUploadFile.FileOutputListener#onWrite(long,
-	 * long)
-	 */
-	@Override
-	public void onWrite(long sum, long commit) {
-		StatusMent.getDoingfile().put(uploadFile.getAbsolutePath(), 
-				new DoingFile(uploadFile).setDoingSize(commit));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.yuncore.bdsync.http.HttpUploadFile.FileSource#getFileLength()
-	 */
-	@Override
-	public long getFileLength() {
-		return uploadFile.getLength();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.yuncore.bdsync.http.HttpUploadFile.FileSource#getFileName()
-	 */
-	@Override
-	public String getFileName() {
-		return uploadFile.getName();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.yuncore.bdsync.http.HttpUploadFile.FileSource#isInterrupt()
-	 */
-	@Override
-	public boolean isInterrupt() {
-		return uploadOperate.getUpLoadStatus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.yuncore.bdsync.http.HttpUploadFile.FileSource#getInputStream()
-	 */
-	@Override
-	public InputStream getInputStream() throws IOException {
-		fileInputStream = new FileInputStream(root + uploadFile.getAbsolutePath());
-		return fileInputStream;
 	}
 
 }

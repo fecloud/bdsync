@@ -96,11 +96,20 @@ public class Sync implements Runnable {
 		} else {
 			Environment.setCloudDir(clouddir);
 		}
-		// System.setProperty(Const.TMP,
-		// String.format("%s%s%s", syncdir, File.separator, Const.TMP_DIR));
-		// System.setProperty("http_proxy", "localhost:8888");
-//		Environment.setCookiecontainerClassName(FileCookieContainer.class
-//				.getName());
+
+		//设置临时目录,如果没有设置的话是在同步目录下的.bdsync
+		if (args.length > 3) {
+			boolean startAdd = false;
+			for (int i = 2; i < args.length; i++) {
+				if (args[i].equals("-t")) {
+					startAdd = true;
+				} else if (startAdd && args[i].startsWith("-")) {
+					break;
+				} else if (startAdd) {
+					Environment.setSyncTmpDir(args[i]);
+				}
+			}
+		}
 
 	}
 

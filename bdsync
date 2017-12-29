@@ -1,7 +1,7 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 #
-# Provides:      ddns
+# Provides:      bdsync
 # Required-Start:       $local_fs  $remote_fs
 # Required-Stop:        $local_fs  $remote_fs
 # Default-Start:        2 3 4 5
@@ -15,9 +15,10 @@
 PROG="bdsync"
 PROG_PATH="/data/app/$PROG" #::# Not need, but sometimes helpful (if $PROG resides in /opt for example).
 VM_RUN="/data/app/jdk1.8.0_60/bin/java"
-VM_ARGS="-Dbdsync.db=$PROG_PATH/resource/$PROG.db -Dbdsync.log.file=/var/log/$PROG.log -Dbdsync.log.priority=WARN -Dbdsync.cookie=$PROG_PATH/resource/cookie.json"
+VM_DEBUG="-Dcom.sun.management.jmxremote.port=8999 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Djava.rmi.server.hostname=10.0.0.8"
+VM_ARGS="-Dbdsync.db=$PROG_PATH/resource/$PROG.db -Dbdsync.log.file=/var/log/$PROG.log -Dbdsync.log.priority=DEBUG -Dbdsync.cookie=$PROG_PATH/resource/cookie.json  -Dbdsync.downthread=4 -Dbdsync.interval=86400000"
 VM_JAR="$PROG_PATH/lib/bdsync.jar"
-PROG_ARGS="sync /hdd -l git bak tmp thum s 影视 TDDOWNLOAD ThunderDB lost+found -c 160 apps"
+PROG_ARGS="sync / /hdd -l git bak tmp thum s 影视 TDDOWNLOAD ThunderDB lost+found ipc 6s h3 -c 160 apps h3"
 MSG_PREFIX=" *"
 USER="linaro"
 

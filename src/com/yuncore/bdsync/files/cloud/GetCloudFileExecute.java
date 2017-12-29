@@ -60,6 +60,7 @@ public class GetCloudFileExecute extends TaskExecute {
 				if (listFiles.getErrno() == 0 && listFiles.getList() != null) {
 
 					checkExcludeAndAddTask(listFiles.getList());
+					exIncludeFile(listFiles.getList());
 					if (listFiles.getList() != null && root.length() > 0) {
 						for (CloudFile c : listFiles.getList()) {
 							c.setPath(c.getAbsolutePath().substring(
@@ -109,6 +110,27 @@ public class GetCloudFileExecute extends TaskExecute {
 					taskContainer.addTask(new GetCloudFileTask(f.getAbsolutePath()));
 				}
 
+			}
+		}
+		files.removeAll(deletes);
+	}
+	
+	/**
+	 * 排除系统自动生成的文件
+	 * @param files
+	 */
+	private void exIncludeFile(List<CloudFile> files) {
+
+		final List<LocalFile> deletes = new ArrayList<LocalFile>();
+		for (CloudFile f : files) {
+			if (f.isFile()) {
+				if (f.getName().startsWith("._")) {
+					deletes.add(f);
+					System.out.println(f.getPath());
+				} else if (f.getName().equalsIgnoreCase(".DS_store")) {
+					deletes.add(f);
+					System.out.println(f.getPath());
+				}
 			}
 		}
 		files.removeAll(deletes);

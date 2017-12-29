@@ -5,6 +5,8 @@
  */
 package com.yuncore.bdsync;
 
+import java.io.File;
+
 /**
  * The class <code>Environment</code>
  * 
@@ -37,6 +39,11 @@ public final class Environment {
 	 * 本地文件夹
 	 */
 	public static final String SYNCDIR = "bdsync.syncdir";
+	
+	/**
+	 * 本地文件夹
+	 */
+	public static final String SYNC_TMPDIR = "bdsync.synctmpdir";
 	
 	/**
 	 * 云端文件夹
@@ -212,4 +219,12 @@ public final class Environment {
 		return System.getProperty(UPTHREAD,"1");
 	}
 	
+	public static final String getSyncTmpDir() {
+		return System.getProperty(SYNC_TMPDIR, Environment.getSyncDir()
+				+ File.separator + Environment.SYNCTMPDIR);
+	}
+	
+	public static final void setSyncTmpDir(String dir) {
+		System.setProperty(SYNC_TMPDIR, dir);
+	}
 }

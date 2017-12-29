@@ -5,8 +5,6 @@
  */
 package com.yuncore.bdsync.sync.task;
 
-import java.io.File;
-
 import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.down.CloudDownLoad;
 
@@ -38,8 +36,7 @@ public class CloudDownloadTask implements SyncStepTask {
 	@Override
 	public boolean start() {
 		cloudDownLoad = new CloudDownLoad(Environment.getSyncDir(),
-				Environment.getSyncDir() + File.separator
-						+ Environment.SYNCTMPDIR, Environment.getCloudDir());
+				Environment.getSyncTmpDir(), Environment.getCloudDir());
 		return cloudDownLoad.start();
 	}
 

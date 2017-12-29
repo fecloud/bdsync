@@ -5,8 +5,6 @@
  */
 package com.yuncore.bdsync.sync.task;
 
-import java.io.File;
-
 import com.yuncore.bdsync.Environment;
 import com.yuncore.bdsync.upload.LocalUpload;
 
@@ -36,9 +34,8 @@ public class LocalUploadTask implements SyncStepTask {
 
 	@Override
 	public boolean start() {
-		localUpload = new LocalUpload(Environment.getCloudDir(), Environment.getSyncDir(),
-				Environment.getSyncDir() + File.separator
-				+ Environment.SYNCTMPDIR);
+		localUpload = new LocalUpload(Environment.getCloudDir(),
+				Environment.getSyncDir(), Environment.getSyncTmpDir());
 		return localUpload.start();
 	}
 

@@ -99,7 +99,10 @@ public class GetLocalFileExecute extends TaskExecute {
 						localFile.setDir(f.isDirectory());
 						localFile.setNewest(true);
 						localFile.setfId(localFile.toFid());
-						list.add(localFile);
+						
+						if (exIncludeFile(f)) {
+							list.add(localFile);
+						}
 					}
 				} else {
 					for (File f : listFiles) {
@@ -112,7 +115,10 @@ public class GetLocalFileExecute extends TaskExecute {
 						localFile.setDir(f.isDirectory());
 						localFile.setNewest(true);
 						localFile.setfId(localFile.toFid());
-						list.add(localFile);
+						
+						if (exIncludeFile(f)) {
+							list.add(localFile);
+						}
 					}
 				}
 
@@ -122,4 +128,21 @@ public class GetLocalFileExecute extends TaskExecute {
 		return null;
 	}
 
+	/**
+	 * 排除系统自动生成的文件
+	 * 
+	 * @param f
+	 * @return
+	 */
+	private static boolean exIncludeFile(File f) {
+		if (f.isFile()) {
+			if (f.getName().startsWith("._")) {
+				return false;
+			} else if (f.getName().equalsIgnoreCase(".DS_store")) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 }

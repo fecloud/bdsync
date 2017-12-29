@@ -68,6 +68,7 @@ public class DownLoadCheckLocalFile implements DownLoadCheckFileStep {
 
 		if (downloadFile.isDir() && loalFile.isDir()) {
 			// 两个都是文件夹
+			downloadOperate.addAnotherRecord(downloadFile);
 			downloadOperate.deleteRecord(downloadFile);
 			return false;
 		}

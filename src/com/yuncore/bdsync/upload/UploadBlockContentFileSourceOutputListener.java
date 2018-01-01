@@ -103,14 +103,12 @@ public class UploadBlockContentFileSourceOutputListener extends
 	public InputStream getInputStream() throws IOException {
 		long uploaded = sclies.size() * UpLoadFileBlockConent.SCLIE_SIZE;
 		if (uploadFile.getLength() > uploaded) {
-			if (fileInputStream != null) {
 				fileInputStream = new FileInputStream(root
-						+ uploadFile.getAbsolutePath());
-				while (uploaded > 0) {
-					// 因为这个skip不一定每次都跳过指定的字节,所以要对返回值作判断
-					final long skip = fileInputStream.skip(uploaded);
-					uploaded -= skip;
-				}
+					+ uploadFile.getAbsolutePath());
+			while (uploaded > 0) {
+				// 因为这个skip不一定每次都跳过指定的字节,所以要对返回值作判断
+				final long skip = fileInputStream.skip(uploaded);
+				uploaded -= skip;
 			}
 			return fileInputStream;
 		}

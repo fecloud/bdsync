@@ -85,4 +85,18 @@ public class UploadFileSourceOutputListener implements FileOutputListener, FileS
 				new DoingFile(uploadFile).setDoingSize(commit));
 	}
 
+	/**
+	 * @return the fileInputStream
+	 */
+	public FileInputStream getFileInputStream() {
+		return fileInputStream;
+	}
+
+	/**
+	 * @param fileInputStream the fileInputStream to set
+	 */
+	public void setFileInputStream(FileInputStream fileInputStream) {
+		this.fileInputStream = fileInputStream;
+	}
+
 }

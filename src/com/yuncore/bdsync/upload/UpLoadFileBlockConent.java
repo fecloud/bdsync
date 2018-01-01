@@ -64,7 +64,7 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep {
 	public boolean check(LocalFile uploadFile, UpLoadOperate uploadOperate) {
 
 		final UploadBlockContentFileSourceOutputListener listener = new UploadBlockContentFileSourceOutputListener(
-				croot, uploadFile, uploadOperate, tmpDir + File.separator
+				root, uploadFile, uploadOperate, tmpDir + File.separator
 						+ uploadFile.getfId() + ".sclies");
 		Log.d(TAG, "UpLoadFileBlockConent uploading...");
 
@@ -88,8 +88,8 @@ public class UpLoadFileBlockConent implements UpLoadCheckFileStep {
 				continue;
 			} finally {
 				try {
-					if (null != listener.getInputStream()) {
-						listener.getInputStream().close();
+					if (null != listener.getFileInputStream()) {
+						listener.getFileInputStream().close();
 					}
 				} catch (IOException e) {
 				}
